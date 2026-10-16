@@ -1,10 +1,11 @@
-// BlockoutStudio - 参数化体块网格生成（原语构建 + GeometryScript 布尔）
+﻿// BlockoutStudio - 参数化体块网格生成（原语构建 + GeometryScript 布尔）
 #pragma once
 
 #include "CoreMinimal.h"
 #include "BlockoutTypes.h"
+#include "DynamicMesh/DynamicMesh3.h"
 
-class FDynamicMesh3;
+using UE::Geometry::FDynamicMesh3;
 
 class FBlockoutMeshGen
 {

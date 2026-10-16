@@ -1,4 +1,4 @@
-// BlockoutStudio - 程序化纹理生成（棋盘格/网格/砖墙/混凝土/瓷砖/金属板）
+﻿// BlockoutStudio - 程序化纹理生成（棋盘格/网格/砖墙/混凝土/瓷砖/金属板）
 #pragma once
 
 #include "CoreMinimal.h"

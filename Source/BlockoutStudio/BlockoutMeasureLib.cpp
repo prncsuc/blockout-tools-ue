@@ -1,7 +1,9 @@
-// BlockoutStudio - 测量系统实现
+﻿// BlockoutStudio - 测量系统实现
 #include "BlockoutMeasureLib.h"
 #include "BlockoutActor.h"
-#include "DynamicMesh3.h"
+#include "DynamicMesh/DynamicMesh3.h"
+
+using UE::Geometry::FIndex3i;
 
 FBlockoutMeasureItem FBlockoutMeasureLib::MeasureDistance(const FVector& A, const FVector& B)
 {

@@ -1,8 +1,11 @@
-// BlockoutStudio - 测量系统（距离/尺寸/面积/体积/角度/高差/比例尺）
+﻿// BlockoutStudio - 测量系统（距离/尺寸/面积/体积/角度/高差/比例尺）
 #pragma once
 
 #include "CoreMinimal.h"
 #include "BlockoutTypes.h"
+#include "DynamicMesh/DynamicMesh3.h"
+
+using UE::Geometry::FDynamicMesh3;
 
 class ABlockoutActor;
 

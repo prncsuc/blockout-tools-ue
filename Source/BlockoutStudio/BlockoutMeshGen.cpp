@@ -1,11 +1,10 @@
-// BlockoutStudio - 参数化体块网格生成实现
+﻿// BlockoutStudio - 参数化体块网格生成实现
 #include "BlockoutMeshGen.h"
-#include "DynamicMesh3.h"
-#include "DynamicMeshAttributeSet.h"
-#include "DynamicMeshNormalOverlay.h"
-#include "DynamicMeshUVOverlay.h"
+#include "DynamicMesh/DynamicMesh3.h"
+#include "DynamicMesh/DynamicMeshAttributeSet.h"
+#include "DynamicMesh/DynamicMeshOverlay.h"
 #include "UDynamicMesh.h"
-#include "GeometryScript/GeometryScriptMeshBooleanFunctions.h"
+#include "Operations/MeshBoolean.h"
 
 using namespace UE::Geometry;
 
@@ -17,30 +16,30 @@ namespace
 	void AddQuadDir(FDynamicMesh3& M, const FVector3d& V0, const FVector3d& V1, const FVector3d& V2, const FVector3d& V3, const FVector3d& ExpectedN)
 	{
 		FVector3d N = FVector3d::CrossProduct(V1 - V0, V2 - V0);
-		int32 A = M.AddVertex(V0), B = M.AddVertex(V1), C = M.AddVertex(V2), D = M.AddVertex(V3);
+		int32 A = M.AppendVertex(V0), B = M.AppendVertex(V1), C = M.AppendVertex(V2), D = M.AppendVertex(V3);
 		if (FVector3d::DotProduct(N, ExpectedN) >= 0.0)
 		{
-			M.AddTriangle(A, B, C);
-			M.AddTriangle(A, C, D);
+			M.AppendTriangle(A, B, C);
+			M.AppendTriangle(A, C, D);
 		}
 		else
 		{
-			M.AddTriangle(A, C, B);
-			M.AddTriangle(A, D, C);
+			M.AppendTriangle(A, C, B);
+			M.AppendTriangle(A, D, C);
 		}
 	}
 
 	void AddTriDir(FDynamicMesh3& M, const FVector3d& V0, const FVector3d& V1, const FVector3d& V2, const FVector3d& ExpectedN)
 	{
-		int32 A = M.AddVertex(V0), B = M.AddVertex(V1), C = M.AddVertex(V2);
+		int32 A = M.AppendVertex(V0), B = M.AppendVertex(V1), C = M.AppendVertex(V2);
 		FVector3d N = FVector3d::CrossProduct(V1 - V0, V2 - V0);
 		if (FVector3d::DotProduct(N, ExpectedN) >= 0.0)
 		{
-			M.AddTriangle(A, B, C);
+			M.AppendTriangle(A, B, C);
 		}
 		else
 		{
-			M.AddTriangle(A, C, B);
+			M.AppendTriangle(A, C, B);
 		}
 	}
 
@@ -55,7 +54,7 @@ namespace
 			{
 				double u = (double)x / Nx, v = (double)y / Ny;
 				FVector3d P = V00 * (1 - u) * (1 - v) + V10 * u * (1 - v) + V11 * u * v + V01 * (1 - u) * v;
-				Idx[y * (Nx + 1) + x] = M.AddVertex(P);
+				Idx[y * (Nx + 1) + x] = M.AppendVertex(P);
 			}
 		}
 		for (int32 y = 0; y < Ny; y++)
@@ -67,11 +66,11 @@ namespace
 				FVector3d N = FVector3d::CrossProduct(M.GetVertex(B) - M.GetVertex(A), M.GetVertex(C) - M.GetVertex(A));
 				if (FVector3d::DotProduct(N, ExpectedN) >= 0.0)
 				{
-					M.AddTriangle(A, B, C); M.AddTriangle(A, C, D);
+					M.AppendTriangle(A, B, C); M.AppendTriangle(A, C, D);
 				}
 				else
 				{
-					M.AddTriangle(A, C, B); M.AddTriangle(A, D, C);
+					M.AppendTriangle(A, C, B); M.AppendTriangle(A, D, C);
 				}
 			}
 		}
@@ -114,17 +113,17 @@ void FBlockoutMeshGen::BuildCylinder(FDynamicMesh3& M, double Diameter, double H
 	Segments = FMath::Clamp(Segments, 3, 128);
 	double R = Diameter * 0.5, h = Height * 0.5;
 	AddCylinderSide(M, Diameter, -h, h, Segments);
-	int32 CT = M.AddVertex(FVector3d(0, 0, h));
-	int32 CB = M.AddVertex(FVector3d(0, 0, -h));
+	int32 CT = M.AppendVertex(FVector3d(0, 0, h));
+	int32 CB = M.AppendVertex(FVector3d(0, 0, -h));
 	for (int32 i = 0; i < Segments; i++)
 	{
 		double A0 = 2.0 * PI * i / Segments, A1 = 2.0 * PI * (i + 1) / Segments;
-		int32 T0 = M.AddVertex(FVector3d(R * FMath::Cos(A0), R * FMath::Sin(A0), h));
-		int32 T1 = M.AddVertex(FVector3d(R * FMath::Cos(A1), R * FMath::Sin(A1), h));
-		int32 B0 = M.AddVertex(FVector3d(R * FMath::Cos(A0), R * FMath::Sin(A0), -h));
-		int32 B1 = M.AddVertex(FVector3d(R * FMath::Cos(A1), R * FMath::Sin(A1), -h));
-		M.AddTriangle(CT, T0, T1);
-		M.AddTriangle(CB, B1, B0);
+		int32 T0 = M.AppendVertex(FVector3d(R * FMath::Cos(A0), R * FMath::Sin(A0), h));
+		int32 T1 = M.AppendVertex(FVector3d(R * FMath::Cos(A1), R * FMath::Sin(A1), h));
+		int32 B0 = M.AppendVertex(FVector3d(R * FMath::Cos(A0), R * FMath::Sin(A0), -h));
+		int32 B1 = M.AppendVertex(FVector3d(R * FMath::Cos(A1), R * FMath::Sin(A1), -h));
+		M.AppendTriangle(CT, T0, T1);
+		M.AppendTriangle(CB, B1, B0);
 	}
 }
 
@@ -141,7 +140,7 @@ void FBlockoutMeshGen::BuildSphere(FDynamicMesh3& M, double Diameter, int32 Segm
 		{
 			double Phi = 2.0 * PI * j / Lon;
 			FVector3d P(R * FMath::Sin(Theta) * FMath::Cos(Phi), R * FMath::Sin(Theta) * FMath::Sin(Phi), R * FMath::Cos(Theta));
-			Rows[i * Lon + j] = M.AddVertex(P);
+			Rows[i * Lon + j] = M.AppendVertex(P);
 		}
 	}
 	for (int32 i = 0; i < Lat; i++)
@@ -151,8 +150,8 @@ void FBlockoutMeshGen::BuildSphere(FDynamicMesh3& M, double Diameter, int32 Segm
 			int32 J1 = (j + 1) % Lon;
 			int32 V00 = Rows[i * Lon + j], V10 = Rows[i * Lon + J1];
 			int32 V01 = Rows[(i + 1) * Lon + j], V11 = Rows[(i + 1) * Lon + J1];
-			if (i > 0) M.AddTriangle(V00, V01, V11);
-			if (i < Lat - 1) M.AddTriangle(V00, V11, V10);
+			if (i > 0) M.AppendTriangle(V00, V01, V11);
+			if (i < Lat - 1) M.AppendTriangle(V00, V11, V10);
 		}
 	}
 }
@@ -168,7 +167,7 @@ void FBlockoutMeshGen::BuildCapsule(FDynamicMesh3& M, double Diameter, double He
 	for (int32 half = 0; half < 2; half++)
 	{
 		double ZBase = half == 0 ? CylH * 0.5 : -CylH * 0.5;
-		int32 CT = M.AddVertex(FVector3d(0, 0, ZBase + (half == 0 ? R : -R)));
+		int32 CT = M.AppendVertex(FVector3d(0, 0, ZBase + (half == 0 ? R : -R)));
 		for (int32 i = 0; i < Lat; i++)
 		{
 			double T0 = PI * 0.5 * i / Lat, T1 = PI * 0.5 * (i + 1) / Lat;
@@ -182,7 +181,7 @@ void FBlockoutMeshGen::BuildCapsule(FDynamicMesh3& M, double Diameter, double He
 				FVector3d A = Get(T0, P0, Sign), B = Get(T0, P1, Sign), C = Get(T1, P1, Sign), D = Get(T1, P0, Sign);
 				if (i == 0)
 				{
-					AddTriDir(M, CT, half == 0 ? D : A, half == 0 ? C : B, (A + C) * 0.5 - FVector3d(0, 0, ZBase));
+					AddTriDir(M, M.GetVertex(CT), half == 0 ? D : A, half == 0 ? C : B, (A + C) * 0.5 - FVector3d(0, 0, ZBase));
 				}
 				else
 				{
@@ -240,12 +239,12 @@ void FBlockoutMeshGen::BuildStaircase(FDynamicMesh3& M, double L, double W, doub
 			for (int32 vi = 0; vi < Tmp.VertexCount(); vi++)
 			{
 				FVector3d P = Tmp.GetVertex(vi);
-				M.AddVertex(T.TransformPosition(P));
+				M.AppendVertex(T.TransformPosition(P));
 			}
 			for (int32 ti = 0; ti < Tmp.TriangleCount(); ti++)
 			{
 				FIndex3i Tri = Tmp.GetTriangle(ti);
-				M.AddTriangle(M.VertexCount() - Tmp.VertexCount() + Tri.A, M.VertexCount() - Tmp.VertexCount() + Tri.B, M.VertexCount() - Tmp.VertexCount() + Tri.C);
+				M.AppendTriangle(M.VertexCount() - Tmp.VertexCount() + Tri.A, M.VertexCount() - Tmp.VertexCount() + Tri.B, M.VertexCount() - Tmp.VertexCount() + Tri.C);
 			}
 		}
 		return;
@@ -258,11 +257,11 @@ void FBlockoutMeshGen::BuildStaircase(FDynamicMesh3& M, double L, double W, doub
 		BuildBox(Tmp, Depth, W, Sh);
 		int32 Base = M.VertexCount();
 		FVector3d Off(-L * 0.5 + Depth * (i + 0.5), 0, -H * 0.5 + Sh * 0.5);
-		for (int32 vi = 0; vi < Tmp.VertexCount(); vi++) M.AddVertex(Tmp.GetVertex(vi) + Off);
+		for (int32 vi = 0; vi < Tmp.VertexCount(); vi++) M.AppendVertex(Tmp.GetVertex(vi) + Off);
 		for (int32 ti = 0; ti < Tmp.TriangleCount(); ti++)
 		{
 			FIndex3i Tri = Tmp.GetTriangle(ti);
-			M.AddTriangle(Base + Tri.A, Base + Tri.B, Base + Tri.C);
+			M.AppendTriangle(Base + Tri.A, Base + Tri.B, Base + Tri.C);
 		}
 	}
 }
@@ -302,11 +301,11 @@ void FBlockoutMeshGen::BuildColonnade(FDynamicMesh3& M, double ColumnDiameter, d
 		FDynamicMesh3 Tmp;
 		BuildCylinder(Tmp, ColumnDiameter, ColumnHeight, 16);
 		int32 Base = M.VertexCount();
-		for (int32 vi = 0; vi < Tmp.VertexCount(); vi++) M.AddVertex(Tmp.GetVertex(vi) + FVector3d(StartX + Spacing * i, 0, 0));
+		for (int32 vi = 0; vi < Tmp.VertexCount(); vi++) M.AppendVertex(Tmp.GetVertex(vi) + FVector3d(StartX + Spacing * i, 0, 0));
 		for (int32 ti = 0; ti < Tmp.TriangleCount(); ti++)
 		{
 			FIndex3i Tri = Tmp.GetTriangle(ti);
-			M.AddTriangle(Base + Tri.A, Base + Tri.B, Base + Tri.C);
+			M.AppendTriangle(Base + Tri.A, Base + Tri.B, Base + Tri.C);
 		}
 	}
 }
@@ -318,11 +317,11 @@ void FBlockoutMeshGen::BuildFence(FDynamicMesh3& M, double L, double W, double H
 		FDynamicMesh3 Tmp;
 		BuildBox(Tmp, L, W, H * 0.5);
 		int32 Base = M.VertexCount();
-		for (int32 vi = 0; vi < Tmp.VertexCount(); vi++) M.AddVertex(Tmp.GetVertex(vi) + FVector3d(0, 0, -H * 0.25));
+		for (int32 vi = 0; vi < Tmp.VertexCount(); vi++) M.AppendVertex(Tmp.GetVertex(vi) + FVector3d(0, 0, -H * 0.25));
 		for (int32 ti = 0; ti < Tmp.TriangleCount(); ti++)
 		{
 			FIndex3i Tri = Tmp.GetTriangle(ti);
-			M.AddTriangle(Base + Tri.A, Base + Tri.B, Base + Tri.C);
+			M.AppendTriangle(Base + Tri.A, Base + Tri.B, Base + Tri.C);
 		}
 	}
 	int32 NumPosts = FMath::Clamp(FMath::FloorToInt(L / FMath::Max(50.0, PostSpacing)) + 1, 1, 64);
@@ -332,11 +331,11 @@ void FBlockoutMeshGen::BuildFence(FDynamicMesh3& M, double L, double W, double H
 		BuildBox(Tmp, W * 1.3, W * 1.3, H);
 		int32 Base = M.VertexCount();
 		double X = -L * 0.5 + L * i / (NumPosts - 1);
-		for (int32 vi = 0; vi < Tmp.VertexCount(); vi++) M.AddVertex(Tmp.GetVertex(vi) + FVector3d(X, 0, 0));
+		for (int32 vi = 0; vi < Tmp.VertexCount(); vi++) M.AppendVertex(Tmp.GetVertex(vi) + FVector3d(X, 0, 0));
 		for (int32 ti = 0; ti < Tmp.TriangleCount(); ti++)
 		{
 			FIndex3i Tri = Tmp.GetTriangle(ti);
-			M.AddTriangle(Base + Tri.A, Base + Tri.B, Base + Tri.C);
+			M.AppendTriangle(Base + Tri.A, Base + Tri.B, Base + Tri.C);
 		}
 	}
 }
@@ -368,10 +367,10 @@ void FBlockoutMeshGen::BuildCirclePrismHole(FDynamicMesh3& M, double Diameter, d
 		FVector3d T0(R * FMath::Cos(A0), hd, R * FMath::Sin(A0));
 		FVector3d Mid = (P0 + P1) * 0.5; Mid.Y = 0;
 		AddQuadDir(M, P0, P1, T1, T0, Mid.GetSafeNormal());
-		int32 C0 = M.AddVertex(FVector3d(0, -hd, 0)), C1 = M.AddVertex(FVector3d(0, hd, 0));
-		int32 A = M.AddVertex(P0), B = M.AddVertex(P1), C = M.AddVertex(T1), D = M.AddVertex(T0);
-		M.AddTriangle(C0, A, B);
-		M.AddTriangle(C1, C, D);
+		int32 C0 = M.AppendVertex(FVector3d(0, -hd, 0)), C1 = M.AppendVertex(FVector3d(0, hd, 0));
+		int32 A = M.AppendVertex(P0), B = M.AppendVertex(P1), C = M.AppendVertex(T1), D = M.AppendVertex(T0);
+		M.AppendTriangle(C0, A, B);
+		M.AppendTriangle(C1, C, D);
 	}
 }
 
@@ -387,30 +386,26 @@ void FBlockoutMeshGen::BuildPolygonPrismHole(FDynamicMesh3& M, const TArray<FVec
 		FVector3d P0(A.X, -hd, A.Y), P1(B.X, -hd, B.Y), T1(B.X, hd, B.Y), T0(A.X, hd, A.Y);
 		FVector3d Out((A + B) * 0.5 - FVector2D(0, 0), 0); // 径向近似
 		AddQuadDir(M, P0, P1, T1, T0, FVector3d(B.Y - A.Y, 0, -(B.X - A.X)));
-		int32 C0 = M.AddVertex(FVector3d(0, -hd, 0)), C1 = M.AddVertex(FVector3d(0, hd, 0));
-		int32 v0 = M.AddVertex(P0), v1 = M.AddVertex(P1), v2 = M.AddVertex(T1), v3 = M.AddVertex(T0);
-		M.AddTriangle(C0, v0, v1);
-		M.AddTriangle(C1, v2, v3);
+		int32 C0 = M.AppendVertex(FVector3d(0, -hd, 0)), C1 = M.AppendVertex(FVector3d(0, hd, 0));
+		int32 v0 = M.AppendVertex(P0), v1 = M.AppendVertex(P1), v2 = M.AppendVertex(T1), v3 = M.AppendVertex(T0);
+		M.AppendTriangle(C0, v0, v1);
+		M.AppendTriangle(C1, v2, v3);
 	}
 }
 
 bool FBlockoutMeshGen::BooleanOp(FDynamicMesh3& A, const FDynamicMesh3& B, const FTransform& BTransform, bool bSubtract)
 {
-	UDynamicMesh* MeshA = NewObject<UDynamicMesh>();
-	UDynamicMesh* MeshB = NewObject<UDynamicMesh>();
-	FDynamicMesh3 CopyA = A;
-	FDynamicMesh3 CopyB = B;
-	MeshA->SetMesh(MoveTemp(CopyA));
-	MeshB->SetMesh(MoveTemp(CopyB));
-	FGeometryScriptMeshBooleanOptions Opts;
-	Opts.bFlipped = false;
-	Opts.bHandleSelfIntersections = true;
-	UGeometryScriptLibrary_MeshBooleanFunctions::ApplyMeshBoolean(
-		MeshA, MeshB, BTransform,
-		bSubtract ? EMeshBooleanOperation::Difference : EMeshBooleanOperation::Union,
-		Opts, nullptr);
-	A = MeshA->GetMeshRef();
-	return A.TriangleCount() > 0;
+	FDynamicMesh3 Result;
+	FTransformSRT3d XformA = FTransformSRT3d::Identity();
+	FTransformSRT3d XformB(BTransform);
+	FMeshBoolean Op(&A, XformA, &B, XformB, &Result,
+		bSubtract ? FMeshBoolean::EBooleanOp::Difference : FMeshBoolean::EBooleanOp::Union);
+	bool bOk = Op.Compute();
+	if (bOk && Result.TriangleCount() > 0)
+	{
+		A = MoveTemp(Result);
+	}
+	return bOk && A.TriangleCount() > 0;
 }
 
 void FBlockoutMeshGen::BuildShape(EBlockoutShape Shape, const FBlockoutShapeParams& P, FDynamicMesh3& OutMesh)
@@ -494,8 +489,8 @@ void FBlockoutMeshGen::BuildShape(EBlockoutShape Shape, const FBlockoutShapePara
 void FBlockoutMeshGen::FinalizeMesh(FDynamicMesh3& M, bool bSmoothNormals, double UVScale)
 {
 	M.EnableAttributes();
-	if (!M.Attributes()->HasNormalLayers()) M.Attributes()->SetNumNormalLayers(1);
-	if (!M.Attributes()->HasUVLayers()) M.Attributes()->SetNumUVLayers(1);
+	if (!M.HasAttributes() || M.Attributes()->NumNormalLayers() == 0) M.Attributes()->SetNumNormalLayers(1);
+	if (!M.HasAttributes() || M.Attributes()->NumUVLayers() == 0) M.Attributes()->SetNumUVLayers(1);
 	FDynamicMeshNormalOverlay* NOverlay = M.Attributes()->GetNormalLayer(0);
 	FDynamicMeshUVOverlay* UOverlay = M.Attributes()->GetUVLayer(0);
 	if (NOverlay) NOverlay->ClearElements();
@@ -530,7 +525,7 @@ void FBlockoutMeshGen::FinalizeMesh(FDynamicMesh3& M, bool bSmoothNormals, doubl
 	{
 		FVector3d FN = FaceNormals[TriId];
 		if (!bSmoothNormals) return FVector3f(FN);
-		int32 CornerVid = M.GetTriangle(TriId).GetIndex(CornerIdx);
+		int32 CornerVid = M.GetTriangle(TriId)[CornerIdx];
 		FVector3d V = M.GetVertex(CornerVid);
 		uint64 Key = HashCombine(GetTypeHash(FVector3f(V)), GetTypeHash(V.Z));
 		FVector3d Acc = FN;

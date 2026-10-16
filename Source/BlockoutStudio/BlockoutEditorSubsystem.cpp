@@ -1,4 +1,4 @@
-// BlockoutStudio - 编辑器核心子系统实现
+﻿// BlockoutStudio - 编辑器核心子系统实现
 #include "BlockoutEditorSubsystem.h"
 #include "BlockoutActor.h"
 #include "Engine/World.h"
@@ -353,9 +353,8 @@ void UBlockoutEditorSubsystem::BeginGizmoDrag(const FVector& RayOrigin, const FV
 	if (PlaneN.IsNearlyZero()) PlaneN = RayDir.GetSafeNormal();
 	DragPlaneNormal = PlaneN.GetSafeNormal();
 	DragPlaneOrigin = Selection[0]->GetActorLocation();
-	float T = 0.f;
 	FPlane Plane(DragPlaneOrigin, DragPlaneNormal);
-	DragStartHitPoint = FMath::LinePlaneIntersection(RayOrigin, RayOrigin + RayDir * 1e6f, Plane, T);
+	DragStartHitPoint = FMath::LinePlaneIntersection(RayOrigin, RayOrigin + RayDir * 1e6f, Plane);
 	DragStartLocation = Selection[0]->GetActorLocation();
 }
 
@@ -436,8 +435,8 @@ FVector UBlockoutEditorSubsystem::ApplySnapping(const FVector& InLocation, ABloc
 			FBox OB = Other->GetComponentsBoundingBox(true);
 			for (int32 AxisIdx = 0; AxisIdx < 3; AxisIdx++)
 			{
-				float& C = Result[AxisIdx];
-				float MovingMin = C - Ext[AxisIdx], MovingMax = C + Ext[AxisIdx];
+				double& C = Result[AxisIdx];
+				double MovingMin = C - Ext[AxisIdx], MovingMax = C + Ext[AxisIdx];
 				// 目标 Min 贴到本体 Max 或 目标 Max 贴到本体 Min
 				if (FMath::Abs(MovingMin - OB.Max[AxisIdx]) < SnapDist) C += OB.Max[AxisIdx] - MovingMin;
 				else if (FMath::Abs(MovingMax - OB.Min[AxisIdx]) < SnapDist) C += OB.Min[AxisIdx] - MovingMax;

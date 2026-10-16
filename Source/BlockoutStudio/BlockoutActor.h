@@ -1,9 +1,9 @@
-// BlockoutStudio - 白盒体块 Actor
+﻿// BlockoutStudio - 白盒体块 Actor
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "DynamicMesh3.h"
+#include "DynamicMesh/DynamicMesh3.h"
 #include "BlockoutTypes.h"
 #include "BlockoutActor.generated.h"
 

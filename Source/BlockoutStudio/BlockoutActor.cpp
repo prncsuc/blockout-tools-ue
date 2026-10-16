@@ -1,4 +1,4 @@
-// BlockoutStudio - 白盒体块 Actor 实现
+﻿// BlockoutStudio - 白盒体块 Actor 实现
 #include "BlockoutActor.h"
 #include "Components/DynamicMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -14,7 +14,7 @@ ABlockoutActor::ABlockoutActor()
 	MeshComp->SetMobility(EComponentMobility::Movable);
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	MeshComp->SetCollisionObjectType(ECC_WorldDynamic);
-	MeshComp->bUseComplexAsSimpleCollision = true;
+	MeshComp->EnableComplexAsSimpleCollision();
 	MeshComp->bUseAsyncCooking = true;
 	MeshComp->SetGenerateOverlapEvents(false);
 }
@@ -32,11 +32,11 @@ void ABlockoutActor::Rebuild()
 	{
 		for (const FVector& V : Data.Vertices)
 		{
-			Mesh.AddVertex(FVector3d(V));
+			Mesh.AppendVertex(FVector3d(V));
 		}
 		for (int32 i = 0; i + 2 < Data.Triangles.Num(); i += 3)
 		{
-			Mesh.AddTriangle(Data.Triangles[i], Data.Triangles[i + 1], Data.Triangles[i + 2]);
+			Mesh.AppendTriangle(Data.Triangles[i], Data.Triangles[i + 1], Data.Triangles[i + 2]);
 		}
 		FBlockoutMeshGen::FinalizeMesh(Mesh, false, 100.0);
 	}
@@ -50,9 +50,9 @@ void ABlockoutActor::Rebuild()
 	MeshComp->SetMesh(MoveTemp(Mesh));
 	MeshComp->NotifyMeshUpdated();
 	// 保留网格缓存供导出/测量使用
-	if (UDynamicMesh* DynMesh = MeshComp->GetMesh())
+	if (const FDynamicMesh3* DynMesh = MeshComp->GetMesh())
 	{
-		CachedMesh = DynMesh->GetMeshRef();
+		CachedMesh = *DynMesh;
 	}
 	ApplyAppearance();
 	SyncTransform();

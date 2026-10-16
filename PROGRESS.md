@@ -43,8 +43,20 @@ UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡�
 
 ## 待完成
 
-- [ ] 编译验证 P0 代码
+- [x] 编译验证 P0 代码（2026-08-21 通过）
 - [ ] BlockoutGizmo、PlayerController/HUD/输入、Slate UI、GameMode
 - [ ] 录制 R1-R3、M3 点线面子编辑
 - [ ] 材质生成脚本与资产
 - [ ] 打包（P6）
+
+
+## P0 编译修复记录（2026-08-21）
+
+- **UE5.6 API 迁移**：AddVertex/AddTriangle → AppendVertex/AppendTriangle；布尔改用 GeometryCore 的 UE::Geometry::FMeshBoolean（Compute()）；移除 GeometryScriptingCore 依赖；DynamicMesh 头文件加 `DynamicMesh/` 前缀；`bUseComplexAsSimpleCollision` → `EnableComplexAsSimpleCollision()`；`GetMesh()` 返回指针解引用拷贝至 CachedMesh
+- **FIndex3i 取分量**：`GetIndex(i)` 不存在，改 `operator[]` 即 `Tri[i]`
+- **属性层 API**：`HasNormalLayers()/HasUVLayers()` 不存在，改 `NumNormalLayers()/NumUVLayers() > 0`；补 `DynamicMeshAttributeSet.h` / `DynamicMeshOverlay.h` include 与 `using UE::Geometry::FIndex3i;`
+- **头文件前置声明遮蔽**：`class FDynamicMesh3;` 导致 C2027，改为 include + `using UE::Geometry::FDynamicMesh3;`
+- **类型定义对齐**：EBlockoutSurfaceType 枚举值统一为 Solid/Glass/Metal/Wood/Concrete/Grass/Dirt/Water/Wall；FBlockoutUndoOp 补 OpType/Timestamp；FBlockoutMeasureItem 补 Type/PointA/PointB/Value/Text；新增 EBlockoutMeasureType 枚举
+- **UE5 double 化**：`FVector::operator[]` 返回 double&，局部引用改 `double&`；FMath::LinePlaneIntersection 用 3 参数返回交点版
+- **源码编码**：全部 .h/.cpp 转 UTF-8 with BOM，修复 MSVC 按 GBK 解析中文字符串导致的 Printf 编译期格式校验误报（C7595）
+- **结果**：BlockoutStudioEditor Win64 Development 编译通过，生成 UnrealEditor-BlockoutStudio.dll

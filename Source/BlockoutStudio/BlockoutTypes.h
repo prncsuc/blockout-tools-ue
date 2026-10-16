@@ -1,4 +1,4 @@
-// BlockoutStudio - 核心数据类型定义
+﻿// BlockoutStudio - 核心数据类型定义
 #pragma once
 
 #include "CoreMinimal.h"
@@ -30,12 +30,15 @@ enum class EBlockoutShape : uint8
 UENUM(BlueprintType)
 enum class EBlockoutSurfaceType : uint8
 {
-	Floor       UMETA(DisplayName = "地面"),
-	Wall        UMETA(DisplayName = "墙体"),
-	Obstacle    UMETA(DisplayName = "障碍"),
-	Interactive UMETA(DisplayName = "可交互"),
-	Decoration  UMETA(DisplayName = "装饰"),
-	Danger      UMETA(DisplayName = "危险")
+	Solid       UMETA(DisplayName = "实体"),
+	Glass       UMETA(DisplayName = "玻璃"),
+	Metal       UMETA(DisplayName = "金属"),
+	Wood        UMETA(DisplayName = "木材"),
+	Concrete    UMETA(DisplayName = "混凝土"),
+	Grass       UMETA(DisplayName = "草地"),
+	Dirt        UMETA(DisplayName = "泥土"),
+	Water       UMETA(DisplayName = "水面"),
+	Wall        UMETA(DisplayName = "墙体")
 };
 
 UENUM(BlueprintType)
@@ -130,6 +133,20 @@ struct FBlockoutUndoOp
 	UPROPERTY() TArray<FBlockoutObjectData> Before;
 	UPROPERTY() TArray<FBlockoutObjectData> After;
 	UPROPERTY() FString Description;
+	UPROPERTY() FString OpType;
+	FDateTime Timestamp;
+};
+
+// 测量类型
+UENUM(BlueprintType)
+enum class EBlockoutMeasureType : uint8
+{
+	Distance    UMETA(DisplayName = "距离"),
+	Dimensions  UMETA(DisplayName = "尺寸"),
+	Area        UMETA(DisplayName = "面积"),
+	Volume      UMETA(DisplayName = "体积"),
+	Angle       UMETA(DisplayName = "角度"),
+	HeightDiff  UMETA(DisplayName = "高差")
 };
 
 // 测量标注
@@ -138,9 +155,14 @@ struct FBlockoutMeasureItem
 {
 	GENERATED_BODY()
 
+	UPROPERTY() EBlockoutMeasureType Type = EBlockoutMeasureType::Distance;
 	UPROPERTY() FVector Start = FVector::ZeroVector;
 	UPROPERTY() FVector End = FVector::ZeroVector;
 	UPROPERTY() FString Label;
+	UPROPERTY() FVector PointA = FVector::ZeroVector;
+	UPROPERTY() FVector PointB = FVector::ZeroVector;
+	UPROPERTY() double Value = 0.0;
+	UPROPERTY() FString Text;
 };
 
 // 轨迹录制帧

@@ -1,10 +1,15 @@
-// BlockoutStudio - 导出系统实现：OBJ / ASCII FBX / glTF 2.0 / USDA / USDZ / 自定义格式
+﻿// BlockoutStudio - 导出系统实现：OBJ / ASCII FBX / glTF 2.0 / USDA / USDZ / 自定义格式
 #include "BlockoutExportLib.h"
 #include "BlockoutActor.h"
-#include "DynamicMesh3.h"
+#include "DynamicMesh/DynamicMesh3.h"
+#include "DynamicMesh/DynamicMeshAttributeSet.h"
+#include "DynamicMesh/DynamicMeshOverlay.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "HAL/FileManager.h"
+
+using UE::Geometry::FDynamicMesh3;
+using UE::Geometry::FIndex3i;
 
 namespace
 {
@@ -37,7 +42,7 @@ namespace
 				FIndex3i Tri = M.GetTriangle(ti);
 				for (int32 c = 0; c < 3; c++)
 				{
-					int32 Src = Tri.GetIndex(c);
+					int32 Src = Tri[c];
 					int32* Found = VertMap.Find(Src);
 					int32 Idx;
 					if (Found) { Idx = *Found; }
@@ -55,7 +60,7 @@ namespace
 					FVector2d UV(0, 0);
 					if (M.HasAttributes())
 					{
-						if (M.Attributes()->HasNormalLayers())
+						if (M.Attributes()->NumNormalLayers() > 0)
 						{
 							auto* NL = M.Attributes()->GetNormalLayer(0);
 							if (NL && NL->IsElement(ti))
@@ -64,7 +69,7 @@ namespace
 								N = FVector3d(NF);
 							}
 						}
-						if (M.Attributes()->HasUVLayers())
+						if (M.Attributes()->NumUVLayers() > 0)
 						{
 							auto* UL = M.Attributes()->GetUVLayer(0);
 							if (UL && UL->IsElement(ti))

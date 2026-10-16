@@ -1,4 +1,4 @@
-// BlockoutStudio - 编辑器核心子系统：物体管理、选择、变换、吸附、撤销、自动保存
+﻿// BlockoutStudio - 编辑器核心子系统：物体管理、选择、变换、吸附、撤销、自动保存
 #pragma once
 
 #include "CoreMinimal.h"

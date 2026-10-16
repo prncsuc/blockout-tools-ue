@@ -1,4 +1,4 @@
-#include "BlockoutStudio.h"
+﻿#include "BlockoutStudio.h"
 
 #define LOCTEXT_NAMESPACE "FBlockoutStudioModule"
 

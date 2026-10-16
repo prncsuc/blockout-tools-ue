@@ -25,7 +25,6 @@ public class BlockoutStudio : ModuleRules
 			"JsonUtilities",
 			"GeometryCore",
 			"GeometryFramework",
-			"GeometryScriptingCore",
 			"InteractiveToolsFramework",
 			"ImageWrapper"
 		});

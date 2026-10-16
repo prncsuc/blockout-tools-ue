@@ -1,4 +1,4 @@
-// BlockoutStudio - 程序化纹理生成实现
+﻿// BlockoutStudio - 程序化纹理生成实现
 #include "BlockoutTextureLib.h"
 #include "Engine/Texture2D.h"
 #include "TextureResource.h"
