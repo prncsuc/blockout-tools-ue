@@ -1,0 +1,11 @@
+﻿/Binaries/
+/DerivedDataCache/
+/Intermediate/
+/Saved/
+/.vs/
+*.sln
+*.VC.db
+/Content/PMB/
+/Content/UEFirstPerson/
+/Content/__ExternalActors__/
+/Content/__ExternalObjects__/
