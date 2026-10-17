@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_ac979e1ec9e811f196f9525400248c00
+    ReservedCode1: BEsAjlMPHU2mTOUGP01YY5SiAQf6RnMDg0vhiCKeFx6I3IulXlIacr/zhoqWK6KHaSSiVszIcOrIM8Tqe3OxrmJxdja1SBpXALB/9RyjcScIcJoyRcnKezprJyQhVz1F2c209xn0U2B0q5WZHD9S4lrd7eA7cWpy71U3kYlSGO7/2smiO2bNYruzD5o=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_ac979e1ec9e811f196f9525400248c00
+    ReservedCode2: BEsAjlMPHU2mTOUGP01YY5SiAQf6RnMDg0vhiCKeFx6I3IulXlIacr/zhoqWK6KHaSSiVszIcOrIM8Tqe3OxrmJxdja1SBpXALB/9RyjcScIcJoyRcnKezprJyQhVz1F2c209xn0U2B0q5WZHD9S4lrd7eA7cWpy71U3kYlSGO7/2smiO2bNYruzD5o=
+---
+
 ﻿# BlockoutStudio 开发进度
 
 UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡工具-需求规格与开发交接文 v1.1》执行。
@@ -8,7 +19,7 @@ UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡�
 |---|---|---|
 | P0 | 项目骨架与核心源码 | 已完成，编译通过（bf5c5f9） |
 | P1 | 编辑器交互（gizmo/输入/UI/GameMode） | 已完成，编译通过 |
-| P2 | 子编辑与录制 | 未开始 |
+| P2 | 子编辑与录制 | 已完成，编译通过 |
 | P3 | 材质资产与外观 | 未开始 |
 | P4 | 导出与测量完善 | 未开始 |
 | P5 | 验收测试（§8 清单） | 未开始 |
@@ -44,8 +55,8 @@ UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡�
 ## 待完成
 
 - [x] 编译验证 P0 代码（2026-08-21 通过）
-- [ ] BlockoutGizmo、PlayerController/HUD/输入、Slate UI、GameMode
-- [ ] 录制 R1-R3、M3 点线面子编辑
+- [x] BlockoutGizmo、PlayerController/HUD/输入、Slate UI、GameMode（2026-10-17 P1 通过）
+- [x] 录制 R1-R3、M3 点线面子编辑（2026-10-17 P2 通过）
 - [ ] 材质生成脚本与资产
 - [ ] 打包（P6）
 
@@ -84,3 +95,22 @@ UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡�
 
 - W/E/R 空闲=变换模式；右键按住时 WASDQE=飞行移动
 - Ctrl 修饰组合键（Z/Y/D/A）与单键功能隔离
+
+## P2 已完成（2026-10-17）
+
+- `BlockoutMeshEditLib.h/.cpp`（M3 点线面编辑）：
+  - MoveVertices（选点移动）/ ExtrudeFaces（面挤出，自动补侧壁）/ BevelVertices（顶点倒角，按邻接三角形重建）/ CollapseVertices（多点塌陷至质心）/ DeleteFaces（删面）
+  - PickVertex / PickFace 射线拾取（射线-线段距离、射线-三角形 Möller–Trumbore）
+  - CommitMesh 统一回写 CachedMesh 与 FBlockoutObjectData（bFreeform/Vertices/Triangles），编辑结果可随 JSON 存档持久化
+- `BlockoutRecordLib.h/.cpp`（R1-R3 录制）：
+  - R1 录制：StartRecording/StopRecording/AddFrame/AddJpegFrame（30fps 相机轨迹 + 视口帧）
+  - R2 视频导出：WriteMjpegAVI 自研 RIFF 容器（avih/strl/strh/strf(MJPG)/movi/idx1），零第三方依赖；SaveTrajectoryJSON/LoadTrajectoryJSON 轨迹 JSON 存取
+  - R3 回放：SamplePlayback 时间插值（位置 Lerp + 旋转 Slerp）
+- `BlockoutEditorPlayerController` 接入：
+  - F9 录制开关（停止自动保存轨迹 JSON + MJPEG-AVI 至 Saved/Records）；录制逐帧采集（30fps 节流），视口截帧 JPEG Q80、缩至 1280 宽
+  - 轨迹回放驱动 Pawn（超时自动停）
+  - F8 子编辑模式循环（物体→顶点→面）；顶点/面拾取（Ctrl 加选）
+  - X 面挤出 / C 顶点倒角 / V 顶点塌陷 / Del 面模式下删面（各操作前 PushUndo 快照）
+- P2 编译修复：UE5.6 `GetCompressed(80)` 直接返回 TArray64；`ERGBFormat` 无 RGB 值（FColor 即 BGRA 直喂）；`FSceneViewport` 需 include Slate/SceneViewport.h；邻接查询用 `GetTriNeighbourTris`（GetEdgeTriangles 不存在）；三角形遍历用 MaxTriangleID+IsTriangle（GetAllTriangleIDs 不存在）
+- 结果：BlockoutStudioEditor Win64 Development 编译通过
+*（内容由AI生成，仅供参考）*

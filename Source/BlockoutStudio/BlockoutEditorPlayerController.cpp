@@ -4,10 +4,17 @@
 #include "BlockoutActor.h"
 #include "BlockoutEditorSubsystem.h"
 #include "BlockoutEditorUI.h"
+#include "BlockoutMeshEditLib.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/World.h"
 #include "Engine/Engine.h"
 #include "CollisionQueryParams.h"
+#include "IImageWrapper.h"
+#include "IImageWrapperModule.h"
+#include "Modules/ModuleManager.h"
+#include "Misc/Paths.h"
+#include "HAL/FileManager.h"
+#include "Slate/SceneViewport.h"
 
 UBlockoutEditorSubsystem* GetEditorSub(UWorld* World)
 {
@@ -71,12 +78,40 @@ void ABlockoutEditorPlayerController::SetupInputComponent()
 	InputComponent->BindKey(EKeys::O, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyGroup);
 	InputComponent->BindKey(EKeys::U, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyUngroup);
 	InputComponent->BindKey(EKeys::Tab, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyToggleUI);
+	// R1-R3 录制 / M3 子对象编辑
+	InputComponent->BindKey(EKeys::F9, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyToggleRecord);
+	InputComponent->BindKey(EKeys::F8, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyToggleSubEdit);
+	InputComponent->BindKey(EKeys::X, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyExtrude);
+	InputComponent->BindKey(EKeys::C, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyBevel);
+	InputComponent->BindKey(EKeys::V, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyCollapse);
 }
 
 void ABlockoutEditorPlayerController::PlayerTick(float DeltaSeconds)
 {
 	Super::PlayerTick(DeltaSeconds);
 	UpdateCamera(DeltaSeconds);
+
+	// R1：录制中逐帧采集轨迹 + 视口 JPEG
+	if (RecSession.bRecording)
+	{
+		CaptureRecordFrame();
+	}
+
+	// R2：回放中按轨迹驱动相机
+	if (bPlayingBack && GetPawn())
+	{
+		const double PlayTime = GetWorld()->GetTimeSeconds() - PlayStartTime;
+		FBlockoutRecordFrame Frame;
+		if (FBlockoutRecordLib::SamplePlayback(RecSession.Frames, PlayTime, Frame))
+		{
+			GetPawn()->SetActorLocation(Frame.Location);
+			SetControlRotation(Frame.Rotation);
+		}
+		if (PlayTime > RecSession.Frames.Last().Time + 0.5)
+		{
+			StopPlayback();
+		}
+	}
 
 	if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld()))
 	{
@@ -217,7 +252,26 @@ void ABlockoutEditorPlayerController::OnLeftMouseDown()
 		}
 	}
 
-	// 2) 物体拾取
+	// 2) 子对象拾取（M3：顶点/面模式）
+	if (SubEditMode > 0 && IsValid(EditTarget))
+	{
+		const bool bAdditive = IsInputKeyDown(EKeys::LeftControl) || IsInputKeyDown(EKeys::RightControl);
+		if (SubEditMode == 1)
+		{
+			const int32 Vid = FBlockoutMeshEditLib::PickVertex(EditTarget, Origin, Dir, 40.f);
+			if (!bAdditive) SelectedVerts.Reset();
+			if (Vid >= 0) SelectedVerts.AddUnique(Vid);
+		}
+		else
+		{
+			const int32 Tid = FBlockoutMeshEditLib::PickFace(EditTarget, Origin, Dir);
+			if (!bAdditive) SelectedFaces.Reset();
+			if (Tid >= 0) SelectedFaces.AddUnique(Tid);
+		}
+		return;
+	}
+
+	// 3) 物体拾取
 	ABlockoutActor* Hit = PickActor(Origin, Dir);
 	if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld()))
 	{
@@ -371,6 +425,12 @@ void ABlockoutEditorPlayerController::OnKeyModeScale()
 }
 void ABlockoutEditorPlayerController::OnKeyDelete()
 {
+	// M3：面编辑模式下删选中面，否则删物体
+	if (SubEditMode == 2 && SelectedFaces.Num() > 0 && IsValid(EditTarget))
+	{
+		MeshDeleteFaces();
+		return;
+	}
 	if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld())) Sub->DeleteSelected();
 }
 void ABlockoutEditorPlayerController::OnKeyUndo()
@@ -470,4 +530,215 @@ void ABlockoutEditorPlayerController::ToggleUIShow()
 		bUIMode = !bUIMode;
 		SlateUI->SetVisibility(bUIMode ? EVisibility::Collapsed : EVisibility::Visible);
 	}
+}
+
+// ==================== R1-R3 录制 ====================
+void ABlockoutEditorPlayerController::StartRecording()
+{
+	if (RecSession.bRecording) return;
+	const double Now = GetWorld()->GetTimeSeconds();
+	FBlockoutRecordLib::StartRecording(RecSession, Now, 30);
+	LastFrameCaptureTime = -1.0;
+}
+
+void ABlockoutEditorPlayerController::StopRecording()
+{
+	if (!RecSession.bRecording) return;
+	FBlockoutRecordLib::StopRecording(RecSession, GetWorld()->GetTimeSeconds());
+}
+
+bool ABlockoutEditorPlayerController::SaveRecording(const FString& BaseName)
+{
+	if (RecSession.Frames.Num() == 0) return false;
+	const FString Dir = FPaths::ProjectSavedDir() / TEXT("Records");
+	IFileManager::Get().MakeDirectory(*Dir, true);
+
+	const FString Base = BaseName.IsEmpty()
+		? FString::Printf(TEXT("record_%s"), *FDateTime::Now().ToString(TEXT("%Y%m%d_%H%M%S")))
+		: BaseName;
+
+	bool bOk = FBlockoutRecordLib::SaveTrajectoryJSON(RecSession, Dir / (Base + TEXT(".json")));
+	if (RecSession.JpegFrames.Num() > 0)
+	{
+		// R3：MJPEG-AVI 导出（备选录制方案）
+		bOk = FBlockoutRecordLib::WriteMjpegAVI(RecSession, Dir / (Base + TEXT(".avi"))) || bOk;
+	}
+	return bOk;
+}
+
+void ABlockoutEditorPlayerController::StartPlayback()
+{
+	if (RecSession.Frames.Num() == 0) return;
+	bPlayingBack = true;
+	PlayStartTime = GetWorld()->GetTimeSeconds();
+}
+
+void ABlockoutEditorPlayerController::StopPlayback()
+{
+	bPlayingBack = false;
+}
+
+void ABlockoutEditorPlayerController::CaptureRecordFrame()
+{
+	const double Now = GetWorld()->GetTimeSeconds();
+	// 30fps 节流
+	if (LastFrameCaptureTime >= 0.0 && Now - LastFrameCaptureTime < 1.0 / 30.0) return;
+	LastFrameCaptureTime = Now;
+
+	FBlockoutRecordFrame Frame;
+	Frame.Time = (float)(Now - RecSession.StartTime);
+	if (APawn* P = GetPawn())
+	{
+		Frame.Location = P->GetActorLocation();
+		Frame.Rotation = GetControlRotation();
+	}
+	FBlockoutRecordLib::AddFrame(RecSession, Frame);
+	CaptureViewportJpeg();
+}
+
+void ABlockoutEditorPlayerController::CaptureViewportJpeg()
+{
+	// 读取视口像素并 JPEG 压缩（MJPEG-AVI 帧源）
+	if (!GEngine || !GEngine->GameViewport) return;
+	FViewport* Viewport = GEngine->GameViewport->GetGameViewport();
+	if (!Viewport) return;
+
+	FIntPoint Size = Viewport->GetSizeXY();
+	if (Size.X <= 0 || Size.Y <= 0) return;
+
+	TArray<FColor> Bitmap;
+	if (!Viewport->ReadPixels(Bitmap)) return;
+
+	// 缩到 1280x720 内以控制体积
+	int32 W = Size.X, H = Size.Y;
+	const int32 MaxW = 1280;
+	if (W > MaxW)
+	{
+		H = FMath::RoundToInt((float)H * MaxW / W);
+		W = MaxW;
+	}
+	TArray<FColor> Scaled;
+	Scaled.SetNumUninitialized(W * H);
+	for (int32 Y = 0; Y < H; ++Y)
+	{
+		const int32 SrcY = Y * Size.Y / H;
+		for (int32 X = 0; X < W; ++X)
+		{
+			const int32 SrcX = X * Size.X / W;
+			Scaled[Y * W + X] = Bitmap[SrcY * Size.X + SrcX];
+		}
+	}
+
+	// JPEG 压缩（FColor 内存布局即 BGRA，直接喂）
+	IImageWrapperModule& ImageWrapperModule =
+		FModuleManager::LoadModuleChecked<IImageWrapperModule>(TEXT("ImageWrapper"));
+	TSharedPtr<IImageWrapper> JpegWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::JPEG);
+	if (!JpegWrapper.IsValid()) return;
+	if (!JpegWrapper->SetRaw(Scaled.GetData(), Scaled.Num() * sizeof(FColor), W, H, ERGBFormat::BGRA, 8)) return;
+
+	TArray64<uint8> Compressed = JpegWrapper->GetCompressed(80);
+	if (Compressed.Num() == 0) return;
+	TArray<uint8> Jpeg;
+	Jpeg.Append(Compressed.GetData(), (int32)Compressed.Num());
+
+	if (RecSession.JpegFrames.Num() == 0)
+	{
+		RecSession.Width = W;
+		RecSession.Height = H;
+	}
+	FBlockoutRecordLib::AddJpegFrame(RecSession, Jpeg);
+}
+
+void ABlockoutEditorPlayerController::OnKeyToggleRecord()
+{
+	if (bRotateCamera) return;
+	if (RecSession.bRecording)
+	{
+		StopRecording();
+		const bool bSaved = SaveRecording(FString());
+		UE_LOG(LogTemp, Log, TEXT("BlockoutRecord: stopped, frames=%d jpeg=%d saved=%d"),
+			RecSession.Frames.Num(), RecSession.JpegFrames.Num(), bSaved ? 1 : 0);
+	}
+	else
+	{
+		StartRecording();
+	}
+}
+
+// ==================== M3 点线面编辑 ====================
+void ABlockoutEditorPlayerController::OnKeyToggleSubEdit()
+{
+	if (bRotateCamera) return;
+	// 循环：物体 → 顶点 → 面 → 物体
+	SetSubEditMode((SubEditMode + 1) % 3);
+	SelectedVerts.Reset();
+	SelectedFaces.Reset();
+
+	if (SubEditMode == 0)
+	{
+		EditTarget = nullptr;
+		return;
+	}
+
+	// 以当前选中物体为编辑目标
+	if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld()))
+	{
+		const TArray<ABlockoutActor*>& Sel = Sub->GetSelection();
+		EditTarget = (Sel.Num() > 0 && IsValid(Sel[0])) ? Sel[0] : nullptr;
+	}
+}
+
+void ABlockoutEditorPlayerController::MeshExtrudeFaces(float Distance)
+{
+	if (!IsValid(EditTarget) || SelectedFaces.Num() == 0) return;
+	if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld())) Sub->PushUndo(TEXT("ExtrudeFaces"));
+	FBlockoutMeshEditLib::ExtrudeFaces(EditTarget, SelectedFaces, Distance);
+	SelectedFaces.Reset();
+}
+
+void ABlockoutEditorPlayerController::MeshBevelVerts(float Amount)
+{
+	if (!IsValid(EditTarget) || SelectedVerts.Num() == 0) return;
+	if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld())) Sub->PushUndo(TEXT("BevelVertices"));
+	FBlockoutMeshEditLib::BevelVertices(EditTarget, SelectedVerts, Amount);
+	SelectedVerts.Reset();
+}
+
+void ABlockoutEditorPlayerController::MeshCollapseVerts()
+{
+	if (!IsValid(EditTarget) || SelectedVerts.Num() < 2) return;
+	if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld())) Sub->PushUndo(TEXT("CollapseVertices"));
+	FBlockoutMeshEditLib::CollapseVertices(EditTarget, SelectedVerts);
+	SelectedVerts.Reset();
+}
+
+void ABlockoutEditorPlayerController::MeshDeleteFaces()
+{
+	if (!IsValid(EditTarget) || SelectedFaces.Num() == 0) return;
+	if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld())) Sub->PushUndo(TEXT("DeleteFaces"));
+	FBlockoutMeshEditLib::DeleteFaces(EditTarget, SelectedFaces);
+	SelectedFaces.Reset();
+}
+
+void ABlockoutEditorPlayerController::MeshMoveVerts(const FVector& Delta)
+{
+	if (!IsValid(EditTarget) || SelectedVerts.Num() == 0) return;
+	if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld())) Sub->PushUndo(TEXT("MoveVertices"));
+	FBlockoutMeshEditLib::MoveVertices(EditTarget, SelectedVerts, Delta);
+}
+
+void ABlockoutEditorPlayerController::OnKeyExtrude()
+{
+	if (bRotateCamera || SubEditMode != 2) return;
+	MeshExtrudeFaces(50.f);
+}
+void ABlockoutEditorPlayerController::OnKeyBevel()
+{
+	if (bRotateCamera || SubEditMode != 1) return;
+	MeshBevelVerts(0.25f);
+}
+void ABlockoutEditorPlayerController::OnKeyCollapse()
+{
+	if (bRotateCamera || SubEditMode != 1) return;
+	MeshCollapseVerts();
 }

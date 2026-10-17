@@ -4,6 +4,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "BlockoutTypes.h"
+#include "BlockoutRecordLib.h"
 #include "BlockoutEditorPlayerController.generated.h"
 
 class ABlockoutActor;
@@ -33,6 +34,30 @@ public:
 	void CreateBlockAtCursor(EBlockoutShape Shape);
 	void FocusSelection();
 	void ToggleUIShow();
+
+	// ---------- R1-R3 录制 ----------
+	void StartRecording();
+	void StopRecording();
+	bool IsRecording() const { return RecSession.bRecording; }
+	void StartPlayback();
+	void StopPlayback();
+	bool IsPlayingBack() const { return bPlayingBack; }
+	// 保存录制产物（轨迹 JSON + MJPEG-AVI）
+	bool SaveRecording(const FString& BaseName);
+
+	// ---------- M3 点线面编辑 ----------
+	// 子对象选择模式：0=物体 1=顶点 2=面
+	void SetSubEditMode(int32 Mode) { SubEditMode = Mode; }
+	int32 GetSubEditMode() const { return SubEditMode; }
+	const TArray<int32>& GetSelectedVerts() const { return SelectedVerts; }
+	const TArray<int32>& GetSelectedFaces() const { return SelectedFaces; }
+	ABlockoutActor* GetEditTarget() const { return EditTarget; }
+	// 编辑动作
+	void MeshExtrudeFaces(float Distance);
+	void MeshBevelVerts(float Amount);
+	void MeshCollapseVerts();
+	void MeshDeleteFaces();
+	void MeshMoveVerts(const FVector& Delta);
 
 private:
 	// ---------- 相机 ----------
@@ -73,6 +98,11 @@ private:
 	void OnKeyGroup();
 	void OnKeyUngroup();
 	void OnKeyToggleUI();
+	void OnKeyToggleRecord();
+	void OnKeyToggleSubEdit();
+	void OnKeyExtrude();
+	void OnKeyBevel();
+	void OnKeyCollapse();
 
 	// ---------- 拾取 ----------
 	ABlockoutActor* PickActor(const FVector& RayOrigin, const FVector& RayDir) const;
@@ -91,4 +121,20 @@ private:
 
 	// Slate 工具 UI
 	TSharedPtr<SBlockoutEditorUI> SlateUI;
+
+	// ---------- R1-R3 录制状态 ----------
+	FBlockoutRecordSession RecSession;
+	bool bPlayingBack = false;
+	double PlayStartTime = 0.0;
+	double LastFrameCaptureTime = 0.0;
+	// 逐帧采样相机（轨迹帧 + MJPEG 视口帧）
+	void CaptureRecordFrame();
+	// 视口 JPEG 采集（MJPEG-AVI 用）
+	void CaptureViewportJpeg();
+
+	// ---------- M3 子对象编辑状态 ----------
+	int32 SubEditMode = 0;              // 0=物体 1=顶点 2=面
+	UPROPERTY() ABlockoutActor* EditTarget = nullptr;
+	TArray<int32> SelectedVerts;
+	TArray<int32> SelectedFaces;
 };
