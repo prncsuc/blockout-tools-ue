@@ -26,7 +26,8 @@ public class BlockoutStudio : ModuleRules
 			"GeometryCore",
 			"GeometryFramework",
 			"InteractiveToolsFramework",
-			"ImageWrapper"
+			"ImageWrapper",
+			"DesktopPlatform"
 		});
 	}
 }

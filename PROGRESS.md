@@ -1,4 +1,4 @@
-# BlockoutStudio 开发进度
+﻿# BlockoutStudio 开发进度
 
 UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡工具-需求规格与开发交接文 v1.1》执行。
 
@@ -6,8 +6,8 @@ UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡�
 
 | 阶段 | 内容 | 状态 |
 |---|---|---|
-| P0 | 项目骨架与核心源码 | 代码完成，待编译验证 |
-| P1 | 编辑器交互（gizmo/输入/UI/GameMode） | 未开始 |
+| P0 | 项目骨架与核心源码 | 已完成，编译通过（bf5c5f9） |
+| P1 | 编辑器交互（gizmo/输入/UI/GameMode） | 已完成，编译通过 |
 | P2 | 子编辑与录制 | 未开始 |
 | P3 | 材质资产与外观 | 未开始 |
 | P4 | 导出与测量完善 | 未开始 |
@@ -60,3 +60,27 @@ UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡�
 - **UE5 double 化**：`FVector::operator[]` 返回 double&，局部引用改 `double&`；FMath::LinePlaneIntersection 用 3 参数返回交点版
 - **源码编码**：全部 .h/.cpp 转 UTF-8 with BOM，修复 MSVC 按 GBK 解析中文字符串导致的 Printf 编译期格式校验误报（C7595）
 - **结果**：BlockoutStudioEditor Win64 Development 编译通过，生成 UnrealEditor-BlockoutStudio.dll
+
+
+## P1 已完成（2026-10-17）
+
+- `BlockoutGizmo.h/.cpp`：变换 Gizmo 状态与轴拾取（射线-线段距离判定，支持世界/本地坐标）
+- `BlockoutEditorPlayerController.h/.cpp`：完整输入层
+  - 相机：右键旋转视角 + WASDQE 飞行 + 滚轮推进
+  - 左键：gizmo 轴拾取拖拽 → 物体拾取（射线-AABB slab 求交）→ 空白框选
+  - 快捷键：W/E/R 变换模式、Ctrl+Z/Y 撤销重做、Ctrl+D 复制、Del 删除、G/S 吸附、B 坐标空间、F 聚焦、Ctrl+A 全选、P 保存、O/U 分组、Tab 隐藏 UI、Esc 取消选择
+- `BlockoutHUD.h/.cpp`：gizmo 三轴渲染（红绿蓝+高亮）、框选矩形、测量标注、状态栏、Toast 提示
+- `BlockoutEditorUI.h/.cpp`：纯 Slate 中文 UI（i18n 预留 BlockoutUI::T）
+  - 顶部工具栏：17 种体块创建下拉、变换模式、吸附开关、撤销重做、保存、导出菜单
+  - 左侧属性面板：名称、位置、颜色 RGB、纹理平铺、7 项形状参数、测量按钮（尺寸/面积/体积）
+  - 右键菜单：复制/删除/分组/取消分组
+  - 底部快捷键提示条
+- `BlockoutGameMode.h/.cpp`：GameMode + 无碰撞相机 Pawn
+- `Config/DefaultInput.ini`：轴映射（MoveForward/Right/Up/MouseX/Y/Wheel）
+- `Config/DefaultEngine.ini`：默认 GameMode 指向 BlockoutGameMode
+- Build.cs 增加 DesktopPlatform（导出/保存文件对话框）
+
+## 按键冲突处理约定
+
+- W/E/R 空闲=变换模式；右键按住时 WASDQE=飞行移动
+- Ctrl 修饰组合键（Z/Y/D/A）与单键功能隔离
