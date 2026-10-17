@@ -62,15 +62,15 @@ void SBlockoutEditorUI::Construct(const FArguments& InArgs)
 		EBlockoutShape::Cube, EBlockoutShape::Wall, EBlockoutShape::Staircase, EBlockoutShape::Ramp,
 		EBlockoutShape::Wedge, EBlockoutShape::Arch, EBlockoutShape::DoorWall, EBlockoutShape::WindowWall,
 		EBlockoutShape::Cylinder, EBlockoutShape::Sphere, EBlockoutShape::Capsule, EBlockoutShape::Pipe,
-		EBlockoutShape::Colonnade, EBlockoutShape::Fence, EBlockoutShape::Floor, EBlockoutShape::DoorPiece,
+		EBlockoutShape::Colonnade, EBlockoutShape::Fence, EBlockoutShape::Stairwell, EBlockoutShape::Floor, EBlockoutShape::DoorPiece,
 		EBlockoutShape::WindowPiece
 	};
 	const TCHAR* ShapeLabels[] = {
 		TEXT("立方体"), TEXT("墙体"), TEXT("楼梯"), TEXT("斜坡"), TEXT("楔形"), TEXT("拱门"),
 		TEXT("门洞墙"), TEXT("窗洞墙"), TEXT("圆柱"), TEXT("球体"), TEXT("胶囊体"), TEXT("管道"),
-		TEXT("柱廊"), TEXT("围墙"), TEXT("地板"), TEXT("门构件"), TEXT("窗构件")
+		TEXT("柱廊"), TEXT("围墙"), TEXT("楼梯间"), TEXT("地板"), TEXT("门构件"), TEXT("窗构件")
 	};
-	for (int32 i = 0; i < 17; ++i)
+	for (int32 i = 0; i < 18; ++i)
 	{
 		ShapeNames.Add(MakeShared<FString>(ShapeLabels[i]));
 	}

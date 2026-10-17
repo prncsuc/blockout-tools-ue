@@ -24,6 +24,8 @@ public:
 	static void BuildWedge(FDynamicMesh3& M, double L, double W, double H);
 	static void BuildColonnade(FDynamicMesh3& M, double ColumnDiameter, double ColumnHeight, int32 Count, double Spacing);
 	static void BuildFence(FDynamicMesh3& M, double L, double W, double H, double PostSpacing);
+	// M5 快速生成：楼梯间（楼梯 + 双侧墙 + 上层平台）
+	static void BuildStairwell(FDynamicMesh3& M, double L, double W, double H, int32 Steps, double WallThickness = 20.0);
 
 	// 洞体生成（用于布尔挖洞，沿 +Y 方向拉伸 Depth，截面位于 XZ 平面）
 	static void BuildRectPrismHole(FDynamicMesh3& M, double Width, double Height, double Depth);

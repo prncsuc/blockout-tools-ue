@@ -340,6 +340,43 @@ void FBlockoutMeshGen::BuildFence(FDynamicMesh3& M, double L, double W, double H
 	}
 }
 
+void FBlockoutMeshGen::BuildStairwell(FDynamicMesh3& M, double L, double W, double H, int32 Steps, double WallThickness)
+{
+	// 楼梯 + 双侧墙 + 上层平台（M5 快速生成：楼梯间）
+	auto AppendBox = [&M](double X, double Y, double Z, const FVector3d& Off)
+	{
+		FDynamicMesh3 Tmp;
+		BuildBox(Tmp, X, Y, Z);
+		int32 Base = M.VertexCount();
+		for (int32 vi = 0; vi < Tmp.VertexCount(); vi++) M.AppendVertex(Tmp.GetVertex(vi) + Off);
+		for (int32 ti = 0; ti < Tmp.TriangleCount(); ti++)
+		{
+			FIndex3i Tri = Tmp.GetTriangle(ti);
+			M.AppendTriangle(Base + Tri.A, Base + Tri.B, Base + Tri.C);
+		}
+	};
+
+	// 1) 楼梯主体（沿 +Y 上升），台阶宽 W - 2*墙厚
+	const double InnerW = FMath::Max(50.0, W - WallThickness * 2.0);
+	{
+		FDynamicMesh3 Tmp;
+		BuildStaircase(Tmp, L, InnerW, H, Steps, false);
+		int32 Base = M.VertexCount();
+		for (int32 vi = 0; vi < Tmp.VertexCount(); vi++) M.AppendVertex(Tmp.GetVertex(vi));
+		for (int32 ti = 0; ti < Tmp.TriangleCount(); ti++)
+		{
+			FIndex3i Tri = Tmp.GetTriangle(ti);
+			M.AppendTriangle(Base + Tri.A, Base + Tri.B, Base + Tri.C);
+		}
+	}
+	// 2) 双侧墙（随楼梯高度渐升的近似：整段满高墙）
+	const double WallH = H + 100.0;
+	AppendBox(WallThickness, L, WallH, FVector3d(-InnerW * 0.5 - WallThickness * 0.5, 0, -H * 0.5 + WallH * 0.5));
+	AppendBox(WallThickness, L, WallH, FVector3d(InnerW * 0.5 + WallThickness * 0.5, 0, -H * 0.5 + WallH * 0.5));
+	// 3) 上层平台（Y 端，厚 20）
+	AppendBox(W, W * 0.8, 20.0, FVector3d(0, L * 0.5 + W * 0.4, -H * 0.5 + 10.0));
+}
+
 void FBlockoutMeshGen::BuildRectPrismHole(FDynamicMesh3& M, double Width, double Height, double Depth)
 {
 	// 截面 XZ（宽 Width 高 Height），沿 Y 拉伸 Depth
@@ -473,6 +510,9 @@ void FBlockoutMeshGen::BuildShape(EBlockoutShape Shape, const FBlockoutShapePara
 		break;
 	case EBlockoutShape::Fence:
 		BuildFence(OutMesh, P.Length, P.Thickness, P.Height, P.ArraySpacing);
+		break;
+	case EBlockoutShape::Stairwell:
+		BuildStairwell(OutMesh, P.Length, P.Width, P.Height, P.Steps, P.Thickness);
 		break;
 	case EBlockoutShape::DoorPiece:
 		BuildBox(OutMesh, P.Length, P.Width, P.Height);

@@ -21,6 +21,7 @@ enum class EBlockoutShape : uint8
 	Pipe        UMETA(DisplayName = "管道"),
 	Colonnade   UMETA(DisplayName = "柱廊"),
 	Fence       UMETA(DisplayName = "围墙"),
+	Stairwell   UMETA(DisplayName = "楼梯间"),
 	Floor       UMETA(DisplayName = "地板"),
 	DoorPiece   UMETA(DisplayName = "门构件"),
 	WindowPiece UMETA(DisplayName = "窗构件"),
