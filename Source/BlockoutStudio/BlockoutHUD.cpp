@@ -113,6 +113,32 @@ void ABlockoutHUD::DrawMeasureItems()
 			DrawText(Item.Label, FLinearColor::Yellow, Mid.X + 6, Mid.Y - 8);
 		}
 	}
+
+	// T1：实时预览（青色虚线感：分段线）
+	if (bMeasurePreview)
+	{
+		bool bA = false, bB = false;
+		const FVector2D SA = ProjectW(MeasurePreview.Start, bA);
+		const FVector2D SB = ProjectW(MeasurePreview.End, bB);
+		const FLinearColor C = FLinearColor(0.f, 1.f, 1.f, 1.f);
+		if (bA && bB)
+		{
+			const int32 Segs = 12;
+			for (int32 i = 0; i < Segs; i += 2) // 间隔画实现虚线
+			{
+				const FVector2D P0 = FMath::Lerp(SA, SB, float(i) / Segs);
+				const FVector2D P1 = FMath::Lerp(SA, SB, float(i + 1) / Segs);
+				DrawLine(P0.X, P0.Y, P1.X, P1.Y, C, 1.5f);
+			}
+			DrawRect(C, SA.X - 3, SA.Y - 3, 6, 6);
+			DrawRect(C, SB.X - 3, SB.Y - 3, 6, 6);
+		}
+		if (!MeasurePreview.Label.IsEmpty())
+		{
+			const FVector2D Mid = (SA + SB) * 0.5f;
+			DrawText(MeasurePreview.Label, C, Mid.X + 6, Mid.Y - 8);
+		}
+	}
 }
 
 void ABlockoutHUD::DrawStatusBar()

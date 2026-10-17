@@ -26,6 +26,36 @@ namespace
 		FTransform Transform = FTransform::Identity;
 	};
 
+	// D3 按材质分组：同色网格合并为一个 FExportMesh
+	void MergeByMaterial(TArray<FExportMesh>& Meshes)
+	{
+		TArray<FExportMesh> Merged;
+		for (FExportMesh& M : Meshes)
+		{
+			FExportMesh* Found = Merged.FindByPredicate([&](const FExportMesh& E)
+			{
+				return E.Color.Equals(M.Color, 0.001f);
+			});
+			if (!Found)
+			{
+				FExportMesh NewM;
+				NewM.Name = FString::Printf(TEXT("Material_%02X%02X%02X"),
+					(uint8)(M.Color.R * 255.f), (uint8)(M.Color.G * 255.f), (uint8)(M.Color.B * 255.f));
+				NewM.Color = M.Color;
+				Found = &Merged.Add_GetRef(MoveTemp(NewM));
+			}
+			// 追加顶点/索引（索引整体偏移）
+			const int32 VOff = Found->Verts.Num();
+			Found->Verts.Append(M.Verts);
+			Found->Normals.Append(M.Normals);
+			Found->UVs.Append(M.UVs);
+			for (int32 i = 0; i < M.Tris.Num(); ++i) Found->Tris.Add(M.Tris[i] + VOff);
+			Found->NormalIdx.Append(M.NormalIdx);
+			Found->UVIdx.Append(M.UVIdx);
+		}
+		Meshes = MoveTemp(Merged);
+	}
+
 	void GatherMeshes(const TArray<ABlockoutActor*>& Actors, TArray<FExportMesh>& Out, bool bWorldSpace)
 	{
 		for (ABlockoutActor* Actor : Actors)
@@ -91,10 +121,11 @@ namespace
 }
 
 // ---------------- OBJ ----------------
-bool FBlockoutExportLib::ExportOBJ(const TArray<ABlockoutActor*>& Actors, const FString& FilePath, bool bWorldSpace)
+bool FBlockoutExportLib::ExportOBJ(const TArray<ABlockoutActor*>& Actors, const FString& FilePath, bool bWorldSpace, bool bGroupByMaterial)
 {
 	TArray<FExportMesh> Meshes;
 	GatherMeshes(Actors, Meshes, bWorldSpace);
+	if (bGroupByMaterial) MergeByMaterial(Meshes);
 	TStringBuilder<4096> Sb;
 	Sb.Appendf(TEXT("# BlockoutStudio OBJ Export\n# units: cm\n"));
 	int32 VBase = 1, NBase = 1, TBase = 1;
@@ -128,10 +159,13 @@ bool FBlockoutExportLib::ExportOBJ(const TArray<ABlockoutActor*>& Actors, const 
 }
 
 // ---------------- ASCII FBX（简化版，UE/Autodesk 工具可导入） ----------------
-bool FBlockoutExportLib::ExportFBX(const TArray<ABlockoutActor*>& Actors, const FString& FilePath)
+bool FBlockoutExportLib::ExportFBX(const TArray<ABlockoutActor*>& Actors, const FString& FilePath, bool bGroupByMaterial)
 {
 	TArray<FExportMesh> Meshes;
 	GatherMeshes(Actors, Meshes, true);
+	if (bGroupByMaterial) MergeByMaterial(Meshes);
+	// D3：FBX 顶点 ×0.01（cm→m），适配 Unity 米制导入
+	const double FbxScale = 0.01;
 	TStringBuilder<8192> Sb;
 	Sb.Append(TEXT("; FBX 7.4.0 project file\nFBXHeaderExtension:  {\n\tFBXHeaderVersion: 1003\n\tFBXVersion: 7400\n\tCreator: \"BlockoutStudio\"\n}\n"));
 	Sb.Append(TEXT("GlobalSettings:  {\n\tVersion: 1000\n\tProperties70:  {\n\t\tP: \"UnitScaleFactor\", \"double\", \"Number\", \"\",1.0\n\t}\n}\n"));
@@ -147,7 +181,7 @@ bool FBlockoutExportLib::ExportFBX(const TArray<ABlockoutActor*>& Actors, const 
 		Sb.Appendf(TEXT("\t\tVertices: *%d {\n\t\t\ta: "), M.Verts.Num() * 3);
 		for (int32 i = 0; i < M.Verts.Num(); i++)
 		{
-			Sb.Appendf(TEXT("%s%.6f,%.6f,%.6f"), i ? TEXT(",") : TEXT(""), M.Verts[i].X, M.Verts[i].Y, M.Verts[i].Z);
+			Sb.Appendf(TEXT("%s%.6f,%.6f,%.6f"), i ? TEXT(",") : TEXT(""), M.Verts[i].X * FbxScale, M.Verts[i].Y * FbxScale, M.Verts[i].Z * FbxScale);
 		}
 		Sb.Append(TEXT("\n\t\t}\n\t\tPolygonVertexIndex: *"));
 		TArray<int32> PolyIdx;
@@ -163,9 +197,9 @@ bool FBlockoutExportLib::ExportFBX(const TArray<ABlockoutActor*>& Actors, const 
 			Sb.Appendf(TEXT("%s%d"), i ? TEXT(",") : TEXT(""), PolyIdx[i]);
 		}
 		Sb.Append(TEXT("\n\t\t}\n\t\tGeometryVersion: 124\n\t}\n"));
-		// Model
-		Sb.Appendf(TEXT("\tModel: %d, \"Model::%s\", \"Mesh\" {\n\t\tProperties70:  {\n\t\t\tP: \"Lcl Translation\", \"Lcl Translation\", \"\", \"A\",%.6f,%.6f,%.6f\n\t\t}\n\t\tShading: T\n\t\tCulling: \"CullingOff\"\n\t}\n"),
-			ModelId, *M.Name, M.Transform.GetLocation().X, M.Transform.GetLocation().Y, M.Transform.GetLocation().Z);
+		// Model（顶点已含世界变换，Lcl Translation 置零，避免双重平移）
+		Sb.Appendf(TEXT("\tModel: %d, \"Model::%s\", \"Mesh\" {\n\t\tProperties70:  {\n\t\t\tP: \"Lcl Translation\", \"Lcl Translation\", \"\", \"A\",0,0,0\n\t\t}\n\t\tShading: T\n\t\tCulling: \"CullingOff\"\n\t}\n"),
+			ModelId, *M.Name);
 		// Material
 		Sb.Appendf(TEXT("\tMaterial: %d, \"Material::%s_mat\", \"\" {\n\t\tShadingModel: \"lambert\"\n\t\tProperties70:  {\n\t\t\tP: \"DiffuseColor\", \"Color\", \"\", \"A\",%.4f,%.4f,%.4f\n\t\t}\n\t}\n"),
 			MatId, *M.Name, M.Color.R, M.Color.G, M.Color.B);
@@ -186,10 +220,11 @@ bool FBlockoutExportLib::ExportFBX(const TArray<ABlockoutActor*>& Actors, const 
 }
 
 // ---------------- glTF 2.0（.gltf + 内嵌 base64 buffer） ----------------
-bool FBlockoutExportLib::ExportGLTF(const TArray<ABlockoutActor*>& Actors, const FString& FilePath, bool bIncludeLighting, bool bIncludeCamera)
+bool FBlockoutExportLib::ExportGLTF(const TArray<ABlockoutActor*>& Actors, const FString& FilePath, bool bIncludeLighting, bool bIncludeCamera, bool bGroupByMaterial)
 {
 	TArray<FExportMesh> Meshes;
 	GatherMeshes(Actors, Meshes, true);
+	if (bGroupByMaterial) MergeByMaterial(Meshes);
 	// 二进制 buffer：位置/法线/UV/索引
 	TArray<uint8> Buffer;
 	TArray<int32> AccessorRanges; // 记录每 mesh 偏移
@@ -239,8 +274,8 @@ bool FBlockoutExportLib::ExportGLTF(const TArray<ABlockoutActor*>& Actors, const
 	Sb.Append(TEXT("]}],\n  \"nodes\": ["));
 	for (int32 i = 0; i < Meshes.Num(); i++)
 	{
-		const FVector L = Meshes[i].Transform.GetLocation();
-		Sb.Appendf(TEXT("%s{\"mesh\": %d, \"translation\": [%.4f,%.4f,%.4f], \"name\": \"%s\"}"), i ? TEXT(",") : TEXT(""), i, L.X, L.Y, L.Z, *Meshes[i].Name);
+		// 顶点已含世界变换，translation 置零，避免双重平移
+		Sb.Appendf(TEXT("%s{\"mesh\": %d, \"translation\": [0,0,0], \"name\": \"%s\"}"), i ? TEXT(",") : TEXT(""), i, *Meshes[i].Name);
 	}
 	Sb.Append(TEXT("],\n  \"meshes\": ["));
 	for (int32 i = 0; i < Meshes.Num(); i++)

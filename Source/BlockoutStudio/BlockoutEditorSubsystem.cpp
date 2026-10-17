@@ -712,7 +712,127 @@ bool UBlockoutEditorSubsystem::AutoSave(bool bSnapshot)
 	{
 		Path = Dir / TEXT("autosave.blockout.json");
 	}
-	return SaveProject(Path);
+	const bool bOk = SaveProject(Path);
+	if (bOk && bSnapshot)
+	{
+		PruneSnapshots(20);
+	}
+	return bOk;
+}
+
+// D1：快照滚动保留最近 MaxKeep 个（按文件名时间戳排序，删旧保新）
+void UBlockoutEditorSubsystem::PruneSnapshots(int32 MaxKeep)
+{
+	const FString Dir = FPaths::ProjectSavedDir() / TEXT("BlockoutSnapshots");
+	TArray<FString> Files = GetSnapshotFiles();
+	// GetSnapshotFiles 按新→旧排序，超出部分删除
+	for (int32 i = MaxKeep; i < Files.Num(); ++i)
+	{
+		IFileManager::Get().Delete(*Files[i], false, true, true);
+	}
+}
+
+// D1：快照列表（新→旧）
+TArray<FString> UBlockoutEditorSubsystem::GetSnapshotFiles() const
+{
+	const FString Dir = FPaths::ProjectSavedDir() / TEXT("BlockoutSnapshots");
+	TArray<FString> Files;
+	IFileManager::Get().FindFiles(Files, *(Dir / TEXT("snapshot_*.blockout.json")), true, false);
+	// 文件名含 YYYYMMDD_HHMMSS，字典序即时间序
+	Files.Sort([](const FString& A, const FString& B) { return A > B; });
+	TArray<FString> Full;
+	for (const FString& F : Files) Full.Add(Dir / F);
+	return Full;
+}
+
+// D1：回滚到指定快照
+bool UBlockoutEditorSubsystem::RestoreSnapshot(const FString& Path)
+{
+	return IFileManager::Get().FileExists(*Path) && LoadProject(Path);
+}
+
+// ---------------- T3 比例尺参考体 ----------------
+namespace
+{
+	// 向自由网格追加一个轴对齐盒子
+	void AppendBox(TArray<FVector>& V, TArray<int32>& T, const FVector& Center, const FVector& Half)
+	{
+		const int32 B = V.Num();
+		for (int32 dz = -1; dz <= 1; dz += 2)
+		for (int32 dy = -1; dy <= 1; dy += 2)
+		for (int32 dx = -1; dx <= 1; dx += 2)
+		{
+			V.Add(Center + FVector(Half.X * dx, Half.Y * dy, Half.Z * dz));
+		}
+		// 顶点序号：dx 最快，其次 dy，最后 dz（0..7）
+		const int32 Faces[6][4] = {
+			{0, 2, 3, 1}, // -Z
+			{4, 5, 7, 6}, // +Z
+			{0, 1, 5, 4}, // -Y
+			{2, 6, 7, 3}, // +Y
+			{0, 4, 6, 2}, // -X
+			{1, 3, 7, 5}  // +X
+		};
+		for (const auto& F : Faces)
+		{
+			T.Add(B + F[0]); T.Add(B + F[1]); T.Add(B + F[2]);
+			T.Add(B + F[0]); T.Add(B + F[2]); T.Add(B + F[3]);
+		}
+	}
+}
+
+ABlockoutActor* UBlockoutEditorSubsystem::SpawnScaleReference(int32 Type, const FVector& Location)
+{
+	TArray<FVector> V;
+	TArray<int32> T;
+	FString Name;
+	if (Type == 0) // 1m 立方体：100uu
+	{
+		AppendBox(V, T, FVector(0, 0, 50), FVector(50, 50, 50));
+		Name = TEXT("ScaleRef_1m");
+	}
+	else if (Type == 1) // 2m 立方体：200uu
+	{
+		AppendBox(V, T, FVector(0, 0, 100), FVector(100, 100, 100));
+		Name = TEXT("ScaleRef_2m");
+	}
+	else // 2：1.8m 人形（头/躯干/双腿拼盒）
+	{
+		AppendBox(V, T, FVector(0, 0, 170), FVector(10, 10, 10));   // 头
+		AppendBox(V, T, FVector(0, 0, 115), FVector(18, 10, 45));   // 躯干
+		AppendBox(V, T, FVector(-10, 0, 37.5), FVector(8, 8, 37.5)); // 左腿
+		AppendBox(V, T, FVector(10, 0, 37.5), FVector(8, 8, 37.5));  // 右腿
+		Name = TEXT("ScaleRef_1.8m_Human");
+	}
+	return SpawnReferenceMesh(V, T, Name, Location);
+}
+
+// ---------------- D4 参考体网格（灰色锁定自由网格） ----------------
+ABlockoutActor* UBlockoutEditorSubsystem::SpawnReferenceMesh(const TArray<FVector>& Verts, const TArray<int32>& Tris, const FString& Name, const FVector& Location)
+{
+	if (Verts.Num() == 0 || Tris.Num() < 3) return nullptr;
+	UWorld* World = GetEditingWorld();
+	if (!World) return nullptr;
+
+	PushUndo(TEXT("添加参考体"));
+	FActorSpawnParameters P;
+	P.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	ABlockoutActor* Actor = World->SpawnActor<ABlockoutActor>(Location, FRotator::ZeroRotator, P);
+	if (!Actor) return nullptr;
+
+	Actor->Data.Id = FGuid::NewGuid();
+	Actor->Data.Shape = EBlockoutShape::Cube;
+	Actor->Data.bFreeform = true;
+	Actor->Data.Vertices = Verts;
+	Actor->Data.Triangles = Tris;
+	Actor->Data.Color = FLinearColor(0.65f, 0.65f, 0.65f);
+	Actor->Data.Name = Name;
+	Actor->Data.bLocked = true;
+	Actor->Data.Transform = FTransform(FRotator::ZeroRotator, Location);
+	Actor->Rebuild();
+	AllBlocks.Add(Actor);
+	NotifyDirty();
+	return Actor;
 }
 
 void UBlockoutEditorSubsystem::RecoverIfNeeded()

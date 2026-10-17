@@ -128,3 +128,21 @@ UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡�
   - A4 视图模式：无光照/光照/线框（r.ShowFlag.Lighting / r.ShowFlag.Wireframe）
 - 外观接线：BlockoutActor EnsureMID 优先加载 M_BlockoutBase，缺失 fallback BasicShapeMaterial
 - 结果：BlockoutStudioEditor Win64 Development 编译通过
+
+## P4 已完成（2026-10-17）
+
+- T1 两点测距（M 键切换模式）：
+  - 点击取第一点，实时 HUD 青色虚线预览（距离+高差+仰角综合标注），第二击直接生成标注，Enter 放置
+  - PickWorldPoint 射线拾取（Actor 包围盒 slab 求交 → 地面 Z=0 兜底）
+  - HUD DrawMeasureItems 新增 MeasurePreview 实时预览绘制
+- T2 俯视 2D 出图：BlockoutTopDownLib 导出 PNG（位图）/ SVG（矢量+原生文字标注），选项含尺寸标注/网格/名称（FBlockoutTopDownOptions）
+- T3 比例尺参考体：SpawnScaleReference 0=1m 立方 / 1=2m 立方 / 2=1.8m 人形（头/躯干/双腿拼盒），走 bFreeform 自由网格、灰色锁定
+- D3 导出分组与 FBX 缩放：
+  - ExportOBJ/ExportFBX/ExportGLTF 新增 bGroupByMaterial，MergeByMaterial 按颜色合并网格（Material_RRGGBB 命名）
+  - FBX 顶点 x0.01（cm→m 适配 Unity 米制）；FBX LclTranslation / glTF node translation 置零，修复顶点已含世界变换时的双重平移
+  - 导出菜单新增「按材质分组（否则按物体）」复选框
+- D4 导入参考体：BlockoutImportLib 导入 OBJ/glTF/GLB（glTF 米制 Y-up 自动转 uu Z-up x100），SpawnReferenceMesh 生成灰色锁定自由网格参考体
+- D1 快照 20 版本：AutoSave 快照后 PruneSnapshots(20) 滚动清理，GetSnapshotFiles（新→旧）/RestoreSnapshot 回滚
+- UI：工具栏新增「工具」菜单（测距/参考体/导入/俯视出图/快照），导出菜单新增分组复选框
+- P4 编译修复：FLinearColor 无 Cyan 静态成员；FJsonObject::TryGetStringField 第二参为 FString&；测试入口 OnKeyToggleMeasure 移至 public
+- 结果：BlockoutStudioEditor Win64 Development 编译通过

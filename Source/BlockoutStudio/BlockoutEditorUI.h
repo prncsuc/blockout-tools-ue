@@ -33,8 +33,17 @@ private:
 	TSharedRef<SWidget> BuildToolbar();
 	TSharedRef<SWidget> BuildShapeMenu();
 	TSharedRef<SWidget> BuildExportMenu();
+	TSharedRef<SWidget> BuildToolsMenu();   // P4：测距/参考体/导入/快照/俯视出图
 	void OnShapePicked(EBlockoutShape Shape);
 	void OnExportPicked(int32 Format);
+
+	// ---------- P4 工具动作 ----------
+	void OnExportTopDown(int32 Type);        // 0=PNG 1=SVG
+	void OnImportReference();                // D4 导入 OBJ/glTF 参考体
+	void OnSpawnScaleRef(int32 Type);        // T3: 0=1m 1=2m 2=1.8m 人形
+	void OnSnapshotSave();                   // D1 保存快照
+	void OnSnapshotRestore(int32 Index);     // D1 回滚第 N 个快照
+	bool bGroupByMaterial = false;           // D3 按材质/物体分组导出
 
 	// ---------- 属性面板 ----------
 	TSharedRef<SWidget> BuildPropertyPanel();

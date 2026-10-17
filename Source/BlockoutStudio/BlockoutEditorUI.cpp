@@ -5,6 +5,8 @@
 #include "BlockoutActor.h"
 #include "BlockoutMeasureLib.h"
 #include "BlockoutExportLib.h"
+#include "BlockoutTopDownLib.h"
+#include "BlockoutImportLib.h"
 #include "BlockoutHUD.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Input/SButton.h"
@@ -274,6 +276,23 @@ TSharedRef<SWidget> SBlockoutEditorUI::BuildToolbar()
 			return FReply::Handled();
 		})
 	]
+
+	// P4 工具菜单（测距/参考体/导入/快照/俯视出图）
+	+ SHorizontalBox::Slot().AutoWidth().Padding(2, 4)
+	[
+		SNew(SButton)
+		.Text(FText::FromString(TEXT("工具")))
+		.OnClicked_Lambda([this]()
+		{
+			FVector2D Pos = FSlateApplication::Get().GetCursorPos();
+			FSlateApplication::Get().PushMenu(
+				TSharedPtr<IMenu>(),
+				BuildToolsMenu(),
+				Pos,
+				FPopupTransitionEffect(FPopupTransitionEffect::TypeInPopup));
+			return FReply::Handled();
+		})
+	]
 	;
 }
 
@@ -286,6 +305,18 @@ TSharedRef<SWidget> SBlockoutEditorUI::BuildExportMenu()
 {
 	const TCHAR* Labels[] = { TEXT("导出 OBJ"), TEXT("导出 FBX"), TEXT("导出 glTF"), TEXT("导出 USD"), TEXT("导出 USDZ"), TEXT("导出 自定义") };
 	TSharedRef<SVerticalBox> Box = SNew(SVerticalBox);
+
+	// D3：分组选项（按材质合并 vs 按物体）
+	Box->AddSlot().AutoHeight()
+	[
+		SNew(SCheckBox)
+		.IsChecked(bGroupByMaterial ? ECheckBoxState::Checked : ECheckBoxState::Unchecked)
+		.OnCheckStateChanged_Lambda([this](ECheckBoxState S) { bGroupByMaterial = (S == ECheckBoxState::Checked); })
+		[
+			SNew(STextBlock).Text(FText::FromString(TEXT("按材质分组（否则按物体）")))
+		]
+	];
+
 	for (int32 i = 0; i < 6; ++i)
 	{
 		const int32 Idx = i;
@@ -301,6 +332,157 @@ TSharedRef<SWidget> SBlockoutEditorUI::BuildExportMenu()
 		];
 	}
 	return Box;
+}
+
+// ================= P4 工具菜单 =================
+TSharedRef<SWidget> SBlockoutEditorUI::BuildToolsMenu()
+{
+	TSharedRef<SVerticalBox> Box = SNew(SVerticalBox);
+
+	auto AddBtn = [&Box](const FString& Label, TFunction<void()> Fn)
+	{
+		Box->AddSlot().AutoHeight()
+		[
+			SNew(SButton)
+			.Text(FText::FromString(Label))
+			.OnClicked_Lambda([Fn]()
+			{
+				Fn();
+				return FReply::Handled();
+			})
+		];
+	};
+
+	AddBtn(TEXT("测距模式(M)"), [this]() { if (ABlockoutEditorPlayerController* P = GetPC(PCPtr)) P->OnKeyToggleMeasure(); });
+	Box->AddSlot().AutoHeight().Padding(0, 4, 0, 0)
+	[
+		SNew(STextBlock).Text(FText::FromString(TEXT("--- T3 比例尺参考体 ---")))
+	];
+	AddBtn(TEXT("放置 1m 立方体"), [this]() { OnSpawnScaleRef(0); });
+	AddBtn(TEXT("放置 2m 立方体"), [this]() { OnSpawnScaleRef(1); });
+	AddBtn(TEXT("放置 1.8m 人形"), [this]() { OnSpawnScaleRef(2); });
+	Box->AddSlot().AutoHeight().Padding(0, 4, 0, 0)
+	[
+		SNew(STextBlock).Text(FText::FromString(TEXT("--- D4/T2/D1 ---")))
+	];
+	AddBtn(TEXT("导入参考体(OBJ/glTF)"), [this]() { OnImportReference(); });
+	AddBtn(TEXT("导出俯视图 PNG"), [this]() { OnExportTopDown(0); });
+	AddBtn(TEXT("导出俯视图 SVG"), [this]() { OnExportTopDown(1); });
+	AddBtn(TEXT("保存快照"), [this]() { OnSnapshotSave(); });
+	AddBtn(TEXT("回滚到最近快照"), [this]() { OnSnapshotRestore(0); });
+	return Box;
+}
+
+// T3：放置比例尺参考体（相机前方）
+void SBlockoutEditorUI::OnSpawnScaleRef(int32 Type)
+{
+	UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
+	ABlockoutEditorPlayerController* P = GetPC(PCPtr);
+	if (!Sub || !P) return;
+	FVector Origin, Dir;
+	FVector Loc = FVector::ZeroVector;
+	if (P->GetMouseRay(Origin, Dir))
+	{
+		Loc = Origin + Dir * 600.f;
+	}
+	Loc.Z = 0; // 落地
+	if (Sub->SpawnScaleReference(Type, Loc))
+	{
+		Toast(TEXT("已放置比例尺参考体"));
+	}
+	else
+	{
+		Toast(TEXT("放置失败"));
+	}
+}
+
+// D4：导入 OBJ/glTF 参考体
+void SBlockoutEditorUI::OnImportReference()
+{
+	UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
+	ABlockoutEditorPlayerController* P = GetPC(PCPtr);
+	if (!Sub || !P) return;
+
+	IDesktopPlatform* DP = FDesktopPlatformModule::Get();
+	if (!DP) { Toast(TEXT("无法打开文件对话框")); return; }
+	TArray<FString> OutFiles;
+	const void* Parent = FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr);
+	if (!DP->OpenFileDialog(Parent, TEXT("导入参考体"), TEXT(""), TEXT(""), TEXT("网格文件|*.obj;*.gltf;*.glb"), EFileDialogFlags::None, OutFiles) || OutFiles.Num() == 0)
+	{
+		return;
+	}
+	TArray<FVector> V;
+	TArray<int32> T;
+	FString Name, Err;
+	if (!FBlockoutImportLib::ImportMesh(OutFiles[0], V, T, Name, Err))
+	{
+		Toast(FString::Printf(TEXT("导入失败：%s"), *Err));
+		return;
+	}
+	FVector Origin, Dir;
+	FVector Loc = FVector::ZeroVector;
+	if (P->GetMouseRay(Origin, Dir)) Loc = Origin + Dir * 600.f;
+	Loc.Z = 0;
+	if (Sub->SpawnReferenceMesh(V, T, Name, Loc))
+	{
+		Toast(FString::Printf(TEXT("已导入参考体：%s（%d 顶点）"), *Name, V.Num()));
+	}
+}
+
+// T2：俯视 2D 出图
+void SBlockoutEditorUI::OnExportTopDown(int32 Type)
+{
+	UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
+	if (!Sub) return;
+	TArray<ABlockoutActor*> Targets = Sub->GetAllBlocks();
+	if (Targets.Num() == 0) { Toast(TEXT("场景为空")); return; }
+
+	IDesktopPlatform* DP = FDesktopPlatformModule::Get();
+	if (!DP) { Toast(TEXT("无法打开文件对话框")); return; }
+	TArray<FString> OutFiles;
+	const void* Parent = FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr);
+	const TCHAR* Filter = Type == 0 ? TEXT("PNG|*.png") : TEXT("SVG|*.svg");
+	if (!DP->SaveFileDialog(Parent, TEXT("导出俯视图"), TEXT(""), TEXT(""), Filter, EFileDialogFlags::None, OutFiles) || OutFiles.Num() == 0)
+	{
+		return;
+	}
+	FBlockoutTopDownOptions Opt;
+	const bool bOk = (Type == 0)
+		? FBlockoutTopDownLib::ExportPNG(Targets, OutFiles[0], Opt)
+		: FBlockoutTopDownLib::ExportSVG(Targets, OutFiles[0], Opt);
+	Toast(bOk ? FString::Printf(TEXT("俯视图已导出：%s"), *OutFiles[0]) : TEXT("俯视图导出失败"));
+}
+
+// D1：快照
+void SBlockoutEditorUI::OnSnapshotSave()
+{
+	UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
+	if (!Sub) return;
+	if (Sub->AutoSave(true))
+	{
+		Toast(TEXT("快照已保存（保留最近 20 个）"));
+	}
+	else
+	{
+		Toast(TEXT("快照保存失败"));
+	}
+}
+
+void SBlockoutEditorUI::OnSnapshotRestore(int32 Index)
+{
+	UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
+	if (!Sub) return;
+	TArray<FString> Files = Sub->GetSnapshotFiles();
+	if (Files.Num() == 0) { Toast(TEXT("暂无快照")); return; }
+	if (!Files.IsValidIndex(Index)) { Toast(TEXT("快照索引无效")); return; }
+	if (Sub->RestoreSnapshot(Files[Index]))
+	{
+		Toast(FString::Printf(TEXT("已回滚：%s"), *FPaths::GetCleanFilename(Files[Index])));
+	}
+	else
+	{
+		Toast(TEXT("回滚失败"));
+	}
 }
 
 void SBlockoutEditorUI::OnShapePicked(EBlockoutShape Shape)
@@ -337,12 +519,13 @@ void SBlockoutEditorUI::OnExportPicked(int32 Format)
 	if (!bOk || OutFiles.Num() == 0) return;
 
 	const FString Path = OutFiles[0];
+	const bool bGroup = bGroupByMaterial;
 	bool bDone = false;
 	switch (Format)
 	{
-	case 0: bDone = FBlockoutExportLib::ExportOBJ(Targets, Path, true); break;
-	case 1: bDone = FBlockoutExportLib::ExportFBX(Targets, Path); break;
-	case 2: bDone = FBlockoutExportLib::ExportGLTF(Targets, Path, true, true); break;
+	case 0: bDone = FBlockoutExportLib::ExportOBJ(Targets, Path, true, bGroup); break;
+	case 1: bDone = FBlockoutExportLib::ExportFBX(Targets, Path, bGroup); break;
+	case 2: bDone = FBlockoutExportLib::ExportGLTF(Targets, Path, true, true, bGroup); break;
 	case 3: bDone = FBlockoutExportLib::ExportUSD(Targets, Path, false, true); break;
 	case 4: bDone = FBlockoutExportLib::ExportUSDZ(Targets, Path, false, true); break;
 	case 5: bDone = FBlockoutExportLib::ExportCustom(Targets, Path); break;

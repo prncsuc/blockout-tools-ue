@@ -90,6 +90,19 @@ public:
 	void RecoverIfNeeded();
 	FString GetDefaultProjectPath() const;
 
+	// D1：快照 20 版本管理
+	void PruneSnapshots(int32 MaxKeep);              // 滚动保留最近 N 个
+	TArray<FString> GetSnapshotFiles() const;        // 快照列表（新→旧）
+	bool RestoreSnapshot(const FString& Path);       // 回滚到指定快照
+
+	// ---------- T3 比例尺参考体 ----------
+	// Type: 0=1m 立方体  1=2m 立方体  2=1.8m 人形
+	ABlockoutActor* SpawnScaleReference(int32 Type, const FVector& Location);
+
+	// ---------- D4 导入参考体 ----------
+	// 以自由网格创建灰色锁定参考体
+	ABlockoutActor* SpawnReferenceMesh(const TArray<FVector>& Verts, const TArray<int32>& Tris, const FString& Name, const FVector& Location);
+
 	// ---------- 查询 ----------
 	TArray<ABlockoutActor*> GetAllBlocks() const;
 	ABlockoutActor* GetActorById(const FGuid& Id) const;

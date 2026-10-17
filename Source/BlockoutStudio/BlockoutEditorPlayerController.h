@@ -104,6 +104,18 @@ private:
 	void OnKeyBevel();
 	void OnKeyCollapse();
 
+public:
+	// T1 测距：UI 入口
+	void OnKeyToggleMeasure();
+
+private:
+	// ---------- T1 两点测距 ----------
+	void OnKeyMeasureConfirm();            // Enter 放置标注
+	bool PickWorldPoint(FVector& OutPoint) const; // 射线拾取世界点（网格命中→地面兜底）
+	bool bMeasureMode = false;   // 测距模式开关
+	int32 MeasureStage = 0;      // 0=待取第一点 1=已取第一点待确认
+	FVector MeasurePointA = FVector::ZeroVector;
+
 	// ---------- 拾取 ----------
 	ABlockoutActor* PickActor(const FVector& RayOrigin, const FVector& RayDir) const;
 

@@ -5,6 +5,8 @@
 #include "BlockoutEditorSubsystem.h"
 #include "BlockoutEditorUI.h"
 #include "BlockoutMeshEditLib.h"
+#include "BlockoutMeasureLib.h"
+#include "BlockoutHUD.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/World.h"
 #include "Engine/Engine.h"
@@ -15,6 +17,17 @@
 #include "Misc/Paths.h"
 #include "HAL/FileManager.h"
 #include "Slate/SceneViewport.h"
+
+// T1 测距综合标注：距离 + 高差 + 与水平面夹角
+static FString BuildMeasureLabel(const FVector& A, const FVector& B)
+{
+	const FBlockoutMeasureItem Dist = FBlockoutMeasureLib::MeasureDistance(A, B);
+	const FBlockoutMeasureItem Hd = FBlockoutMeasureLib::MeasureHeightDiff(A, B);
+	const FVector Delta = B - A;
+	const double Horiz = FVector(Delta.X, Delta.Y, 0).Size();
+	const double AngleDeg = FMath::RadiansToDegrees(FMath::Atan2(FMath::Abs(Delta.Z), Horiz));
+	return FString::Printf(TEXT("%s  %s  仰角 %.1f°"), *Dist.Text, *Hd.Text, AngleDeg);
+}
 
 UBlockoutEditorSubsystem* GetEditorSub(UWorld* World)
 {
@@ -84,6 +97,9 @@ void ABlockoutEditorPlayerController::SetupInputComponent()
 	InputComponent->BindKey(EKeys::X, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyExtrude);
 	InputComponent->BindKey(EKeys::C, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyBevel);
 	InputComponent->BindKey(EKeys::V, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyCollapse);
+	// T1 两点测距
+	InputComponent->BindKey(EKeys::M, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyToggleMeasure);
+	InputComponent->BindKey(EKeys::Enter, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyMeasureConfirm);
 }
 
 void ABlockoutEditorPlayerController::PlayerTick(float DeltaSeconds)
@@ -116,6 +132,23 @@ void ABlockoutEditorPlayerController::PlayerTick(float DeltaSeconds)
 	if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld()))
 	{
 		Sub->Update(DeltaSeconds);
+	}
+
+	// T1 测距：实时预览 A→光标
+	if (bMeasureMode && MeasureStage == 1)
+	{
+		if (ABlockoutHUD* HUD = GetHUD<ABlockoutHUD>())
+		{
+			FVector Pt;
+			if (PickWorldPoint(Pt))
+			{
+				HUD->bMeasurePreview = true;
+				HUD->MeasurePreview = FBlockoutMeasureLib::MeasureDistance(MeasurePointA, Pt);
+				HUD->MeasurePreview.Start = MeasurePointA;
+				HUD->MeasurePreview.End = Pt;
+				HUD->MeasurePreview.Label = BuildMeasureLabel(MeasurePointA, Pt);
+			}
+		}
 	}
 
 	// gizmo 拖拽中：持续更新
@@ -232,6 +265,43 @@ void ABlockoutEditorPlayerController::OnLeftMouseDown()
 {
 	FVector Origin, Dir;
 	if (!GetMouseRay(Origin, Dir)) return;
+
+	// 0) T1 测距模式：取点，两击建标注
+	if (bMeasureMode)
+	{
+		FVector Pt;
+		if (PickWorldPoint(Pt))
+		{
+			if (MeasureStage == 0)
+			{
+				MeasurePointA = Pt;
+				MeasureStage = 1;
+				if (ABlockoutHUD* HUD = GetHUD<ABlockoutHUD>())
+				{
+					HUD->bMeasurePreview = true;
+					HUD->MeasurePreview = FBlockoutMeasureLib::MeasureDistance(MeasurePointA, Pt);
+					HUD->MeasurePreview.Start = MeasurePointA;
+					HUD->MeasurePreview.End = Pt;
+					HUD->MeasurePreview.Label = BuildMeasureLabel(MeasurePointA, Pt) + TEXT("（点击终点，Enter 放置标注）");
+				}
+			}
+			else
+			{
+				// 第二击：直接生成标注
+				FBlockoutMeasureItem Item = FBlockoutMeasureLib::MeasureDistance(MeasurePointA, Pt);
+				Item.Start = MeasurePointA;
+				Item.End = Pt;
+				Item.Label = BuildMeasureLabel(MeasurePointA, Pt);
+				if (ABlockoutHUD* HUD = GetHUD<ABlockoutHUD>())
+				{
+					HUD->MeasureItems.Add(Item);
+					HUD->bMeasurePreview = false;
+				}
+				MeasureStage = 0;
+			}
+		}
+		return;
+	}
 
 	// 1) gizmo 轴拾取优先
 	if (ABlockoutGizmo* Gizmo = EnsureGizmo())
@@ -741,4 +811,96 @@ void ABlockoutEditorPlayerController::OnKeyCollapse()
 {
 	if (bRotateCamera || SubEditMode != 1) return;
 	MeshCollapseVerts();
+}
+
+// ==================== T1 两点测距 ====================
+void ABlockoutEditorPlayerController::OnKeyToggleMeasure()
+{
+	if (bRotateCamera) return;
+	bMeasureMode = !bMeasureMode;
+	MeasureStage = 0;
+	if (ABlockoutHUD* HUD = GetHUD<ABlockoutHUD>())
+	{
+		HUD->bMeasurePreview = false;
+		HUD->ShowToast(bMeasureMode ? TEXT("测距模式 ON：点击两点创建标注，Enter 放置，M 退出") : TEXT("测距模式 OFF"));
+	}
+}
+
+// Enter：放置当前预览标注（MeasureStage=1 时将预览转正）
+void ABlockoutEditorPlayerController::OnKeyMeasureConfirm()
+{
+	if (!bMeasureMode) return;
+	if (ABlockoutHUD* HUD = GetHUD<ABlockoutHUD>())
+	{
+		if (HUD->bMeasurePreview)
+		{
+			FBlockoutMeasureItem Item = HUD->MeasurePreview;
+			Item.Label = Item.Text;
+			HUD->MeasureItems.Add(Item);
+			HUD->bMeasurePreview = false;
+		}
+	}
+	MeasureStage = 0;
+}
+
+// 射线拾取世界点：优先命中白盒物体表面，兜底与地面(Z=0)求交
+bool ABlockoutEditorPlayerController::PickWorldPoint(FVector& OutPoint) const
+{
+	FVector Origin, Dir;
+	if (!GetMouseRay(Origin, Dir)) return false;
+
+	// 1) 与所有白盒 Actor 包围盒求交，取最近
+	double BestT = TNumericLimits<double>::Max();
+	bool bHit = false;
+	if (const UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld()))
+	{
+		for (ABlockoutActor* A : Sub->GetAllBlocks())
+		{
+			if (!IsValid(A)) continue;
+			const FBox Box = A->GetComponentsBoundingBox(true);
+			// 射线-AABB（slab）
+			double TMin = 0.0, TMax = TNumericLimits<double>::Max();
+			bool bBoxHit = true;
+			for (int32 Axis = 0; Axis < 3; ++Axis)
+			{
+				const double O = Origin[Axis], D = Dir[Axis];
+				const double Lo = Box.Min[Axis], Hi = Box.Max[Axis];
+				if (FMath::Abs(D) < 1e-9)
+				{
+					if (O < Lo || O > Hi) { bBoxHit = false; break; }
+				}
+				else
+				{
+					double T1 = (Lo - O) / D, T2 = (Hi - O) / D;
+					if (T1 > T2) { Swap(T1, T2); }
+					TMin = FMath::Max(TMin, T1);
+					TMax = FMath::Min(TMax, T2);
+					if (TMin > TMax) { bBoxHit = false; break; }
+				}
+			}
+			if (bBoxHit && TMin < BestT)
+			{
+				BestT = TMin;
+				bHit = true;
+			}
+		}
+	}
+	if (bHit)
+	{
+		OutPoint = Origin + Dir * BestT;
+		return true;
+	}
+
+	// 2) 兜底：地面 Z=0
+	if (FMath::Abs(Dir.Z) > 1e-6)
+	{
+		const double T = (0.0 - Origin.Z) / Dir.Z;
+		if (T > 0)
+		{
+			OutPoint = Origin + Dir * T;
+			return true;
+		}
+	}
+	OutPoint = Origin + Dir * 600.0;
+	return true;
 }

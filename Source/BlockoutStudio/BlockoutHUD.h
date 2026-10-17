@@ -19,6 +19,10 @@ public:
 	// 测量标注列表（测量工具写入）
 	TArray<FBlockoutMeasureItem> MeasureItems;
 
+	// T1：实时预览（MeasureStage=1 时显示 A→当前光标）
+	bool bMeasurePreview = false;
+	FBlockoutMeasureItem MeasurePreview;
+
 	// 瞬时提示消息
 	void ShowToast(const FString& Msg, float Duration = 3.f);
 
