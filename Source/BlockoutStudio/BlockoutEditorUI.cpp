@@ -20,8 +20,7 @@
 #include "Widgets/Layout/SWidgetSwitcher.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Framework/Application/IMenu.h"
-#include "DesktopPlatformModule.h"
-#include "IDesktopPlatform.h"
+#include "BlockoutFileDialog.h"
 #include "Engine/World.h"
 #include "Engine/Engine.h"
 
@@ -413,11 +412,8 @@ void SBlockoutEditorUI::OnImportReference()
 	ABlockoutEditorPlayerController* P = GetPC(PCPtr);
 	if (!Sub || !P) return;
 
-	IDesktopPlatform* DP = FDesktopPlatformModule::Get();
-	if (!DP) { Toast(TEXT("无法打开文件对话框")); return; }
 	TArray<FString> OutFiles;
-	const void* Parent = FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr);
-	if (!DP->OpenFileDialog(Parent, TEXT("导入参考体"), TEXT(""), TEXT(""), TEXT("网格文件|*.obj;*.gltf;*.glb"), EFileDialogFlags::None, OutFiles) || OutFiles.Num() == 0)
+	if (!FBlockoutFileDialog::OpenFileDialog(TEXT("导入参考体"), TEXT(""), TEXT("网格文件|*.obj;*.gltf;*.glb|OBJ|*.obj|glTF|*.gltf;*.glb"), OutFiles) || OutFiles.Num() == 0)
 	{
 		return;
 	}
@@ -447,12 +443,9 @@ void SBlockoutEditorUI::OnExportTopDown(int32 Type)
 	TArray<ABlockoutActor*> Targets = Sub->GetAllBlocks();
 	if (Targets.Num() == 0) { Toast(TEXT("场景为空")); return; }
 
-	IDesktopPlatform* DP = FDesktopPlatformModule::Get();
-	if (!DP) { Toast(TEXT("无法打开文件对话框")); return; }
 	TArray<FString> OutFiles;
-	const void* Parent = FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr);
 	const TCHAR* Filter = Type == 0 ? TEXT("PNG|*.png") : TEXT("SVG|*.svg");
-	if (!DP->SaveFileDialog(Parent, TEXT("导出俯视图"), TEXT(""), TEXT(""), Filter, EFileDialogFlags::None, OutFiles) || OutFiles.Num() == 0)
+	if (!FBlockoutFileDialog::SaveFileDialog(TEXT("导出俯视图"), TEXT(""), Filter, OutFiles) || OutFiles.Num() == 0)
 	{
 		return;
 	}
@@ -514,18 +507,14 @@ void SBlockoutEditorUI::OnExportPicked(int32 Format)
 	if (Targets.Num() == 0) { Toast(TEXT("没有可导出的体块")); return; }
 
 	// 文件保存对话框
-	IDesktopPlatform* DP = FDesktopPlatformModule::Get();
-	if (!DP) { Toast(TEXT("无法打开文件对话框")); return; }
-
 	TArray<FString> OutFiles;
-	const void* Parent = FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr);
 	const TCHAR* Ext[] = { TEXT("obj"), TEXT("fbx"), TEXT("gltf"), TEXT("usd"), TEXT("usdz"), TEXT("bobj") };
 	const TCHAR* Filter[] = {
 		TEXT("OBJ|*.obj"), TEXT("FBX|*.fbx"), TEXT("glTF|*.gltf"),
 		TEXT("USD|*.usd"), TEXT("USDZ|*.usdz"), TEXT("Blockout|*.bobj")
 	};
 
-	const bool bOk = DP->SaveFileDialog(Parent, TEXT("导出白盒模型"), TEXT(""), TEXT(""), Filter[Format], EFileDialogFlags::None, OutFiles);
+	const bool bOk = FBlockoutFileDialog::SaveFileDialog(TEXT("导出白盒模型"), TEXT(""), Filter[Format], OutFiles);
 	if (!bOk || OutFiles.Num() == 0) return;
 
 	const FString Path = OutFiles[0];
