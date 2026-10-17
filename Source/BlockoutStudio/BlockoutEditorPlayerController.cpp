@@ -7,6 +7,7 @@
 #include "BlockoutMeshEditLib.h"
 #include "BlockoutMeasureLib.h"
 #include "BlockoutHUD.h"
+#include "BlockoutTestPawn.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/World.h"
 #include "Engine/Engine.h"
@@ -73,6 +74,11 @@ void ABlockoutEditorPlayerController::SetupInputComponent()
 	InputComponent->BindKey(EKeys::RightMouseButton, IE_Released, this, &ABlockoutEditorPlayerController::OnRightMouseUp);
 	InputComponent->BindAxis(TEXT("MouseWheel"), this, &ABlockoutEditorPlayerController::OnMouseWheel);
 
+	BindEditorKeyBindings();
+}
+
+void ABlockoutEditorPlayerController::BindEditorKeyBindings()
+{
 	// 快捷键（编辑）
 	InputComponent->BindKey(EKeys::W, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyModeTranslate);
 	InputComponent->BindKey(EKeys::E, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyModeRotate);
@@ -100,6 +106,139 @@ void ABlockoutEditorPlayerController::SetupInputComponent()
 	// T1 两点测距
 	InputComponent->BindKey(EKeys::M, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyToggleMeasure);
 	InputComponent->BindKey(EKeys::Enter, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyMeasureConfirm);
+	// P4 测试模式入口
+	InputComponent->BindKey(EKeys::F5, IE_Pressed, this, &ABlockoutEditorPlayerController::ToggleTestMode);
+}
+
+void ABlockoutEditorPlayerController::BindTestKeyBindings()
+{
+	// P4 测试模式按键
+	InputComponent->BindKey(EKeys::F5, IE_Pressed, this, &ABlockoutEditorPlayerController::ToggleTestMode);
+	InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &ABlockoutEditorPlayerController::ToggleTestMode);
+	InputComponent->BindKey(EKeys::SpaceBar, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestJump);
+	InputComponent->BindKey(EKeys::LeftShift, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestToggleRun);
+	InputComponent->BindKey(EKeys::LeftControl, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestCrouch);
+	InputComponent->BindKey(EKeys::V, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestToggleView);
+	InputComponent->BindKey(EKeys::Q, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestRoll);
+	InputComponent->BindKey(EKeys::One, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestPresetCS);
+	InputComponent->BindKey(EKeys::Two, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestPresetSouls);
+	InputComponent->BindKey(EKeys::Three, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestPresetUncharted);
+	InputComponent->BindKey(EKeys::F9, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyToggleRecord);
+}
+
+// ---------- P4 测试模式 ----------
+void ABlockoutEditorPlayerController::ToggleTestMode()
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	if (!bTestMode)
+	{
+		// 进入测试模式：保存编辑相机，在相机处生成测试角色
+		SavedPawn = GetPawn();
+		if (SavedPawn)
+		{
+			SavedCamLoc = SavedPawn->GetActorLocation();
+			SavedCamRot = GetControlRotation();
+		}
+
+		FActorSpawnParameters Params;
+		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		TestPawn = World->SpawnActor<ABlockoutTestPawn>(SavedCamLoc, FRotator(0.f, SavedCamRot.Yaw, 0.f), Params);
+		if (!TestPawn) return;
+
+		bTestMode = true;
+		Possess(TestPawn);
+		SetIgnoreMoveInput(false);
+		bShowMouseCursor = false;
+		SetInputMode(FInputModeGameOnly());
+		if (InputComponent)
+		{
+			InputComponent->ClearActionBindings();
+			BindTestKeyBindings();
+		}
+		if (ABlockoutHUD* HUD = GetHUD<ABlockoutHUD>())
+		{
+			HUD->ShowToast(TEXT("测试模式：WASD 移动 / Shift 跑 / Ctrl 蹲 / 空格 跳 / Q 翻滚 / V 视角 / 1-3 尺度 / F5 退出"), 6.f);
+		}
+	}
+	else
+	{
+		// 退出测试模式：恢复编辑相机
+		bTestMode = false;
+		if (TestPawn)
+		{
+			TestPawn->Destroy();
+			TestPawn = nullptr;
+		}
+		if (SavedPawn)
+		{
+			Possess(SavedPawn);
+			SetControlRotation(SavedCamRot);
+			SavedPawn->SetActorLocation(SavedCamLoc);
+		}
+		bShowMouseCursor = true;
+		SetInputMode(FInputModeGameAndUI());
+		if (InputComponent)
+		{
+			InputComponent->ClearActionBindings();
+			BindEditorKeyBindings();
+		}
+		if (ABlockoutHUD* HUD = GetHUD<ABlockoutHUD>())
+		{
+			HUD->ShowToast(TEXT("已退出测试模式，回到编辑相机"));
+		}
+	}
+}
+
+FString ABlockoutEditorPlayerController::GetTestStatusText() const
+{
+	return (bTestMode && TestPawn) ? TestPawn->GetStatusText() : FString();
+}
+
+void ABlockoutEditorPlayerController::OnTestJump()
+{
+	if (bTestMode && TestPawn) TestPawn->DoJump();
+}
+
+void ABlockoutEditorPlayerController::OnTestToggleRun()
+{
+	if (bTestMode && TestPawn)
+	{
+		static bool bRun = true;
+		bRun = !bRun;
+		TestPawn->SetRunning(bRun);
+	}
+}
+
+void ABlockoutEditorPlayerController::OnTestCrouch()
+{
+	if (bTestMode && TestPawn) TestPawn->ToggleCrouch();
+}
+
+void ABlockoutEditorPlayerController::OnTestToggleView()
+{
+	if (bTestMode && TestPawn) TestPawn->ToggleViewMode();
+}
+
+void ABlockoutEditorPlayerController::OnTestRoll()
+{
+	if (bTestMode && TestPawn) TestPawn->DoRoll();
+}
+
+void ABlockoutEditorPlayerController::OnTestPresetCS()
+{
+	if (bTestMode && TestPawn) TestPawn->ApplyPreset(EBlockoutTestPreset::CS);
+}
+
+void ABlockoutEditorPlayerController::OnTestPresetSouls()
+{
+	if (bTestMode && TestPawn) TestPawn->ApplyPreset(EBlockoutTestPreset::Souls);
+}
+
+void ABlockoutEditorPlayerController::OnTestPresetUncharted()
+{
+	if (bTestMode && TestPawn) TestPawn->ApplyPreset(EBlockoutTestPreset::Uncharted);
 }
 
 void ABlockoutEditorPlayerController::PlayerTick(float DeltaSeconds)
@@ -204,6 +343,16 @@ void ABlockoutEditorPlayerController::PlayerTick(float DeltaSeconds)
 // ---------- 相机 ----------
 void ABlockoutEditorPlayerController::MoveForward(float Value)
 {
+	// P4 测试模式：轴输入转发给测试角色
+	if (bTestMode)
+	{
+		if (TestPawn && FMath::Abs(Value) > KINDA_SMALL_NUMBER)
+		{
+			const FRotator Rot(0.f, GetControlRotation().Yaw, 0.f);
+			TestPawn->AddMovementInput(Rot.Vector(), Value);
+		}
+		return;
+	}
 	if (!bRotateCamera) return;
 	if (FMath::Abs(Value) > KINDA_SMALL_NUMBER && GetPawn())
 	{
@@ -214,6 +363,16 @@ void ABlockoutEditorPlayerController::MoveForward(float Value)
 
 void ABlockoutEditorPlayerController::MoveRight(float Value)
 {
+	// P4 测试模式：轴输入转发给测试角色
+	if (bTestMode)
+	{
+		if (TestPawn && FMath::Abs(Value) > KINDA_SMALL_NUMBER)
+		{
+			const FRotator Rot(0.f, GetControlRotation().Yaw, 0.f);
+			TestPawn->AddMovementInput(FRotator(0.f, 90.f, 0.f).RotateVector(Rot.Vector()), Value);
+		}
+		return;
+	}
 	if (!bRotateCamera) return;
 	if (FMath::Abs(Value) > KINDA_SMALL_NUMBER && GetPawn())
 	{
@@ -224,6 +383,7 @@ void ABlockoutEditorPlayerController::MoveRight(float Value)
 
 void ABlockoutEditorPlayerController::MoveUp(float Value)
 {
+	if (bTestMode) return; // 测试模式无垂直移动
 	if (!bRotateCamera) return;
 	if (FMath::Abs(Value) > KINDA_SMALL_NUMBER && GetPawn())
 	{
@@ -233,6 +393,8 @@ void ABlockoutEditorPlayerController::MoveUp(float Value)
 
 void ABlockoutEditorPlayerController::UpdateCamera(float DeltaSeconds)
 {
+	// P4 测试模式：角色朝向由控制器 Yaw 驱动，不覆盖
+	if (bTestMode) return;
 	if (APawn* P = GetPawn())
 	{
 		P->SetActorRotation(GetControlRotation());
@@ -253,7 +415,7 @@ void ABlockoutEditorPlayerController::OnMouseMoveX(float Value) { MouseDX += Val
 void ABlockoutEditorPlayerController::OnMouseMoveY(float Value)
 {
 	MouseDY += Value;
-	if (bRotateCamera && GetPawn())
+	if ((bRotateCamera || bTestMode) && GetPawn())
 	{
 		AddYawInput(MouseDX * 0.15f);
 		AddPitchInput(-MouseDY * 0.15f);

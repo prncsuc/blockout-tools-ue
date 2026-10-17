@@ -354,6 +354,7 @@ TSharedRef<SWidget> SBlockoutEditorUI::BuildToolsMenu()
 	};
 
 	AddBtn(TEXT("测距模式(M)"), [this]() { if (ABlockoutEditorPlayerController* P = GetPC(PCPtr)) P->OnKeyToggleMeasure(); });
+	AddBtn(TEXT("测试模式(F5)"), [this]() { if (ABlockoutEditorPlayerController* P = GetPC(PCPtr)) P->ToggleTestMode(); });
 	Box->AddSlot().AutoHeight().Padding(0, 4, 0, 0)
 	[
 		SNew(STextBlock).Text(FText::FromString(TEXT("--- T3 比例尺参考体 ---")))

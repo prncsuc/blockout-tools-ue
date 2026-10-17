@@ -35,6 +35,11 @@ public:
 	void FocusSelection();
 	void ToggleUIShow();
 
+	// ---------- P4 测试模式（FPS/TPS 跑图） ----------
+	void ToggleTestMode();
+	bool IsTestMode() const { return bTestMode; }
+	FString GetTestStatusText() const;
+
 	// ---------- R1-R3 录制 ----------
 	void StartRecording();
 	void StopRecording();
@@ -149,4 +154,22 @@ private:
 	UPROPERTY() ABlockoutActor* EditTarget = nullptr;
 	TArray<int32> SelectedVerts;
 	TArray<int32> SelectedFaces;
+
+	// ---------- P4 测试模式状态 ----------
+	bool bTestMode = false;
+	UPROPERTY() class ABlockoutTestPawn* TestPawn = nullptr;
+	UPROPERTY() APawn* SavedPawn = nullptr;
+	FVector SavedCamLoc = FVector::ZeroVector;
+	FRotator SavedCamRot = FRotator::ZeroRotator;
+	// 测试模式按键
+	void OnTestJump();
+	void OnTestToggleRun();
+	void OnTestCrouch();
+	void OnTestToggleView();
+	void OnTestPresetCS();
+	void OnTestPresetSouls();
+	void OnTestPresetUncharted();
+	void OnTestRoll();
+	void BindEditorKeyBindings();
+	void BindTestKeyBindings();
 };

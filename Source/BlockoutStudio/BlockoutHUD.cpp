@@ -166,8 +166,15 @@ void ABlockoutHUD::DrawStatusBar()
 		? FString::Printf(TEXT("选中 %d / 共 %d"), Sub->GetSelection().Num(), Sub->GetAllBlocks().Num())
 		: TEXT("");
 
-	const FString Line = FString::Printf(TEXT("BlockoutStudio  |  模式:%s  |  %s  |  %s  |  W/E/R 变换  右键旋转视角  Tab 隐藏UI"),
+	FString Line = FString::Printf(TEXT("BlockoutStudio  |  模式:%s  |  %s  |  %s  |  W/E/R 变换  右键旋转视角  Tab 隐藏UI"),
 		*ModeStr, *SnapStr, *SelStr);
+
+	// P4 测试模式状态（跳跃高度/距离等）
+	if (PC && PC->IsTestMode())
+	{
+		Line = FString::Printf(TEXT("测试模式  |  %s  |  WASD 移动  Shift 跑  Ctrl 蹲  空格 跳  Q 翻滚  V 视角  1-3 尺度  F5 退出"),
+			*PC->GetTestStatusText());
+	}
 
 	DrawRect(FLinearColor(0.f, 0.f, 0.f, 0.55f), 0, Canvas->SizeY - 34, Canvas->SizeX, 34);
 	DrawText(Line, FLinearColor::White, 12, Canvas->SizeY - 26);
