@@ -443,6 +443,165 @@ void SBlockoutEditorUI::RefreshPropertyPanel()
 	[
 		SNew(STextBlock).Text(BlockoutUI::T(TEXT("Appearance"), TEXT("外观")))
 	];
+
+	// A1 用途分色预设（UE 白盒惯例灰阶 + 强调色），一键切换
+	{
+		struct FPresetDef { const TCHAR* Label; FLinearColor Color; EBlockoutTexturePattern Pattern; };
+		const FPresetDef Presets[] = {
+			{ TEXT("地面"), FLinearColor(0.35f, 0.35f, 0.35f, 1.f), EBlockoutTexturePattern::Grid },
+			{ TEXT("墙体"), FLinearColor(0.60f, 0.60f, 0.60f, 1.f), EBlockoutTexturePattern::Grid },
+			{ TEXT("障碍"), FLinearColor(0.75f, 0.75f, 0.75f, 1.f), EBlockoutTexturePattern::Checker },
+			{ TEXT("可交互"), FLinearColor(0.20f, 0.50f, 1.00f, 1.f), EBlockoutTexturePattern::Grid },
+			{ TEXT("装饰"), FLinearColor(0.35f, 0.65f, 0.35f, 1.f), EBlockoutTexturePattern::Brick },
+			{ TEXT("危险"), FLinearColor(1.00f, 0.25f, 0.20f, 1.f), EBlockoutTexturePattern::Checker },
+		};
+		TSharedPtr<SHorizontalBox> Row1, Row2;
+		PropertyBox->AddSlot().AutoHeight().Padding(2, 2)
+		[
+			SAssignNew(Row1, SHorizontalBox)
+		];
+		PropertyBox->AddSlot().AutoHeight().Padding(2, 2)
+		[
+			SAssignNew(Row2, SHorizontalBox)
+		];
+		for (int32 i = 0; i < UE_ARRAY_COUNT(Presets); ++i)
+		{
+			const FPresetDef& P = Presets[i];
+			TSharedPtr<SHorizontalBox> Row = (i < 3) ? Row1 : Row2;
+			Row->AddSlot().AutoWidth().Padding(1)
+			[
+				SNew(SButton)
+				.Text(FText::FromString(P.Label))
+				.OnClicked_Lambda([this, P]()
+				{
+					if (UBlockoutEditorSubsystem* S = GetSub(PCPtr))
+					{
+						S->SetColor(P.Color);
+						S->SetTexturePattern(P.Pattern, 4.f);
+					}
+					return FReply::Handled();
+				})
+			];
+		}
+	}
+
+	// A2 基础贴图（棋盘格/网格/砖墙/混凝土/瓷砖/金属板）+ 平铺密度
+	{
+		struct FPatternDef { const TCHAR* Label; EBlockoutTexturePattern Pattern; };
+		const FPatternDef Patterns[] = {
+			{ TEXT("纯色"), EBlockoutTexturePattern::None },
+			{ TEXT("棋盘格"), EBlockoutTexturePattern::Checker },
+			{ TEXT("网格"), EBlockoutTexturePattern::Grid },
+			{ TEXT("砖墙"), EBlockoutTexturePattern::Brick },
+			{ TEXT("混凝土"), EBlockoutTexturePattern::Concrete },
+			{ TEXT("瓷砖"), EBlockoutTexturePattern::Tile },
+			{ TEXT("金属板"), EBlockoutTexturePattern::MetalPlate },
+		};
+		for (int32 Row = 0; Row < 2; ++Row)
+		{
+			TSharedPtr<SHorizontalBox> PatRow;
+			PropertyBox->AddSlot().AutoHeight().Padding(2, 2)
+			[
+				SAssignNew(PatRow, SHorizontalBox)
+			];
+			const int32 Begin = Row * 4, End = FMath::Min<int32>(Begin + 4, (int32)UE_ARRAY_COUNT(Patterns));
+			for (int32 i = Begin; i < End; ++i)
+			{
+				const FPatternDef& P = Patterns[i];
+				PatRow->AddSlot().AutoWidth().Padding(1)
+				[
+					SNew(SButton)
+					.Text(FText::FromString(P.Label))
+					.OnClicked_Lambda([this, A, P]()
+					{
+						if (UBlockoutEditorSubsystem* S = GetSub(PCPtr))
+						{
+							S->SetTexturePattern(P.Pattern, A->Data.Tiling);
+						}
+						return FReply::Handled();
+					})
+				];
+			}
+		}
+	}
+
+	// A3 自定义颜色（色板）
+	{
+		const FLinearColor Palette[] = {
+			FLinearColor::White, FLinearColor(0.5f, 0.5f, 0.5f, 1.f), FLinearColor::Black,
+			FLinearColor::Red, FLinearColor::Green, FLinearColor::Blue,
+			FLinearColor::Yellow, FLinearColor(1.f, 0.5f, 0.f, 1.f),
+		};
+		TSharedPtr<SHorizontalBox> PalRow;
+		PropertyBox->AddSlot().AutoHeight().Padding(2, 2)
+		[
+			SAssignNew(PalRow, SHorizontalBox)
+		];
+		for (const FLinearColor& C : Palette)
+		{
+			PalRow->AddSlot().AutoWidth().Padding(1)
+			[
+				SNew(SButton)
+				.ButtonColorAndOpacity(C)
+				.OnClicked_Lambda([this, C]()
+				{
+					if (UBlockoutEditorSubsystem* S = GetSub(PCPtr)) S->SetColor(C);
+					return FReply::Handled();
+				})
+				[
+					SNew(SBox).WidthOverride(16).HeightOverride(16)
+				]
+			];
+		}
+	}
+
+	// A4 视图模式：无光照 / 光照 / 线框叠加
+	{
+		auto SetViewMode = [this](const TCHAR* Cmd)
+		{
+			if (UWorld* W = PCPtr.IsValid() ? PCPtr->GetWorld() : nullptr)
+			{
+				GEngine->Exec(W, Cmd);
+			}
+		};
+		PropertyBox->AddSlot().AutoHeight().Padding(2, 2)
+		[
+			SNew(SHorizontalBox)
+			+ SHorizontalBox::Slot().AutoWidth().Padding(1)
+			[
+				SNew(SButton)
+				.Text(BlockoutUI::T(TEXT("Unlit"), TEXT("无光照")))
+				.OnClicked_Lambda([SetViewMode]()
+				{
+					SetViewMode(TEXT("r.ShowFlag.Lighting 0"));
+					SetViewMode(TEXT("r.ShowFlag.Wireframe 0"));
+					return FReply::Handled();
+				})
+			]
+			+ SHorizontalBox::Slot().AutoWidth().Padding(1)
+			[
+				SNew(SButton)
+				.Text(BlockoutUI::T(TEXT("Lit"), TEXT("光照")))
+				.OnClicked_Lambda([SetViewMode]()
+				{
+					SetViewMode(TEXT("r.ShowFlag.Lighting 1"));
+					SetViewMode(TEXT("r.ShowFlag.Wireframe 0"));
+					return FReply::Handled();
+				})
+			]
+			+ SHorizontalBox::Slot().AutoWidth().Padding(1)
+			[
+				SNew(SButton)
+				.Text(BlockoutUI::T(TEXT("Wire"), TEXT("线框")))
+				.OnClicked_Lambda([SetViewMode]()
+				{
+					SetViewMode(TEXT("r.ShowFlag.Wireframe 1"));
+					return FReply::Handled();
+				})
+			]
+		];
+	}
+
 	PropertyBox->AddSlot().AutoHeight()
 	[
 		MakeNumBox(

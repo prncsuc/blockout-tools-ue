@@ -20,7 +20,7 @@ UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡�
 | P0 | 项目骨架与核心源码 | 已完成，编译通过（bf5c5f9） |
 | P1 | 编辑器交互（gizmo/输入/UI/GameMode） | 已完成，编译通过 |
 | P2 | 子编辑与录制 | 已完成，编译通过 |
-| P3 | 材质资产与外观 | 未开始 |
+| P3 | 材质资产与外观 | 已完成，编译通过 |
 | P4 | 导出与测量完善 | 未开始 |
 | P5 | 验收测试（§8 清单） | 未开始 |
 | P6 | 打包发布 | 未开始 |
@@ -57,7 +57,7 @@ UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡�
 - [x] 编译验证 P0 代码（2026-08-21 通过）
 - [x] BlockoutGizmo、PlayerController/HUD/输入、Slate UI、GameMode（2026-10-17 P1 通过）
 - [x] 录制 R1-R3、M3 点线面子编辑（2026-10-17 P2 通过）
-- [ ] 材质生成脚本与资产
+- [x] 材质生成脚本与资产（2026-10-17 P3 通过）：tools/create_materials.py + /Game/BlockoutStudio/Materials/M_BlockoutBase
 - [ ] 打包（P6）
 
 
@@ -113,4 +113,18 @@ UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡�
   - X 面挤出 / C 顶点倒角 / V 顶点塌陷 / Del 面模式下删面（各操作前 PushUndo 快照）
 - P2 编译修复：UE5.6 `GetCompressed(80)` 直接返回 TArray64；`ERGBFormat` 无 RGB 值（FColor 即 BGRA 直喂）；`FSceneViewport` 需 include Slate/SceneViewport.h；邻接查询用 `GetTriNeighbourTris`（GetEdgeTriangles 不存在）；三角形遍历用 MaxTriangleID+IsTriangle（GetAllTriangleIDs 不存在）
 - 结果：BlockoutStudioEditor Win64 Development 编译通过
-*（内容由AI生成，仅供参考）*
+
+## P3 已完成（2026-10-17）
+
+- `tools/create_materials.py`（材质资产生成，UnrealEditor-Cmd + PythonScriptPlugin 驱动）：
+  - 生成 `/Game/BlockoutStudio/Materials/M_BlockoutBase`（材质包落盘 Content/BlockoutStudio/Materials/）
+  - 参数与 `ABlockoutActor::EnsureMID` 对齐：BaseColor(Vector)/Tiling(Scalar)/Pattern(TextureSampleParameter2D)/PatternStrength(Scalar)/Highlight(Scalar)/HighlightColor(Vector)/Roughness/Metallic
+  - 节点接线：TexCoord×Tiling→Pattern.UV；BaseColor×PatternRGB 按 PatternStrength Lerp→BaseColor；HighlightColor×Highlight→Emissive
+  - 运行方式：`UnrealEditor-Cmd.exe <uproject> -run=pythonscript -script=<脚本>`（-run=pythonscript 必须走 Cmd；资产根路径必须 /Game/）
+- A1-A4 材质外观接入（属性面板）：
+  - A1 用途分色预设：地面/墙体/障碍/可交互/装饰/危险 一键切换（UE 白盒灰阶+强调色，联动 SetColor+SetTexturePattern）
+  - A2 基础贴图：纯色/棋盘格/ProBuilder 网格/砖墙/混凝土/瓷砖/金属板 按钮组（BlockoutTextureLib 程序化纹理），平铺密度可调
+  - A3 自定义颜色：色板快捷色块 + RGB 数值输入，颜色与贴图可叠加（Lerp 混合）
+  - A4 视图模式：无光照/光照/线框（r.ShowFlag.Lighting / r.ShowFlag.Wireframe）
+- 外观接线：BlockoutActor EnsureMID 优先加载 M_BlockoutBase，缺失 fallback BasicShapeMaterial
+- 结果：BlockoutStudioEditor Win64 Development 编译通过

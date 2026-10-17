@@ -90,7 +90,7 @@ void ABlockoutActor::ApplyAppearance()
 UMaterialInstanceDynamic* ABlockoutActor::EnsureMID()
 {
 	if (MID) return MID;
-	UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/BlockoutStudio/Materials/M_BlockoutBase.M_BlockoutBase"));
+	UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/BlockoutStudio/Materials/M_BlockoutBase.M_BlockoutBase"));
 	if (!Base)
 	{
 		Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
