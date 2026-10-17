@@ -160,6 +160,29 @@ private:
 	// 视口 JPEG 采集（MJPEG-AVI 用）
 	void CaptureViewportJpeg();
 
+	// ---------- 场景捕获（SceneCapture 读回，Shipping 下可靠） ----------
+	UPROPERTY() class USceneCaptureComponent2D* DemoCapture = nullptr;
+	UPROPERTY() class UTextureRenderTarget2D* DemoRT = nullptr;
+	bool EnsureDemoCapture();
+	bool CaptureScenePixels(TArray<FColor>& OutPixels, int32& OutW, int32& OutH);
+
+	// ---------- P5 自动演示（-AutoDemoLevel= / -AutoDemoOut=） ----------
+	bool bAutoDemo = false;
+	bool bAutoDemoLoaded = false;
+	FString AutoDemoLevelPath;
+	FString AutoDemoOutDir;
+	int32 AutoDemoPhase = 0;      // 0=等待载入 1=鸟瞰截图 2=跑图录制 3=收尾
+	float AutoDemoTimer = 0.0f;
+	int32 AutoDemoShotIdx = 0;
+	int32 AutoDemoPlacedShot = -1;   // 已摆好机位的 ShotIdx（-1=未摆），避免依赖帧时序
+	bool bDemoFollowCam = false;     // 跑图阶段用第三人称跟随相机
+	FVector DemoFollowLoc;
+	FRotator DemoFollowRot;
+	float AutoDemoRunT = 0.0f;
+	TArray<FVector> AutoDemoWaypoints;
+	void AutoDemoTick(float DeltaSeconds);
+	void SaveViewportPNG(const FString& Path);
+
 	// ---------- M3 子对象编辑状态 ----------
 	int32 SubEditMode = 0;              // 0=物体 1=顶点 2=面
 	UPROPERTY() ABlockoutActor* EditTarget = nullptr;

@@ -86,6 +86,8 @@ public:
 	// ---------- 存档（D1/D2） ----------
 	bool SaveProject(const FString& FilePath);
 	bool LoadProject(const FString& FilePath);
+	int32 LastLoadParsed = 0;   // 诊断：JSON 解析成功条数
+	int32 LastLoadSpawned = 0;  // 诊断：实际生成 Actor 条数
 	bool AutoSave(bool bSnapshot);
 	void RecoverIfNeeded();
 	FString GetDefaultProjectPath() const;

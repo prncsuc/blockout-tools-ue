@@ -16,8 +16,17 @@
 #include "IImageWrapperModule.h"
 #include "Modules/ModuleManager.h"
 #include "Misc/Paths.h"
+#include "Misc/FileHelper.h"
+#include "Misc/CommandLine.h"
 #include "HAL/FileManager.h"
 #include "Slate/SceneViewport.h"
+#include "Components/SceneCaptureComponent2D.h"
+#include "Engine/TextureRenderTarget2D.h"
+#include "TextureResource.h"
+#include "Engine/DirectionalLight.h"
+#include "Engine/SkyLight.h"
+#include "Components/LightComponent.h"
+#include "Components/SkyLightComponent.h"
 
 // T1 测距综合标注：距离 + 高差 + 与水平面夹角
 static FString BuildMeasureLabel(const FVector& A, const FVector& B)
@@ -46,6 +55,17 @@ void ABlockoutEditorPlayerController::BeginPlay()
 	bEnableClickEvents = true;
 	bEnableMouseOverEvents = true;
 	DefaultMouseCursor = EMouseCursor::Default;
+
+	// P5 自动演示：命令行驱动（-AutoDemoLevel=JSON -AutoDemoOut=目录）
+	FString DemoLevel, DemoOut;
+	if (FParse::Value(FCommandLine::Get(), TEXT("AutoDemoLevel="), DemoLevel) && !DemoLevel.IsEmpty())
+	{
+		bAutoDemo = true;
+		AutoDemoLevelPath = DemoLevel;
+		FParse::Value(FCommandLine::Get(), TEXT("AutoDemoOut="), DemoOut);
+		AutoDemoOutDir = DemoOut.IsEmpty() ? (FPaths::ProjectSavedDir() / TEXT("AutoDemo")) : DemoOut;
+		UE_LOG(LogTemp, Log, TEXT("AutoDemo: enabled level=%s out=%s"), *AutoDemoLevelPath, *AutoDemoOutDir);
+	}
 
 	// 创建 Slate 工具 UI 并挂入视口
 	SlateUI = SNew(SBlockoutEditorUI).PC(this);
@@ -250,6 +270,12 @@ void ABlockoutEditorPlayerController::PlayerTick(float DeltaSeconds)
 {
 	Super::PlayerTick(DeltaSeconds);
 	UpdateCamera(DeltaSeconds);
+
+	// P5 自动演示驱动
+	if (bAutoDemo)
+	{
+		AutoDemoTick(DeltaSeconds);
+	}
 
 	// R1：录制中逐帧采集轨迹 + 视口 JPEG
 	if (RecSession.bRecording)
@@ -836,34 +862,29 @@ void ABlockoutEditorPlayerController::CaptureRecordFrame()
 void ABlockoutEditorPlayerController::CaptureViewportJpeg()
 {
 	// 读取视口像素并 JPEG 压缩（MJPEG-AVI 帧源）
-	if (!GEngine || !GEngine->GameViewport) return;
-	FViewport* Viewport = GEngine->GameViewport->GetGameViewport();
-	if (!Viewport) return;
-
-	FIntPoint Size = Viewport->GetSizeXY();
-	if (Size.X <= 0 || Size.Y <= 0) return;
-
 	TArray<FColor> Bitmap;
-	if (!Viewport->ReadPixels(Bitmap)) return;
+	int32 W = 0, H = 0;
+	if (!CaptureScenePixels(Bitmap, W, H)) return;
 
 	// 缩到 1280x720 内以控制体积
-	int32 W = Size.X, H = Size.Y;
 	const int32 MaxW = 1280;
 	if (W > MaxW)
 	{
-		H = FMath::RoundToInt((float)H * MaxW / W);
-		W = MaxW;
-	}
-	TArray<FColor> Scaled;
-	Scaled.SetNumUninitialized(W * H);
-	for (int32 Y = 0; Y < H; ++Y)
-	{
-		const int32 SrcY = Y * Size.Y / H;
-		for (int32 X = 0; X < W; ++X)
+		const int32 NewH = FMath::RoundToInt((float)H * MaxW / W);
+		TArray<FColor> Scaled;
+		Scaled.SetNumUninitialized(MaxW * NewH);
+		for (int32 Y = 0; Y < NewH; ++Y)
 		{
-			const int32 SrcX = X * Size.X / W;
-			Scaled[Y * W + X] = Bitmap[SrcY * Size.X + SrcX];
+			const int32 SrcY = Y * H / NewH;
+			for (int32 X = 0; X < MaxW; ++X)
+			{
+				const int32 SrcX = X * W / MaxW;
+				Scaled[Y * MaxW + X] = Bitmap[SrcY * W + SrcX];
+			}
 		}
+		Bitmap = MoveTemp(Scaled);
+		W = MaxW;
+		H = NewH;
 	}
 
 	// JPEG 压缩（FColor 内存布局即 BGRA，直接喂）
@@ -871,7 +892,7 @@ void ABlockoutEditorPlayerController::CaptureViewportJpeg()
 		FModuleManager::LoadModuleChecked<IImageWrapperModule>(TEXT("ImageWrapper"));
 	TSharedPtr<IImageWrapper> JpegWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::JPEG);
 	if (!JpegWrapper.IsValid()) return;
-	if (!JpegWrapper->SetRaw(Scaled.GetData(), Scaled.Num() * sizeof(FColor), W, H, ERGBFormat::BGRA, 8)) return;
+	if (!JpegWrapper->SetRaw(Bitmap.GetData(), Bitmap.Num() * sizeof(FColor), W, H, ERGBFormat::BGRA, 8)) return;
 
 	TArray64<uint8> Compressed = JpegWrapper->GetCompressed(80);
 	if (Compressed.Num() == 0) return;
@@ -884,6 +905,258 @@ void ABlockoutEditorPlayerController::CaptureViewportJpeg()
 		RecSession.Height = H;
 	}
 	FBlockoutRecordLib::AddJpegFrame(RecSession, Jpeg);
+}
+
+// ---------- 场景捕获读回（GameViewport::ReadPixels 在 Shipping 下返回空帧，改用 SceneCapture） ----------
+bool ABlockoutEditorPlayerController::EnsureDemoCapture()
+{
+	if (DemoCapture && DemoRT) return true;
+
+	DemoRT = NewObject<UTextureRenderTarget2D>(this);
+	DemoRT->RenderTargetFormat = RTF_RGBA8;
+	DemoRT->ClearColor = FLinearColor::Black;
+	DemoRT->InitAutoFormat(1280, 720);
+	DemoRT->UpdateResourceImmediate(true);
+
+	DemoCapture = NewObject<USceneCaptureComponent2D>(this);
+	DemoCapture->RegisterComponent();
+	DemoCapture->bCaptureEveryFrame = false;
+	DemoCapture->bCaptureOnMovement = false;
+	DemoCapture->TextureTarget = DemoRT;
+	DemoCapture->CaptureSource = SCS_FinalColorLDR;
+	// 固定曝光 + EV 补偿：一次性 CaptureScene 时自动曝光未预热会导致整帧过暗
+	FPostProcessSettings& PPS = DemoCapture->PostProcessSettings;
+	PPS.bOverride_AutoExposureMinBrightness = true;
+	PPS.bOverride_AutoExposureMaxBrightness = true;
+	PPS.AutoExposureMinBrightness = 1.0f;
+	PPS.AutoExposureMaxBrightness = 1.0f;
+	PPS.bOverride_AutoExposureBias = true;
+	PPS.AutoExposureBias = 2.5f;
+	return true;
+}
+
+bool ABlockoutEditorPlayerController::CaptureScenePixels(TArray<FColor>& OutPixels, int32& OutW, int32& OutH)
+{
+	if (!EnsureDemoCapture()) return false;
+
+	// 机位来源：跑图阶段用第三人称跟随相机，否则用玩家眼点
+	FVector Loc;
+	FRotator Rot;
+	if (bDemoFollowCam)
+	{
+		Loc = DemoFollowLoc;
+		Rot = DemoFollowRot;
+	}
+	else
+	{
+		GetActorEyesViewPoint(Loc, Rot);
+		Rot = GetControlRotation();
+	}
+	DemoCapture->SetWorldLocationAndRotation(Loc, Rot);
+	DemoCapture->FOVAngle = 90.f;
+	DemoCapture->CaptureScene();
+
+	FTextureRenderTargetResource* Res = DemoRT->GameThread_GetRenderTargetResource();
+	if (!Res) return false;
+
+	OutW = DemoRT->SizeX;
+	OutH = DemoRT->SizeY;
+	OutPixels.SetNumUninitialized(OutW * OutH);
+	return Res->ReadPixels(OutPixels);
+}
+
+// ==================== P5 自动演示：鸟瞰截图 + 跑图录像 ====================
+void ABlockoutEditorPlayerController::SaveViewportPNG(const FString& Path)
+{
+	TArray<FColor> Bitmap;
+	int32 W = 0, H = 0;
+	if (!CaptureScenePixels(Bitmap, W, H)) return;
+
+	IImageWrapperModule& ImageWrapperModule =
+		FModuleManager::LoadModuleChecked<IImageWrapperModule>(TEXT("ImageWrapper"));
+	TSharedPtr<IImageWrapper> PngWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
+	if (!PngWrapper.IsValid()) return;
+	if (!PngWrapper->SetRaw(Bitmap.GetData(), Bitmap.Num() * sizeof(FColor), W, H, ERGBFormat::BGRA, 8)) return;
+
+	const TArray64<uint8>& Compressed = PngWrapper->GetCompressed(0);
+	if (Compressed.Num() == 0) return;
+
+	FFileHelper::SaveArrayToFile(
+		TArray<uint8>((uint8*)Compressed.GetData(), (int32)Compressed.Num()), *Path);
+	UE_LOG(LogTemp, Log, TEXT("AutoDemo: saved screenshot %s"), *Path);
+}
+
+void ABlockoutEditorPlayerController::AutoDemoTick(float DeltaSeconds)
+{
+	if (!bAutoDemo) return;
+	UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld());
+	if (!Sub) return;
+
+	AutoDemoTimer += DeltaSeconds;
+
+	switch (AutoDemoPhase)
+	{
+	case 0: // 等待场景就绪后载入关卡，计算路线
+	{
+		if (AutoDemoTimer < 3.f) break;
+		bAutoDemoLoaded = Sub->LoadProject(AutoDemoLevelPath);
+		UE_LOG(LogTemp, Log, TEXT("AutoDemo: load %s -> %d"), *AutoDemoLevelPath, bAutoDemoLoaded ? 1 : 0);
+
+		// 关卡包围盒与跑图路径（折线穿越 + 环绕）
+		FBox Bounds(ForceInit);
+		for (ABlockoutActor* B : Sub->GetAllBlocks())
+		{
+			if (B) Bounds += B->GetComponentsBoundingBox(true);
+		}
+		if (!Bounds.IsValid) Bounds = FBox(FVector(-2000, -2000, 0), FVector(2000, 2000, 2000));
+
+		const FVector C = Bounds.GetCenter();
+		const FVector E = Bounds.GetExtent();
+		const float EyeZ = Bounds.Min.Z + 180.f; // 角色眼高
+
+		AutoDemoWaypoints.Reset();
+		AutoDemoWaypoints.Add(FVector(Bounds.Min.X - 300.f, Bounds.Min.Y - 300.f, EyeZ));
+		AutoDemoWaypoints.Add(FVector(C.X - E.X * 0.5f, C.Y - E.Y * 0.5f, EyeZ));
+		AutoDemoWaypoints.Add(FVector(C.X + E.X * 0.5f, C.Y - E.Y * 0.2f, EyeZ));
+		AutoDemoWaypoints.Add(FVector(C.X + E.X * 0.2f, C.Y + E.Y * 0.5f, EyeZ + 150.f));
+		AutoDemoWaypoints.Add(FVector(C.X - E.X * 0.4f, C.Y + E.Y * 0.3f, EyeZ + 60.f));
+		AutoDemoWaypoints.Add(FVector(Bounds.Max.X + 300.f, Bounds.Max.Y + 300.f, EyeZ + 200.f));
+
+		IFileManager::Get().MakeDirectory(*AutoDemoOutDir, true);
+
+		// 补光：白盒关卡无光源，注入平行光+天光确保截图/录制可见
+		{
+			UWorld* W = GetWorld();
+			if (W)
+			{
+				ADirectionalLight* Sun = W->SpawnActor<ADirectionalLight>(FVector(0, 0, 2000), FRotator(-45, 35, 0));
+				if (Sun) Sun->GetLightComponent()->SetIntensity(8.f);
+				ASkyLight* Sky = W->SpawnActor<ASkyLight>();
+				if (Sky)
+				{
+					USkyLightComponent* SC = Cast<USkyLightComponent>(Sky->GetLightComponent());
+					if (SC) { SC->SourceType = ESkyLightSourceType::SLS_CapturedScene; SC->SetIntensity(1.2f); SC->RecaptureSky(); }
+				}
+			}
+		}
+
+		AutoDemoShotIdx = 0;
+		AutoDemoTimer = 0.f;
+		AutoDemoPhase = 1;
+
+		// 诊断：记录加载状态与场景范围
+		{
+			const FString Status = FString::Printf(
+				TEXT("{\"load\":%d,\"parsed\":%d,\"spawned\":%d,\"blocks\":%d,\"min\":[%.0f,%.0f,%.0f],\"max\":[%.0f,%.0f,%.0f]}"),
+				bAutoDemoLoaded ? 1 : 0, Sub->LastLoadParsed, Sub->LastLoadSpawned, Sub->GetAllBlocks().Num(),
+				Bounds.Min.X, Bounds.Min.Y, Bounds.Min.Z, Bounds.Max.X, Bounds.Max.Y, Bounds.Max.Z);
+			FFileHelper::SaveStringToFile(Status, *(AutoDemoOutDir / TEXT("status.json")));
+		}
+		break;
+	}
+	case 1: // 鸟瞰截图：3 个角度（先摆机位，停留 2s 待渲染后再截）
+	{
+		if (AutoDemoShotIdx >= 3)
+		{
+			AutoDemoTimer = 0.f;
+			AutoDemoPhase = 2;
+			StartRecording();
+			UE_LOG(LogTemp, Log, TEXT("AutoDemo: run-through recording started"));
+			break;
+		}
+
+		// 摆机位（每个机位只做一次，用 PlacedShot 标记，避免低帧率下 Timer 判据失效）
+		if (AutoDemoPlacedShot != AutoDemoShotIdx)
+		{
+			FBox Bounds(ForceInit);
+			for (ABlockoutActor* B : Sub->GetAllBlocks())
+			{
+				if (B) Bounds += B->GetComponentsBoundingBox(true);
+			}
+			if (!Bounds.IsValid) Bounds = FBox(FVector(-2000, -2000, 0), FVector(2000, 2000, 2000));
+			const FVector C = Bounds.GetCenter();
+			const float Radius = FMath::Max(Bounds.GetExtent().Size() * 1.2f, 4000.f);
+			const float Yaws[3] = { -45.f, 120.f, 210.f };
+
+			const float YawRad = FMath::DegreesToRadians(Yaws[AutoDemoShotIdx]);
+			const FVector Loc = C + FVector(FMath::Cos(YawRad) * Radius, FMath::Sin(YawRad) * Radius, Radius * 0.85f);
+			if (APawn* P = GetPawn())
+			{
+				P->SetActorLocation(Loc);
+				SetControlRotation((C - Loc).Rotation());
+			}
+			AutoDemoPlacedShot = AutoDemoShotIdx;
+			AutoDemoTimer = 0.f;
+			break;
+		}
+
+		// 停留 2s 后截图
+		if (AutoDemoTimer >= 2.f)
+		{
+			const FString ShotPath = FString::Printf(TEXT("%s/aerial_%d.png"), *AutoDemoOutDir, AutoDemoShotIdx + 1);
+			SaveViewportPNG(ShotPath);
+			AutoDemoShotIdx++;
+			AutoDemoTimer = 0.f;
+		}
+		break;
+	}
+	case 2: // 跑图：沿路径移动 + 逐帧录制（约 20s 全程）
+	{
+		AutoDemoRunT += DeltaSeconds / 20.f;
+		bDemoFollowCam = true;
+		if (APawn* DemoPawn = GetPawn()) { DemoPawn->SetActorHiddenInGame(true); DemoPawn->SetActorEnableCollision(false); }
+
+		if (GetPawn() && AutoDemoWaypoints.Num() >= 2)
+		{
+			const float Seg = AutoDemoRunT * (AutoDemoWaypoints.Num() - 1);
+			const int32 Idx = FMath::Clamp((int32)Seg, 0, AutoDemoWaypoints.Num() - 2);
+			const float Alpha = FMath::Clamp(Seg - Idx, 0.f, 1.f);
+			const FVector Loc = FMath::Lerp(AutoDemoWaypoints[Idx], AutoDemoWaypoints[Idx + 1], Alpha);
+			GetPawn()->SetActorLocation(Loc);
+			if (Idx + 1 < AutoDemoWaypoints.Num())
+			{
+				SetControlRotation((AutoDemoWaypoints[Idx + 1] - Loc).Rotation());
+			}
+
+			// 第三人称跟随机位：角色后上方看向前进方向，避免眼点穿模/被 Pawn 遮挡
+			const FRotator MoveRot = (Idx + 1 < AutoDemoWaypoints.Num())
+				? (AutoDemoWaypoints[Idx + 1] - Loc).Rotation()
+				: GetControlRotation();
+			DemoFollowLoc = Loc - MoveRot.Vector() * 600.f + FVector(0.f, 0.f, 260.f);
+			DemoFollowRot = ((Loc + MoveRot.Vector() * 400.f + FVector(0.f, 0.f, 80.f)) - DemoFollowLoc).Rotation();
+		}
+
+		if (AutoDemoRunT >= 1.f)
+		{
+			StopRecording();
+			const bool bSaved = SaveRecording(TEXT("runthrough"));
+			UE_LOG(LogTemp, Log, TEXT("AutoDemo: recording saved=%d"), bSaved ? 1 : 0);
+			AutoDemoTimer = 0.f;
+			AutoDemoPhase = 3;
+		}
+		break;
+	}
+	case 3: // 收尾：把录像复制到输出目录后退出
+	{
+		if (AutoDemoTimer < 1.5f) break;
+		const FString SrcBase = FPaths::ProjectSavedDir() / TEXT("Records");
+		for (const FString& Ext : { TEXT(".avi"), TEXT(".json") })
+		{
+			const FString Src = SrcBase / (FString(TEXT("runthrough")) + Ext);
+			if (FPaths::FileExists(Src))
+			{
+				const FString Dst = AutoDemoOutDir / (FString(TEXT("runthrough")) + Ext);
+				IFileManager::Get().Copy(*Dst, *Src, true, true);
+			}
+		}
+		UE_LOG(LogTemp, Log, TEXT("AutoDemo: done -> %s"), *AutoDemoOutDir);
+		AutoDemoPhase = 4;
+		FPlatformMisc::RequestExit(false);
+		break;
+	}
+	default:
+		break;
+	}
 }
 
 void ABlockoutEditorPlayerController::OnKeyToggleRecord()

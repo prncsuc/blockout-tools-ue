@@ -687,13 +687,127 @@ bool UBlockoutEditorSubsystem::LoadProject(const FString& FilePath)
 	TArray<FBlockoutObjectData> Datas;
 	for (const TSharedPtr<FJsonValue>& Val : *Blocks)
 	{
+		TSharedPtr<FJsonObject> Obj = Val->AsObject();
+		if (!Obj.IsValid()) continue;
+		// 手动逐字段解析：对数值/枚举/结构体格式差异更稳健（JsonObjectToUStruct 对生成器脚本产出的 JSON 会整体失败）
 		FBlockoutObjectData D;
-		if (FJsonObjectConverter::JsonObjectToUStruct(Val->AsObject().ToSharedRef(), &D, 0, 0))
+		FString IdStr, ShapeStr, SurfStr, PatStr;
+		if (Obj->TryGetStringField(TEXT("Id"), IdStr)) FGuid::Parse(IdStr, D.Id);
+		Obj->TryGetStringField(TEXT("Name"), D.Name);
+		if (Obj->TryGetStringField(TEXT("Shape"), ShapeStr))
 		{
-			Datas.Add(D);
+			FString S = ShapeStr;
+			int32 Colon = S.Find(TEXT("::"), ESearchCase::CaseSensitive, ESearchDir::FromEnd);
+			if (Colon != INDEX_NONE) S = S.Mid(Colon + 2);
+			{ int64 V = StaticEnum<EBlockoutShape>()->GetValueByNameString(S); if (V != INDEX_NONE) D.Shape = (EBlockoutShape)V; }
 		}
+		if (Obj->TryGetStringField(TEXT("SurfaceType"), SurfStr))
+		{
+			FString S = SurfStr;
+			int32 Colon = S.Find(TEXT("::"), ESearchCase::CaseSensitive, ESearchDir::FromEnd);
+			if (Colon != INDEX_NONE) S = S.Mid(Colon + 2);
+			{ int64 V = StaticEnum<EBlockoutSurfaceType>()->GetValueByNameString(S); if (V != INDEX_NONE) D.SurfaceType = (EBlockoutSurfaceType)V; }
+		}
+		if (Obj->TryGetStringField(TEXT("TexturePattern"), PatStr))
+		{
+			FString S = PatStr;
+			int32 Colon = S.Find(TEXT("::"), ESearchCase::CaseSensitive, ESearchDir::FromEnd);
+			if (Colon != INDEX_NONE) S = S.Mid(Colon + 2);
+			{ int64 V = StaticEnum<EBlockoutTexturePattern>()->GetValueByNameString(S); if (V != INDEX_NONE) D.TexturePattern = (EBlockoutTexturePattern)V; }
+		}
+		const TSharedPtr<FJsonObject>* PObj = nullptr;
+		if (Obj->TryGetObjectField(TEXT("Params"), PObj) && PObj && PObj->IsValid())
+		{
+			const TSharedPtr<FJsonObject>& P = *PObj;
+			double Num = 0; int32 Int = 0; bool Bool = false;
+			if (P->TryGetNumberField(TEXT("Length"), Num)) D.Params.Length = (float)Num;
+			if (P->TryGetNumberField(TEXT("Width"), Num)) D.Params.Width = (float)Num;
+			if (P->TryGetNumberField(TEXT("Height"), Num)) D.Params.Height = (float)Num;
+			if (P->TryGetNumberField(TEXT("Thickness"), Num)) D.Params.Thickness = (float)Num;
+			if (P->TryGetNumberField(TEXT("AngleDeg"), Num)) D.Params.AngleDeg = (float)Num;
+			if (P->TryGetNumberField(TEXT("Steps"), Int)) D.Params.Steps = Int;
+			if (P->TryGetNumberField(TEXT("Segments"), Int)) D.Params.Segments = Int;
+			if (P->TryGetNumberField(TEXT("HoleWidth"), Num)) D.Params.HoleWidth = (float)Num;
+			if (P->TryGetNumberField(TEXT("HoleHeight"), Num)) D.Params.HoleHeight = (float)Num;
+			if (P->TryGetNumberField(TEXT("HoleOffsetZ"), Num)) D.Params.HoleOffsetZ = (float)Num;
+			if (P->TryGetNumberField(TEXT("ArrayCount"), Int)) D.Params.ArrayCount = Int;
+			if (P->TryGetNumberField(TEXT("ArraySpacing"), Num)) D.Params.ArraySpacing = (float)Num;
+			if (P->TryGetBoolField(TEXT("bThroughHole"), Bool)) D.Params.bThroughHole = Bool;
+		}
+		const TSharedPtr<FJsonObject>* TObj = nullptr;
+		if (Obj->TryGetObjectField(TEXT("Transform"), TObj) && TObj && TObj->IsValid())
+		{
+			const TSharedPtr<FJsonObject>& T = *TObj;
+			const TSharedPtr<FJsonObject>* V = nullptr;
+			FVector Loc(0, 0, 0), Sc(1, 1, 1); FQuat Q = FQuat::Identity;
+			if (T->TryGetObjectField(TEXT("Translation"), V) && V && V->IsValid())
+			{
+				double X, Y, Z;
+				if ((*V)->TryGetNumberField(TEXT("X"), X) && (*V)->TryGetNumberField(TEXT("Y"), Y) && (*V)->TryGetNumberField(TEXT("Z"), Z))
+					Loc = FVector(X, Y, Z);
+			}
+			if (T->TryGetObjectField(TEXT("Rotation"), V) && V && V->IsValid())
+			{
+				double X, Y, Z, W = 1.0;
+				if ((*V)->TryGetNumberField(TEXT("X"), X) && (*V)->TryGetNumberField(TEXT("Y"), Y) && (*V)->TryGetNumberField(TEXT("Z"), Z))
+				{
+					(*V)->TryGetNumberField(TEXT("W"), W);
+					Q = FQuat(X, Y, Z, W);
+				}
+			}
+			if (T->TryGetObjectField(TEXT("Scale3D"), V) && V && V->IsValid())
+			{
+				double X, Y, Z;
+				if ((*V)->TryGetNumberField(TEXT("X"), X) && (*V)->TryGetNumberField(TEXT("Y"), Y) && (*V)->TryGetNumberField(TEXT("Z"), Z))
+					Sc = FVector(X, Y, Z);
+			}
+			D.Transform = FTransform(Q, Loc, Sc);
+		}
+		const TSharedPtr<FJsonObject>* CObj = nullptr;
+		if (Obj->TryGetObjectField(TEXT("Color"), CObj) && CObj && CObj->IsValid())
+		{
+			double R = 0.6, G = 0.6, B = 0.6, A = 1.0;
+			(*CObj)->TryGetNumberField(TEXT("R"), R);
+			(*CObj)->TryGetNumberField(TEXT("G"), G);
+			(*CObj)->TryGetNumberField(TEXT("B"), B);
+			(*CObj)->TryGetNumberField(TEXT("A"), A);
+			D.Color = FLinearColor((float)R, (float)G, (float)B, (float)A);
+		}
+		double Tiling = 1.0;
+		if (Obj->TryGetNumberField(TEXT("Tiling"), Tiling)) D.Tiling = (float)Tiling;
+		bool BFlag = false;
+		if (Obj->TryGetBoolField(TEXT("bHidden"), BFlag)) D.bHidden = BFlag;
+		if (Obj->TryGetBoolField(TEXT("bLocked"), BFlag)) D.bLocked = BFlag;
+		if (Obj->TryGetBoolField(TEXT("bFreeform"), BFlag)) D.bFreeform = BFlag;
+		FString GrpStr;
+		if (Obj->TryGetStringField(TEXT("GroupId"), GrpStr)) FGuid::Parse(GrpStr, D.GroupId);
+		const TArray<TSharedPtr<FJsonValue>>* Arr = nullptr;
+		if (Obj->TryGetArrayField(TEXT("Vertices"), Arr) && Arr)
+		{
+			for (const TSharedPtr<FJsonValue>& Vv : *Arr)
+			{
+				const TSharedPtr<FJsonObject>* Vo = nullptr;
+				if (Vv->TryGetObject(Vo) && Vo && Vo->IsValid())
+				{
+					double X, Y, Z;
+					if ((*Vo)->TryGetNumberField(TEXT("X"), X) && (*Vo)->TryGetNumberField(TEXT("Y"), Y) && (*Vo)->TryGetNumberField(TEXT("Z"), Z))
+						D.Vertices.Add(FVector(X, Y, Z));
+				}
+			}
+		}
+		if (Obj->TryGetArrayField(TEXT("Triangles"), Arr) && Arr)
+		{
+			for (const TSharedPtr<FJsonValue>& Tv : *Arr)
+			{
+				double Ix = 0;
+				if (Tv->TryGetNumber(Ix)) D.Triangles.Add((int32)Ix);
+			}
+		}
+		Datas.Add(D);
 	}
+	LastLoadParsed = Datas.Num();
 	RestoreAll(Datas);
+	LastLoadSpawned = AllBlocks.Num();
 	CurrentProjectPath = FilePath;
 	bDirty = false;
 	return true;

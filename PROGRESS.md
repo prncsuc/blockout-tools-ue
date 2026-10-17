@@ -58,6 +58,7 @@ UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡�
 - [x] BlockoutGizmo、PlayerController/HUD/输入、Slate UI、GameMode（2026-10-17 P1 通过）
 - [x] 录制 R1-R3、M3 点线面子编辑（2026-10-17 P2 通过）
 - [x] 材质生成脚本与资产（2026-10-17 P3 通过）：tools/create_materials.py + /Game/BlockoutStudio/Materials/M_BlockoutBase
+- [x] P5 验收（2026-10-17 通过）：三关卡鸟瞰图各 3 张视角互异；跑图视频 v2 抽帧验证画面无遮挡无穿模、亮度正常、相机明显移动，全部通过，详见 ACCEPTANCE.md
 - [ ] 打包（P6）
 
 
@@ -146,3 +147,22 @@ UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡�
 - UI：工具栏新增「工具」菜单（测距/参考体/导入/俯视出图/快照），导出菜单新增分组复选框
 - P4 编译修复：FLinearColor 无 Cyan 静态成员；FJsonObject::TryGetStringField 第二参为 FString&；测试入口 OnKeyToggleMeasure 移至 public
 - 结果：BlockoutStudioEditor Win64 Development 编译通过
+
+## P5 已完成（2026-10-17）
+
+- 验收范围：三测试关卡（类魂/类 CS/类神海）鸟瞰图 + 跑图视频 v2 修复版，逐项验收清单与结论见 `ACCEPTANCE.md`
+- 鸟瞰图：三关卡各 3 张（aerial_1/2/3.png），同关卡 3 张视角互异，验收通过
+- 跑图视频 v2：三关卡抽帧（f0/f1/f2）验证，画面无遮挡无穿模、亮度正常、相机明显移动，验收通过
+  - level_cs_dustyard 场景开阔导致帧间透视变化较小，但像素差 14-27%（pct_changed）确认相机在移动，判定通过
+- 配套源码修复：BlockoutEditorPlayerController / BlockoutEditorSubsystem 跑图演示与鸟瞰截图 v2 修复（详见踩坑记录）
+
+## 踩坑记录
+
+- **Shipping 包 GameViewport::ReadPixels 读回全零致跑图视频黑屏**：Shipping 配置下视口像素读回恒为全零，录出的视频整段黑屏。
+  - 原因：GameViewport::ReadPixels 在 Shipping 包不可用（渲染读回被裁剪/优化）。
+  - 解决：改用 USceneCaptureComponent2D + UTextureRenderTarget2D 截帧；固定 AutoExposureMinBrightness / AutoExposureMaxBrightness = 1.0 并设 AutoExposureBias = 2.5 提亮画面；关卡加载后动态 Spawn DirectionalLight（强度 8）+ SkyLight（强度 1.2）补光。
+- **鸟瞰机位判据 AutoDemoTimer<0.1f 在低帧率下失效致视角重复**：低帧率下单帧时间增量超过判据窗口，按计时器触发机位切换会漏拍/重复，3 张鸟瞰图视角不互异。
+  - 原因：基于浮点计时器的单帧判据依赖帧率，低帧率下判据被跳过。
+  - 解决：改用 int32 AutoDemoPlacedShot 标记法，按已拍摄张数无条件拍满 N 个机位，与帧率解耦。
+- **跑图视频相机被 Pawn mesh 遮挡穿模**：默认相机位于 Pawn 内部/贴身，画面被自身网格遮挡甚至穿模。
+  - 解决：改第三人称跟随相机（后方 600、Z+260）；跑图阶段隐藏 Pawn 网格并关闭碰撞。
