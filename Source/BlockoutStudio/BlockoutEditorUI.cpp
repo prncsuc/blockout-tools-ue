@@ -371,6 +371,15 @@ TSharedRef<SWidget> SBlockoutEditorUI::BuildToolsMenu()
 	AddBtn(TEXT("导出俯视图 SVG"), [this]() { OnExportTopDown(1); });
 	AddBtn(TEXT("保存快照"), [this]() { OnSnapshotSave(); });
 	AddBtn(TEXT("回滚到最近快照"), [this]() { OnSnapshotRestore(0); });
+	Box->AddSlot().AutoHeight().Padding(0, 4, 0, 0)
+	[
+		SNew(STextBlock).Text(FText::FromString(TEXT("--- 点线面编辑（ProBuilder 对齐） ---")))
+	];
+	AddBtn(TEXT("内插面(T)"), [this]() { if (ABlockoutEditorPlayerController* P = GetPC(PCPtr)) P->MeshInsetFaces(); });
+	AddBtn(TEXT("细分面(K)"), [this]() { if (ABlockoutEditorPlayerController* P = GetPC(PCPtr)) P->MeshSubdivideFaces(); });
+	AddBtn(TEXT("翻转法线(J)"), [this]() { if (ABlockoutEditorPlayerController* P = GetPC(PCPtr)) P->MeshFlipFaces(); });
+	AddBtn(TEXT("补洞(H)"), [this]() { if (ABlockoutEditorPlayerController* P = GetPC(PCPtr)) P->MeshFillHoles(); });
+	AddBtn(TEXT("焊接顶点(N)"), [this]() { if (ABlockoutEditorPlayerController* P = GetPC(PCPtr)) P->MeshWeldVerts(); });
 	return Box;
 }
 

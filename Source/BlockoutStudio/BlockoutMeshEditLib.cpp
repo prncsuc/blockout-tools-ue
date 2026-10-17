@@ -246,6 +246,224 @@ bool FBlockoutMeshEditLib::DeleteFaces(ABlockoutActor* Actor, const TArray<int32
 	return true;
 }
 
+// ---------- ProBuilder 补齐 ----------
+bool FBlockoutMeshEditLib::WeldVertices(ABlockoutActor* Actor, const TArray<int32>& VertexIds, float Tolerance)
+{
+	if (!Actor || VertexIds.Num() == 0) return false;
+	FDynamicMesh3 Mesh = Actor->CachedMesh;
+
+	// 贪心聚类：距离 ≤ Tolerance 的顶点合并到聚类首点
+	TSet<int32> Processed;
+	TMap<int32, int32> WeldTo; // 旧ID → 目标ID
+	for (int32 A : VertexIds)
+	{
+		if (!Mesh.IsVertex(A) || Processed.Contains(A)) continue;
+		const FVector3d PA = Mesh.GetVertex(A);
+		for (int32 B : VertexIds)
+		{
+			if (B == A || !Mesh.IsVertex(B) || Processed.Contains(B)) continue;
+			if (FVector3d::Distance(PA, Mesh.GetVertex(B)) <= (double)Tolerance)
+			{
+				WeldTo.Add(B, A);
+				Processed.Add(B);
+			}
+		}
+		Processed.Add(A);
+	}
+	if (WeldTo.Num() == 0) return false;
+
+	TArray<int32> AllTris;
+	for (int32 Tid = 0; Tid < Mesh.MaxTriangleID(); ++Tid)
+	{
+		if (Mesh.IsTriangle(Tid)) AllTris.Add(Tid);
+	}
+	for (int32 Tid : AllTris)
+	{
+		const FIndex3i T = Mesh.GetTriangle(Tid);
+		int32 V[3] = { T.A, T.B, T.C };
+		bool bChanged = false;
+		for (int32 k = 0; k < 3; ++k)
+		{
+			if (const int32* Target = WeldTo.Find(V[k])) { V[k] = *Target; bChanged = true; }
+		}
+		if (V[0] == V[1] || V[1] == V[2] || V[0] == V[2])
+		{
+			Mesh.RemoveTriangle(Tid, false, false);
+			continue;
+		}
+		if (bChanged) Mesh.SetTriangle(Tid, FIndex3i(V[0], V[1], V[2]));
+	}
+	CommitMesh(Actor, Mesh);
+	return true;
+}
+
+bool FBlockoutMeshEditLib::FillHoles(ABlockoutActor* Actor)
+{
+	if (!Actor) return false;
+	FDynamicMesh3 Mesh = Actor->CachedMesh;
+
+	// 统计无向边使用次数，仅 1 次者为边界边
+	TMap<uint64, int32> EdgeCount;
+	auto EdgeKey = [](int32 A, int32 B) -> uint64
+	{
+		const uint32 Lo = (uint32)FMath::Min(A, B), Hi = (uint32)FMath::Max(A, B);
+		return ((uint64)Lo << 32) | (uint64)Hi;
+	};
+	for (int32 Tid = 0; Tid < Mesh.MaxTriangleID(); ++Tid)
+	{
+		if (!Mesh.IsTriangle(Tid)) continue;
+		const FIndex3i T = Mesh.GetTriangle(Tid);
+		EdgeCount.FindOrAdd(EdgeKey(T.A, T.B))++;
+		EdgeCount.FindOrAdd(EdgeKey(T.B, T.C))++;
+		EdgeCount.FindOrAdd(EdgeKey(T.C, T.A))++;
+	}
+
+	// 边界边接环（有向：与三角绕序相反，保证补面法线朝外）
+	TMultiMap<int32, int32> NextOf; // 起点 → 终点
+	for (int32 Tid = 0; Tid < Mesh.MaxTriangleID(); ++Tid)
+	{
+		if (!Mesh.IsTriangle(Tid)) continue;
+		const FIndex3i T = Mesh.GetTriangle(Tid);
+		const int32 E[3][2] = { {T.A, T.B}, {T.B, T.C}, {T.C, T.A} };
+		for (int32 e = 0; e < 3; ++e)
+		{
+			const uint64 Key = EdgeKey(E[e][0], E[e][1]);
+			if (EdgeCount.FindRef(Key) == 1)
+			{
+				NextOf.Add(E[e][1], E[e][0]); // 反向行走
+			}
+		}
+	}
+	if (NextOf.Num() == 0) return false;
+
+	TSet<int32> Used;
+	int32 Filled = 0;
+	for (auto It = NextOf.CreateIterator(); It; ++It)
+	{
+		const int32 Start = It.Key();
+		if (Used.Contains(Start)) continue;
+		// 沿边界走出一个环
+		TArray<int32> Loop;
+		int32 Cur = Start;
+		for (int32 Guard = 0; Guard < 10000; ++Guard)
+		{
+			if (Used.Contains(Cur)) break;
+			Used.Add(Cur);
+			Loop.Add(Cur);
+			TArray<int32> Nexts;
+			NextOf.MultiFind(Cur, Nexts);
+			if (Nexts.Num() == 0) break;
+			int32 Next = Nexts[0];
+			for (int32 N : Nexts) { if (!Used.Contains(N)) { Next = N; break; } }
+			Cur = Next;
+			if (Cur == Start) break;
+		}
+		if (Loop.Num() < 3) continue;
+		// 扇面填充
+		const int32 V0 = Loop[0];
+		for (int32 i = 1; i + 1 < Loop.Num(); ++i)
+		{
+			Mesh.AppendTriangle(FIndex3i(V0, Loop[i], Loop[i + 1]));
+			++Filled;
+		}
+	}
+	if (Filled == 0) return false;
+	CommitMesh(Actor, Mesh);
+	return true;
+}
+
+bool FBlockoutMeshEditLib::InsetFaces(ABlockoutActor* Actor, const TArray<int32>& TriIds, float Amount)
+{
+	if (!Actor || TriIds.Num() == 0) return false;
+	FDynamicMesh3 Mesh = Actor->CachedMesh;
+	const double Alpha = FMath::Clamp((double)Amount, 0.05, 0.45);
+
+	TSet<int32> TriSet;
+	for (int32 T : TriIds) { if (Mesh.IsTriangle(T)) TriSet.Add(T); }
+	if (TriSet.Num() == 0) return false;
+
+	for (int32 Tid : TriSet)
+	{
+		const FIndex3i T = Mesh.GetTriangle(Tid);
+		const FVector3d C = (Mesh.GetVertex(T.A) + Mesh.GetVertex(T.B) + Mesh.GetVertex(T.C)) / 3.0;
+		const int32 Old[3] = { T.A, T.B, T.C };
+		int32 In[3];
+		for (int32 k = 0; k < 3; ++k)
+		{
+			In[k] = Mesh.AppendVertex(Mesh.GetVertex(Old[k]) + (C - Mesh.GetVertex(Old[k])) * Alpha);
+		}
+		// 内面 + 侧壁
+		Mesh.AppendTriangle(FIndex3i(In[0], In[1], In[2]));
+		for (int32 k = 0; k < 3; ++k)
+		{
+			const int32 k2 = (k + 1) % 3;
+			Mesh.AppendTriangle(FIndex3i(Old[k], Old[k2], In[k2]));
+			Mesh.AppendTriangle(FIndex3i(Old[k], In[k2], In[k]));
+		}
+		Mesh.RemoveTriangle(Tid, false, false);
+	}
+	CommitMesh(Actor, Mesh);
+	return true;
+}
+
+bool FBlockoutMeshEditLib::SubdivideFaces(ABlockoutActor* Actor, const TArray<int32>& TriIds)
+{
+	if (!Actor || TriIds.Num() == 0) return false;
+	FDynamicMesh3 Mesh = Actor->CachedMesh;
+
+	TSet<int32> TriSet;
+	for (int32 T : TriIds) { if (Mesh.IsTriangle(T)) TriSet.Add(T); }
+	if (TriSet.Num() == 0) return false;
+
+	// 共享边中点一次生成（避免裂缝）
+	TMap<uint64, int32> MidOf;
+	auto EdgeKey = [](int32 A, int32 B) -> uint64
+	{
+		const uint32 Lo = (uint32)FMath::Min(A, B), Hi = (uint32)FMath::Max(A, B);
+		return ((uint64)Lo << 32) | (uint64)Hi;
+	};
+	auto GetMid = [&Mesh, &MidOf, &EdgeKey](int32 A, int32 B) -> int32
+	{
+		const uint64 Key = EdgeKey(A, B);
+		if (const int32* Found = MidOf.Find(Key)) return *Found;
+		const int32 New = Mesh.AppendVertex((Mesh.GetVertex(A) + Mesh.GetVertex(B)) * 0.5);
+		MidOf.Add(Key, New);
+		return New;
+	};
+
+	for (int32 Tid : TriSet)
+	{
+		const FIndex3i T = Mesh.GetTriangle(Tid);
+		const int32 Mab = GetMid(T.A, T.B);
+		const int32 Mbc = GetMid(T.B, T.C);
+		const int32 Mca = GetMid(T.C, T.A);
+		Mesh.AppendTriangle(FIndex3i(T.A, Mab, Mca));
+		Mesh.AppendTriangle(FIndex3i(Mab, T.B, Mbc));
+		Mesh.AppendTriangle(FIndex3i(Mca, Mbc, T.C));
+		Mesh.AppendTriangle(FIndex3i(Mab, Mbc, Mca));
+		Mesh.RemoveTriangle(Tid, false, false);
+	}
+	CommitMesh(Actor, Mesh);
+	return true;
+}
+
+bool FBlockoutMeshEditLib::FlipNormals(ABlockoutActor* Actor, const TArray<int32>& TriIds)
+{
+	if (!Actor || TriIds.Num() == 0) return false;
+	FDynamicMesh3 Mesh = Actor->CachedMesh;
+	int32 Flipped = 0;
+	for (int32 Tid : TriIds)
+	{
+		if (!Mesh.IsTriangle(Tid)) continue;
+		const FIndex3i T = Mesh.GetTriangle(Tid);
+		Mesh.SetTriangle(Tid, FIndex3i(T.A, T.C, T.B));
+		++Flipped;
+	}
+	if (Flipped == 0) return false;
+	CommitMesh(Actor, Mesh);
+	return true;
+}
+
 bool FBlockoutMeshEditLib::RayTriangleHit(const FVector& A, const FVector& B, const FVector& C,
 	const FVector& RayOrigin, const FVector& RayDir, double& OutT)
 {

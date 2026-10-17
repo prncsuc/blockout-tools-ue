@@ -103,6 +103,11 @@ void ABlockoutEditorPlayerController::BindEditorKeyBindings()
 	InputComponent->BindKey(EKeys::X, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyExtrude);
 	InputComponent->BindKey(EKeys::C, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyBevel);
 	InputComponent->BindKey(EKeys::V, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyCollapse);
+	InputComponent->BindKey(EKeys::T, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyInset);
+	InputComponent->BindKey(EKeys::K, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeySubdivide);
+	InputComponent->BindKey(EKeys::J, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyFlipFaces);
+	InputComponent->BindKey(EKeys::H, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyFillHoles);
+	InputComponent->BindKey(EKeys::N, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyWeld);
 	// T1 两点测距
 	InputComponent->BindKey(EKeys::M, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyToggleMeasure);
 	InputComponent->BindKey(EKeys::Enter, IE_Pressed, this, &ABlockoutEditorPlayerController::OnKeyMeasureConfirm);
@@ -959,6 +964,45 @@ void ABlockoutEditorPlayerController::MeshMoveVerts(const FVector& Delta)
 	FBlockoutMeshEditLib::MoveVertices(EditTarget, SelectedVerts, Delta);
 }
 
+void ABlockoutEditorPlayerController::MeshWeldVerts()
+{
+	if (!IsValid(EditTarget) || SelectedVerts.Num() < 2) return;
+	if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld())) Sub->PushUndo(TEXT("WeldVertices"));
+	FBlockoutMeshEditLib::WeldVertices(EditTarget, SelectedVerts, 1.f);
+	SelectedVerts.Reset();
+}
+
+void ABlockoutEditorPlayerController::MeshInsetFaces()
+{
+	if (!IsValid(EditTarget) || SelectedFaces.Num() == 0) return;
+	if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld())) Sub->PushUndo(TEXT("InsetFaces"));
+	FBlockoutMeshEditLib::InsetFaces(EditTarget, SelectedFaces, 0.2f);
+	SelectedFaces.Reset();
+}
+
+void ABlockoutEditorPlayerController::MeshSubdivideFaces()
+{
+	if (!IsValid(EditTarget) || SelectedFaces.Num() == 0) return;
+	if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld())) Sub->PushUndo(TEXT("SubdivideFaces"));
+	FBlockoutMeshEditLib::SubdivideFaces(EditTarget, SelectedFaces);
+	SelectedFaces.Reset();
+}
+
+void ABlockoutEditorPlayerController::MeshFlipFaces()
+{
+	if (!IsValid(EditTarget) || SelectedFaces.Num() == 0) return;
+	if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld())) Sub->PushUndo(TEXT("FlipNormals"));
+	FBlockoutMeshEditLib::FlipNormals(EditTarget, SelectedFaces);
+	SelectedFaces.Reset();
+}
+
+void ABlockoutEditorPlayerController::MeshFillHoles()
+{
+	if (!IsValid(EditTarget)) return;
+	if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld())) Sub->PushUndo(TEXT("FillHoles"));
+	FBlockoutMeshEditLib::FillHoles(EditTarget);
+}
+
 void ABlockoutEditorPlayerController::OnKeyExtrude()
 {
 	if (bRotateCamera || SubEditMode != 2) return;
@@ -973,6 +1017,31 @@ void ABlockoutEditorPlayerController::OnKeyCollapse()
 {
 	if (bRotateCamera || SubEditMode != 1) return;
 	MeshCollapseVerts();
+}
+void ABlockoutEditorPlayerController::OnKeyInset()
+{
+	if (bRotateCamera || SubEditMode != 2) return;
+	MeshInsetFaces();
+}
+void ABlockoutEditorPlayerController::OnKeySubdivide()
+{
+	if (bRotateCamera || SubEditMode != 2) return;
+	MeshSubdivideFaces();
+}
+void ABlockoutEditorPlayerController::OnKeyFlipFaces()
+{
+	if (bRotateCamera || SubEditMode != 2) return;
+	MeshFlipFaces();
+}
+void ABlockoutEditorPlayerController::OnKeyFillHoles()
+{
+	if (bRotateCamera || SubEditMode == 0) return;
+	MeshFillHoles();
+}
+void ABlockoutEditorPlayerController::OnKeyWeld()
+{
+	if (bRotateCamera || SubEditMode != 1) return;
+	MeshWeldVerts();
 }
 
 // ==================== T1 两点测距 ====================

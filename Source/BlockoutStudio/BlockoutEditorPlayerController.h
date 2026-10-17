@@ -63,6 +63,12 @@ public:
 	void MeshCollapseVerts();
 	void MeshDeleteFaces();
 	void MeshMoveVerts(const FVector& Delta);
+	// ProBuilder 补齐动作
+	void MeshWeldVerts();
+	void MeshInsetFaces();
+	void MeshSubdivideFaces();
+	void MeshFlipFaces();
+	void MeshFillHoles();
 
 private:
 	// ---------- 相机 ----------
@@ -108,6 +114,11 @@ private:
 	void OnKeyExtrude();
 	void OnKeyBevel();
 	void OnKeyCollapse();
+	void OnKeyInset();
+	void OnKeySubdivide();
+	void OnKeyFlipFaces();
+	void OnKeyFillHoles();
+	void OnKeyWeld();
 
 public:
 	// T1 测距：UI 入口

@@ -27,6 +27,18 @@ public:
 	// 删除选中面
 	static bool DeleteFaces(ABlockoutActor* Actor, const TArray<int32>& TriIds);
 
+	// ---------- ProBuilder 补齐：焊接/补洞/内插面/细分面/翻转法线 ----------
+	// 焊接选中顶点（距离 ≤ Tolerance 合并到首点）
+	static bool WeldVertices(ABlockoutActor* Actor, const TArray<int32>& VertexIds, float Tolerance = 1.f);
+	// 补洞：边界边环自动扇面填充
+	static bool FillHoles(ABlockoutActor* Actor);
+	// 内插面：选中三角形向内缩 Amount 比例并生成侧壁
+	static bool InsetFaces(ABlockoutActor* Actor, const TArray<int32>& TriIds, float Amount = 0.2f);
+	// 细分面：选中三角形 1 拆 4（共享边中点）
+	static bool SubdivideFaces(ABlockoutActor* Actor, const TArray<int32>& TriIds);
+	// 翻转选中面法线（绕序反转）
+	static bool FlipNormals(ABlockoutActor* Actor, const TArray<int32>& TriIds);
+
 	// 拾取辅助：射线命中最近顶点/面，返回 id，-1 未命中
 	static int32 PickVertex(ABlockoutActor* Actor, const FVector& RayOrigin, const FVector& RayDir, float MaxDist = 50.f);
 	static int32 PickFace(ABlockoutActor* Actor, const FVector& RayOrigin, const FVector& RayDir);
