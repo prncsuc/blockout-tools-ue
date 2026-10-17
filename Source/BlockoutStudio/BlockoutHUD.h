@@ -30,6 +30,7 @@ private:
 	void DrawGizmo();
 	void DrawBoxSelection();
 	void DrawMeasureItems();
+	void DrawResizeHandles();   // M2：单选手柄可视化
 	void DrawStatusBar();
 	void DrawToasts();
 

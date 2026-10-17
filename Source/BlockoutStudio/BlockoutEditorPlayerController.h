@@ -138,6 +138,7 @@ private:
 	// 交互状态
 	bool bBoxSelecting = false;
 	bool bGizmoDragging = false;
+	bool bResizeDragging = false;   // M2 手柄拖拽改尺寸
 	bool bUIMode = false;
 	FVector2D BoxStart = FVector2D::ZeroVector;
 	FVector2D BoxEnd = FVector2D::ZeroVector;

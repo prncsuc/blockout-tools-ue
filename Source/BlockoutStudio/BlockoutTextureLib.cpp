@@ -25,10 +25,47 @@ namespace
 		void* Data = Tex->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
 		FMemory::Memcpy(Data, Pixels.GetData(), Pixels.Num());
 		Tex->GetPlatformData()->Mips[0].BulkData.Unlock();
+
+		// 手动生成完整 mipmap 链：仅 Mips[0] 时远距离细网格线会产生摩尔纹/闪烁
+		{
+			int32 SrcSize = Size;
+			TArray<uint8> Src = Pixels;
+			while (SrcSize > 1)
+			{
+				const int32 DstSize = SrcSize >> 1;
+				TArray<uint8> Dst;
+				Dst.SetNumUninitialized(DstSize * DstSize);
+				for (int32 y = 0; y < DstSize; y++)
+				{
+					for (int32 x = 0; x < DstSize; x++)
+					{
+						const int32 i0 = (y * 2) * SrcSize + x * 2;
+						const int32 i1 = i0 + 1;
+						const int32 i2 = i0 + SrcSize;
+						const int32 i3 = i2 + 1;
+						Dst[y * DstSize + x] = (uint8)((Src[i0] + Src[i1] + Src[i2] + Src[i3] + 2) >> 2);
+					}
+				}
+				FTexture2DMipMap* NewMip = new FTexture2DMipMap();
+				Tex->GetPlatformData()->Mips.Add(NewMip);
+				FTexture2DMipMap& Mip = *NewMip;
+				Mip.SizeX = DstSize;
+				Mip.SizeY = DstSize;
+				Mip.SizeZ = 1;
+				void* MipData = Mip.BulkData.Lock(LOCK_READ_WRITE);
+				FMemory::Memcpy(MipData, Dst.GetData(), Dst.Num());
+				Mip.BulkData.Unlock();
+				Src = MoveTemp(Dst);
+				SrcSize = DstSize;
+			}
+			Tex->MipGenSettings = TMGS_NoMipmaps; // mip 链已手动提供
+		}
+
 		Tex->SRGB = true;
 		Tex->Filter = TF_Bilinear;
 		Tex->AddressX = TA_Wrap;
 		Tex->AddressY = TA_Wrap;
+		Tex->LODGroup = TEXTUREGROUP_World;
 		Tex->UpdateResource();
 		return Tex;
 	}

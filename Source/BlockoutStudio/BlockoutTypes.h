@@ -50,6 +50,14 @@ enum class EBlockoutTransformMode : uint8
 	Scale
 };
 
+// ⑤ 交互方案：blockout toolkit 式 / ProBuilder 式，可在设置/菜单切换
+UENUM(BlueprintType)
+enum class EBlockoutInteractionMode : uint8
+{
+	Toolkit    UMETA(DisplayName = "Blockout Toolkit 式"),
+	ProBuilder UMETA(DisplayName = "ProBuilder 式")
+};
+
 UENUM(BlueprintType)
 enum class EBlockoutCoordSpace : uint8
 {

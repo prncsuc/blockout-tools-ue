@@ -43,6 +43,10 @@ public:
 	// ---------- 变换（E2/E3/E11） ----------
 	void SetTransformMode(EBlockoutTransformMode Mode) { TransformMode = Mode; }
 	EBlockoutTransformMode GetTransformMode() const { return TransformMode; }
+
+	// ⑤ 交互方案切换：Blockout Toolkit 式 / ProBuilder 式
+	void SetInteractionMode(EBlockoutInteractionMode Mode) { InteractionMode = Mode; }
+	EBlockoutInteractionMode GetInteractionMode() const { return InteractionMode; }
 	void ToggleCoordSpace();                          // E3 世界/本地切换
 	EBlockoutCoordSpace GetCoordSpace() const { return CoordSpace; }
 	void SetPivotMode(EBlockoutPivotMode Mode);       // E4
@@ -77,6 +81,21 @@ public:
 
 	// ---------- 参数化 ----------
 	void SetShapeParams(ABlockoutActor* Actor, const FBlockoutShapeParams& Params);
+
+	// ---------- M2 手柄拖拽改尺寸 ----------
+	// 6 面手柄：返回各手柄世界位置 + 轴向(0=X,1=Y,2=Z) + 侧向(±1)
+	void GetResizeHandles(TArray<FVector>& OutPositions, TArray<int32>& OutAxes, TArray<int32>& OutSigns) const;
+	bool BeginResizeDrag(const FVector& RayOrigin, const FVector& RayDir, int32 AxisIndex, int32 Sign);
+	void UpdateResizeDrag(const FVector& RayOrigin, const FVector& RayDir);
+	void EndResizeDrag();
+	bool IsResizeDragging() const { return bResizeDragging; }
+	int32 GetResizeDragHandle() const { return ResizeDragHandle; }
+
+	// ---------- M4 Auto-Align 自动开洞 ----------
+	// 门/窗/拱构件放置或拖拽后自动对重叠墙类体块 Boolean 开洞，返回开洞墙数
+	int32 TryAutoAlignPiece(ABlockoutActor* Piece);
+	// 自定义轮廓画洞：多边形为墙本地 XZ 坐标，沿墙厚方向贯穿开洞
+	bool CutCustomHole(ABlockoutActor* Wall, const TArray<FVector2D>& PolygonLocalXZ);
 
 	// ---------- 撤销/重做（E8） ----------
 	void PushUndo(const FString& Description); // 调用前记录快照
@@ -118,6 +137,7 @@ private:
 	UPROPERTY() TArray<ABlockoutActor*> Selection;
 	UPROPERTY() TArray<ABlockoutActor*> AllBlocks;
 	EBlockoutTransformMode TransformMode = EBlockoutTransformMode::Translate;
+	EBlockoutInteractionMode InteractionMode = EBlockoutInteractionMode::Toolkit;
 	EBlockoutCoordSpace CoordSpace = EBlockoutCoordSpace::World;
 	EBlockoutPivotMode PivotMode = EBlockoutPivotMode::Center;
 	bool bGridSnap = true;
@@ -131,6 +151,23 @@ private:
 	void RestoreAll(const TArray<FBlockoutObjectData>& Datas);
 	bool bSnapshotValid = false;
 	TArray<FBlockoutObjectData> PendingBefore;
+
+	// M2 尺寸手柄拖拽状态
+	bool bResizeDragging = false;
+	int32 ResizeDragHandle = -1;
+	int32 ResizeAxis = 0;
+	int32 ResizeSign = 1;
+	UPROPERTY() ABlockoutActor* ResizeTarget = nullptr;
+	FVector ResizePlaneOrigin = FVector::ZeroVector;
+	FVector ResizePlaneNormal = FVector::ForwardVector;
+	FVector ResizeStartHit = FVector::ZeroVector;
+	FTransform ResizeStartTransform = FTransform::Identity;
+	FBlockoutShapeParams ResizeStartParams;
+	TArray<FVector> ResizeStartVerts;
+	float ResizeStartSize = 0.f;
+
+	// M4 内部：对单面墙执行开洞（构件洞形）
+	bool CutHoleIntoWall(ABlockoutActor* Wall, ABlockoutActor* Piece);
 
 	// gizmo 拖拽状态
 	bool bDragging = false;

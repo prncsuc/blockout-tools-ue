@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_75666320ca3b11f18b7f525400393706
+    ReservedCode1: /aM49oHvqyX/CZz7+MuUkr0x+cxVztc9lBFyRRHt3E7hy0CbTTEpes2FBuk56P31bgRlzFa9MEqLnMH2CgJkd9xV9g8tgSNKW9y7BTTDA+rANhOrTRzQgPZaftss6HWJ4FPsv1sOBkIJ8nMqHOz4/B7GZlrTp3ny2BqEPY/vlDLbE6PSGkVNYEigzsg=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_75666320ca3b11f18b7f525400393706
+    ReservedCode2: /aM49oHvqyX/CZz7+MuUkr0x+cxVztc9lBFyRRHt3E7hy0CbTTEpes2FBuk56P31bgRlzFa9MEqLnMH2CgJkd9xV9g8tgSNKW9y7BTTDA+rANhOrTRzQgPZaftss6HWJ4FPsv1sOBkIJ8nMqHOz4/B7GZlrTp3ny2BqEPY/vlDLbE6PSGkVNYEigzsg=
+---
+
 ﻿# BlockoutStudio P5 验收清单
 
 UE5 白盒关卡工具（E:\BlockoutStudio），P5 验收测试（需求规格 v1.1 §8）。验收日期：2026-10-17。验收环境：UE 5.6.1 / Windows 11 / Shipping 打包跑图。
@@ -50,3 +61,4 @@ P5 验收全部通过：鸟瞰图三关卡各 3 张视角互异；跑图视频 v
 | 抽帧验证帧（v2） | ...\temp\demo_souls_v2_f0/f1/f2.png、demo_dust2_v2_f0/f1/f2.png、demo_uncharted_v2_f0/f1/f2.png |
 
 （路径前缀均为 C:\Users\mail\AppData\Roaming\Tencent\Marvis\User\49669A1552B1EA7C8AB5DFD758A55155\workspace\conv_8fdc8b8718904d11afccd6f0b4798006）
+*（内容由AI生成，仅供参考）*

@@ -7,6 +7,7 @@
 #include "BlockoutMeasureLib.h"
 #include "Engine/Canvas.h"
 #include "Engine/Engine.h"
+#include "Engine/GameInstance.h"
 #include "Engine/Font.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -22,8 +23,38 @@ void ABlockoutHUD::DrawHUD()
 	DrawGizmo();
 	DrawBoxSelection();
 	DrawMeasureItems();
+	DrawResizeHandles();
 	DrawStatusBar();
 	DrawToasts();
+}
+
+// M2：单选手柄可视化（6 面手柄小方块 + 拖拽中高亮）
+void ABlockoutHUD::DrawResizeHandles()
+{
+	UBlockoutEditorSubsystem* Sub = nullptr;
+	if (UWorld* W = GetWorld())
+	{
+		if (UGameInstance* GI = W->GetGameInstance())
+		{
+			Sub = GI->GetSubsystem<UBlockoutEditorSubsystem>();
+		}
+	}
+	if (!Sub || Sub->GetSelection().Num() != 1) return;
+	// 交互方案差异：Toolkit 式显示 M2 手柄改尺寸；ProBuilder 式走点线面编辑，不显示手柄
+	if (Sub->GetInteractionMode() != EBlockoutInteractionMode::Toolkit) return;
+
+	TArray<FVector> Pos; TArray<int32> Axes; TArray<int32> Signs;
+	Sub->GetResizeHandles(Pos, Axes, Signs);
+	const int32 Hot = Sub->IsResizeDragging() ? Sub->GetResizeDragHandle() : -1;
+	for (int32 i = 0; i < Pos.Num(); ++i)
+	{
+		bool bVis = false;
+		const FVector2D S = ProjectW(Pos[i], bVis);
+		if (!bVis) continue;
+		const bool bHot = (Hot == i);
+		DrawRect(bHot ? FLinearColor(1.f, 0.85f, 0.2f, 0.95f) : FLinearColor(0.2f, 0.8f, 1.f, 0.85f),
+			S.X - 5.f, S.Y - 5.f, 10.f, 10.f);
+	}
 }
 
 FVector2D ABlockoutHUD::ProjectW(const FVector& WorldLoc, bool& bOutVisible) const

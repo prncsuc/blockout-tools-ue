@@ -57,6 +57,15 @@ private:
 	virtual FReply OnMouseButtonDown(const FGeometry& Geo, const FPointerEvent& Ev) override;
 	void OpenContextMenu(const FVector2D& ScreenPos);
 
+	// ---------- E10 场景树 ----------
+	TSharedRef<SWidget> BuildSceneTreePanel();
+	void RefreshSceneTree();
+	void OnSceneTreeSelectionChanged(TSharedPtr<FString> Item, ESelectInfo::Type SelectInfo);
+	TSharedPtr<class SListView<TSharedPtr<FString>>> SceneTreeView;
+	TArray<TSharedPtr<FString>> SceneTreeItems;      // 显示名列表
+	TArray<TWeakObjectPtr<ABlockoutActor>> SceneTreeActors; // 与显示名一一对应
+	int32 LastBlockCount = -1;
+
 	// ---------- 提示 ----------
 	void Toast(const FString& Msg);
 

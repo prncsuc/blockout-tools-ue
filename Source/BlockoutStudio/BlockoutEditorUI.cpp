@@ -114,6 +114,25 @@ void SBlockoutEditorUI::Construct(const FArguments& InArgs)
 			]
 		]
 
+		// 右侧场景树（E10）
+		+ SOverlay::Slot()
+		.HAlign(HAlign_Right)
+		.VAlign(VAlign_Top)
+		.Padding(FMargin(0, 60, 8, 50))
+		[
+			SNew(SBorder)
+			.BorderBackgroundColor(FLinearColor(0.03f, 0.03f, 0.03f, 0.85f))
+			.Padding(FMargin(8))
+			[
+				SNew(SBox)
+				.WidthOverride(260)
+				.MaxDesiredHeight(600)
+				[
+					BuildSceneTreePanel()
+				]
+			]
+		]
+
 		// 底部快捷键提示
 		+ SOverlay::Slot()
 		.HAlign(HAlign_Fill)
@@ -352,6 +371,22 @@ TSharedRef<SWidget> SBlockoutEditorUI::BuildToolsMenu()
 		];
 	};
 
+	Box->AddSlot().AutoHeight().Padding(0, 4, 0, 0)
+	[
+		SNew(STextBlock).Text(FText::FromString(TEXT("--- 交互方案（Toolkit / ProBuilder） ---")))
+	];
+	AddBtn(TEXT("切换交互方案"), [this]()
+	{
+		UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
+		if (!Sub) return;
+		const EBlockoutInteractionMode Next =
+			Sub->GetInteractionMode() == EBlockoutInteractionMode::Toolkit
+			? EBlockoutInteractionMode::ProBuilder : EBlockoutInteractionMode::Toolkit;
+		Sub->SetInteractionMode(Next);
+		Toast(Next == EBlockoutInteractionMode::Toolkit
+			? TEXT("交互方案：Blockout Toolkit 式（单击放置/手柄改尺寸）")
+			: TEXT("交互方案：ProBuilder 式（点线面编辑/挤出建模）"));
+	});
 	AddBtn(TEXT("测距模式(M)"), [this]() { if (ABlockoutEditorPlayerController* P = GetPC(PCPtr)) P->OnKeyToggleMeasure(); });
 	AddBtn(TEXT("测试模式(F5)"), [this]() { if (ABlockoutEditorPlayerController* P = GetPC(PCPtr)) P->ToggleTestMode(); });
 	Box->AddSlot().AutoHeight().Padding(0, 4, 0, 0)
@@ -1013,4 +1048,74 @@ void SBlockoutEditorUI::Tick(const FGeometry& AllottedGeometry, const double InC
 		CachedSelection = Sub->GetSelection();
 		RefreshPropertyPanel();
 	}
+
+	// E10 场景树：体块数量变化时刷新
+	if (Sub->GetAllBlocks().Num() != LastBlockCount)
+	{
+		RefreshSceneTree();
+	}
+}
+
+// ================= E10 场景树 =================
+TSharedRef<SWidget> SBlockoutEditorUI::BuildSceneTreePanel()
+{
+	SceneTreeView = SNew(SListView<TSharedPtr<FString>>)
+		.ListItemsSource(&SceneTreeItems)
+		.OnGenerateRow_Lambda([this](TSharedPtr<FString> Item, const TSharedRef<STableViewBase>& OwnerTable) -> TSharedRef<ITableRow>
+		{
+			const int32 Idx = SceneTreeItems.IndexOfByKey(Item);
+			const bool bSelected = (Idx != INDEX_NONE) && SceneTreeActors.IsValidIndex(Idx) &&
+				SceneTreeActors[Idx].IsValid() &&
+				GetSub(PCPtr) && GetSub(PCPtr)->GetSelection().Contains(SceneTreeActors[Idx].Get());
+			return SNew(STableRow<TSharedPtr<FString>>, OwnerTable)
+			[
+				SNew(STextBlock)
+				.Text(FText::FromString(Item.IsValid() ? *Item : TEXT("")))
+				.ColorAndOpacity(bSelected ? FLinearColor(0.3f, 0.9f, 1.f) : FLinearColor::White)
+			];
+		})
+		.OnSelectionChanged(this, &SBlockoutEditorUI::OnSceneTreeSelectionChanged)
+		.SelectionMode(ESelectionMode::Single);
+
+	return SNew(SVerticalBox)
+		+ SVerticalBox::Slot().AutoHeight().Padding(0, 0, 0, 4)
+		[
+			SNew(STextBlock).Text(FText::FromString(TEXT("场景树（E10）")))
+		]
+		+ SVerticalBox::Slot().FillHeight(1.f)
+		[
+			SceneTreeView.ToSharedRef()
+		];
+}
+
+void SBlockoutEditorUI::RefreshSceneTree()
+{
+	UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
+	if (!Sub) return;
+
+	SceneTreeItems.Reset();
+	SceneTreeActors.Reset();
+	const TArray<ABlockoutActor*>& Blocks = Sub->GetAllBlocks();
+	for (int32 i = 0; i < Blocks.Num(); ++i)
+	{
+		ABlockoutActor* A = Blocks[i];
+		if (!IsValid(A)) continue;
+		SceneTreeItems.Add(MakeShared<FString>(FString::Printf(TEXT("[%d] %s  %s"),
+			i, *A->GetActorLabel(), A->IsHiddenEd() || A->IsHidden() ? TEXT("(隐藏)") : TEXT(""))));
+		SceneTreeActors.Add(A);
+	}
+	LastBlockCount = Blocks.Num();
+	if (SceneTreeView.IsValid())
+	{
+		SceneTreeView->RequestListRefresh();
+	}
+}
+
+void SBlockoutEditorUI::OnSceneTreeSelectionChanged(TSharedPtr<FString> Item, ESelectInfo::Type SelectInfo)
+{
+	UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
+	if (!Sub || !Item.IsValid()) return;
+	const int32 Idx = SceneTreeItems.IndexOfByKey(Item);
+	if (Idx == INDEX_NONE || !SceneTreeActors.IsValidIndex(Idx) || !SceneTreeActors[Idx].IsValid()) return;
+	Sub->SelectActor(SceneTreeActors[Idx].Get(), false);
 }

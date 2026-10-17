@@ -1,6 +1,8 @@
 ﻿// BlockoutStudio - 编辑器核心子系统实现
 #include "BlockoutEditorSubsystem.h"
 #include "BlockoutActor.h"
+#include "BlockoutMeshGen.h"
+#include "IndexTypes.h"
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
 #include "GameFramework/PlayerController.h"
@@ -973,4 +975,249 @@ ABlockoutActor* UBlockoutEditorSubsystem::GetActorById(const FGuid& Id) const
 		if (Actor && Actor->Data.Id == Id) return Actor;
 	}
 	return nullptr;
+}
+
+// ---------------- 数据 <-> 网格转换（M2/M4 辅助） ----------------
+namespace
+{
+	void DataToMesh(const FBlockoutObjectData& D, FDynamicMesh3& Out)
+	{
+		Out.Clear();
+		if (D.bFreeform && D.Vertices.Num() > 0 && D.Triangles.Num() >= 3)
+		{
+			TArray<int32> Map; Map.Reserve(D.Vertices.Num());
+			for (const FVector& V : D.Vertices) Map.Add(Out.AppendVertex(FVector3d(V)));
+			for (int32 i = 0; i + 2 < D.Triangles.Num(); i += 3)
+			{
+				Out.AppendTriangle(Map[D.Triangles[i]], Map[D.Triangles[i + 1]], Map[D.Triangles[i + 2]]);
+			}
+		}
+		else
+		{
+			FBlockoutMeshGen::BuildShape(D.Shape, D.Params, Out);
+		}
+	}
+
+	void MeshToData(const FDynamicMesh3& M, FBlockoutObjectData& D)
+	{
+		D.bFreeform = true;
+		D.Vertices.Reset();
+		D.Triangles.Reset();
+		// 顶点索引可能不连续，需重映射
+		TMap<int32, int32> Map;
+		for (int32 vid : M.VertexIndicesItr())
+		{
+			Map.Add(vid, D.Vertices.Add(FVector(M.GetVertex(vid))));
+		}
+		for (int32 tid : M.TriangleIndicesItr())
+		{
+			UE::Geometry::FIndex3i T = M.GetTriangle(tid);
+			if (const int32* A = Map.Find(T.A))
+			{
+				if (const int32* B = Map.Find(T.B))
+				{
+					if (const int32* C = Map.Find(T.C))
+					{
+						D.Triangles.Add(*A); D.Triangles.Add(*B); D.Triangles.Add(*C);
+					}
+				}
+			}
+		}
+	}
+
+	bool IsWallLike(EBlockoutShape S)
+	{
+		return S == EBlockoutShape::Wall || S == EBlockoutShape::DoorWall
+			|| S == EBlockoutShape::WindowWall || S == EBlockoutShape::Arch
+			|| S == EBlockoutShape::Floor || S == EBlockoutShape::Cube;
+	}
+}
+
+// ---------------- M2 手柄拖拽改尺寸 ----------------
+
+void UBlockoutEditorSubsystem::GetResizeHandles(TArray<FVector>& OutPositions, TArray<int32>& OutAxes, TArray<int32>& OutSigns) const
+{
+	OutPositions.Reset(); OutAxes.Reset(); OutSigns.Reset();
+	if (Selection.Num() != 1) return;
+	ABlockoutActor* Actor = Selection[0];
+	if (!IsValid(Actor)) return;
+	const FBox Box = Actor->GetComponentsBoundingBox(true);
+	const FVector C = Box.GetCenter();
+	const FVector E = Box.GetExtent();
+	static const FVector Ax[3] = { FVector::XAxisVector, FVector::YAxisVector, FVector::ZAxisVector };
+	for (int32 A = 0; A < 3; ++A)
+	{
+		OutPositions.Add(C + Ax[A] * E[A]); OutAxes.Add(A); OutSigns.Add(1);
+		OutPositions.Add(C - Ax[A] * E[A]); OutAxes.Add(A); OutSigns.Add(-1);
+	}
+}
+
+bool UBlockoutEditorSubsystem::BeginResizeDrag(const FVector& RayOrigin, const FVector& RayDir, int32 AxisIndex, int32 Sign)
+{
+	if (Selection.Num() != 1 || AxisIndex < 0 || AxisIndex > 2) return false;
+	ABlockoutActor* Actor = Selection[0];
+	if (!IsValid(Actor)) return false;
+
+	PushUndo(TEXT("M2 手柄改尺寸"));
+	bResizeDragging = true;
+	ResizeDragHandle = AxisIndex * 2 + (Sign > 0 ? 0 : 1);
+	ResizeAxis = AxisIndex;
+	ResizeSign = Sign;
+	ResizeTarget = Actor;
+	ResizeStartTransform = Actor->Data.Transform;
+	ResizeStartParams = Actor->Data.Params;
+	ResizeStartVerts = Actor->Data.Vertices;
+
+	const FBox Box = Actor->GetComponentsBoundingBox(true);
+	const FVector E = Box.GetExtent();
+	ResizeStartSize = (float)(E[AxisIndex] * 2.0); // 该轴当前总长
+
+	// 拖拽平面：含拖拽轴，法线垂直于轴与视线
+	static const FVector Ax[3] = { FVector::XAxisVector, FVector::YAxisVector, FVector::ZAxisVector };
+	const FVector Axis = Ax[AxisIndex];
+	FVector PlaneN = FVector::CrossProduct(FVector::CrossProduct(RayDir.GetSafeNormal(), Axis), Axis);
+	if (PlaneN.IsNearlyZero()) PlaneN = RayDir.GetSafeNormal();
+	ResizePlaneNormal = PlaneN.GetSafeNormal();
+	ResizePlaneOrigin = Box.GetCenter();
+	FPlane Plane(ResizePlaneOrigin, ResizePlaneNormal);
+	ResizeStartHit = FMath::LinePlaneIntersection(RayOrigin, RayOrigin + RayDir * 1e6f, Plane);
+	return true;
+}
+
+void UBlockoutEditorSubsystem::UpdateResizeDrag(const FVector& RayOrigin, const FVector& RayDir)
+{
+	if (!bResizeDragging || !IsValid(ResizeTarget)) return;
+	FPlane Plane(ResizePlaneOrigin, ResizePlaneNormal);
+	const FVector Hit = FMath::LinePlaneIntersection(RayOrigin, RayOrigin + RayDir * 1e6f, Plane);
+	static const FVector Ax[3] = { FVector::XAxisVector, FVector::YAxisVector, FVector::ZAxisVector };
+	const FVector Axis = Ax[ResizeAxis];
+	float Amount = (float)FVector::DotProduct(Hit - ResizeStartHit, Axis) * (float)ResizeSign;
+	if (bGridSnap) Amount = FMath::GridSnap(Amount, SnapStep);
+
+	ABlockoutActor* Actor = ResizeTarget;
+	FBlockoutObjectData& D = Actor->Data;
+	const float NewSize = FMath::Max(10.f, ResizeStartSize + Amount * 2.f);
+
+	if (D.bFreeform && ResizeStartVerts.Num() > 0)
+	{
+		// 自由网格：按轴缩放顶点（对面固定：以 Sign 侧为基准缩放）
+		const float Factor = NewSize / FMath::Max(ResizeStartSize, 1.f);
+		D.Vertices = ResizeStartVerts;
+		float MinV = 1e30f, MaxV = -1e30f;
+		for (const FVector& V : D.Vertices) { MinV = FMath::Min(MinV, (float)V[ResizeAxis]); MaxV = FMath::Max(MaxV, (float)V[ResizeAxis]); }
+		const float Anchor = (ResizeSign > 0) ? MinV : MaxV;
+		for (FVector& V : D.Vertices)
+		{
+			V[ResizeAxis] = Anchor + (V[ResizeAxis] - Anchor) * Factor;
+		}
+	}
+	else
+	{
+		// 参数化体块：轴 → 参数映射
+		FBlockoutShapeParams P = ResizeStartParams;
+		const EBlockoutShape S = D.Shape;
+		if (ResizeAxis == 0) P.Length = NewSize;
+		else if (ResizeAxis == 1)
+		{
+			const bool bThin = (S == EBlockoutShape::Wall || S == EBlockoutShape::DoorWall
+				|| S == EBlockoutShape::WindowWall || S == EBlockoutShape::Arch || S == EBlockoutShape::Pipe);
+			if (bThin) P.Thickness = NewSize; else P.Width = NewSize;
+		}
+		else P.Height = NewSize;
+		D.Params = P;
+	}
+
+	// 位置补偿：保持对面固定
+	const FVector WorldAxis = Actor->GetActorRotation().RotateVector(Axis);
+	const float HalfDelta = (NewSize - ResizeStartSize) * 0.5f;
+	const FVector NewLoc = ResizeStartTransform.GetLocation() + WorldAxis * (HalfDelta * (float)ResizeSign);
+	D.Transform = ResizeStartTransform;
+	D.Transform.SetLocation(NewLoc);
+	Actor->Rebuild();
+	Actor->SyncTransform();
+	bDirty = true;
+}
+
+void UBlockoutEditorSubsystem::EndResizeDrag()
+{
+	if (bResizeDragging) NotifyDirty();
+	bResizeDragging = false;
+	ResizeTarget = nullptr;
+	ResizeDragHandle = -1;
+}
+
+// ---------------- M4 Auto-Align 自动开洞 ----------------
+
+int32 UBlockoutEditorSubsystem::TryAutoAlignPiece(ABlockoutActor* Piece)
+{
+	if (!IsValid(Piece)) return 0;
+	const EBlockoutShape S = Piece->Data.Shape;
+	// 门/窗/拱构件对重叠墙类自动开洞
+	if (S != EBlockoutShape::DoorPiece && S != EBlockoutShape::WindowPiece && S != EBlockoutShape::Arch) return 0;
+
+	const FBox PieceBox = Piece->GetComponentsBoundingBox(true);
+	int32 CutCount = 0;
+	for (ABlockoutActor* Wall : AllBlocks)
+	{
+		if (!IsValid(Wall) || Wall == Piece) continue;
+		if (!IsWallLike(Wall->Data.Shape)) continue;
+		const FBox WallBox = Wall->GetComponentsBoundingBox(true);
+		FBox Overlap = WallBox.Overlap(PieceBox);
+		if (!Overlap.IsValid) continue;
+		if (CutHoleIntoWall(Wall, Piece)) ++CutCount;
+	}
+	if (CutCount > 0) NotifyDirty();
+	return CutCount;
+}
+
+bool UBlockoutEditorSubsystem::CutHoleIntoWall(ABlockoutActor* Wall, ABlockoutActor* Piece)
+{
+	if (!IsValid(Wall) || !IsValid(Piece)) return false;
+
+	// 墙体网格
+	FDynamicMesh3 WallMesh;
+	DataToMesh(Wall->Data, WallMesh);
+
+	// 洞体：按构件形状构建（在墙本地空间定位）
+	const FBlockoutShapeParams& PP = Piece->Data.Params;
+	FDynamicMesh3 Hole;
+	if (Piece->Data.Shape == EBlockoutShape::Arch)
+	{
+		const double HoleH = PP.Height * 0.5;
+		FDynamicMesh3 Rect;
+		FBlockoutMeshGen::BuildRectPrismHole(Rect, PP.Length, HoleH, 2000.0);
+		FDynamicMesh3 Circ;
+		FBlockoutMeshGen::BuildCirclePrismHole(Circ, PP.Length, 2000.0, 24);
+		FBlockoutMeshGen::BooleanOp(Rect, Circ, FTransform(FVector(0, 0, HoleH * 0.5)), false);
+		Hole = MoveTemp(Rect);
+	}
+	else
+	{
+		FBlockoutMeshGen::BuildRectPrismHole(Hole, PP.Length, PP.Height, 2000.0);
+	}
+
+	// 构件中心 → 墙本地坐标，洞体沿墙 Y 贯穿
+	const FTransform WallT = Wall->GetActorTransform();
+	const FVector Local = WallT.InverseTransformPosition(Piece->GetActorLocation());
+	FTransform HoleT(FRotator::ZeroRotator, FVector(Local.X, 0.0, Local.Z));
+	if (!FBlockoutMeshGen::BooleanOp(WallMesh, Hole, HoleT, true)) return false;
+
+	MeshToData(WallMesh, Wall->Data);
+	Wall->Rebuild();
+	return true;
+}
+
+bool UBlockoutEditorSubsystem::CutCustomHole(ABlockoutActor* Wall, const TArray<FVector2D>& PolygonLocalXZ)
+{
+	if (!IsValid(Wall) || PolygonLocalXZ.Num() < 3) return false;
+	PushUndo(TEXT("M4 自定义开洞"));
+	FDynamicMesh3 WallMesh;
+	DataToMesh(Wall->Data, WallMesh);
+	FDynamicMesh3 Hole;
+	FBlockoutMeshGen::BuildPolygonPrismHole(Hole, PolygonLocalXZ, 2000.0);
+	if (!FBlockoutMeshGen::BooleanOp(WallMesh, Hole, FTransform::Identity, true)) return false;
+	MeshToData(WallMesh, Wall->Data);
+	Wall->Rebuild();
+	NotifyDirty();
+	return true;
 }

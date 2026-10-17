@@ -21,6 +21,7 @@
 #include "HAL/FileManager.h"
 #include "Slate/SceneViewport.h"
 #include "Components/SceneCaptureComponent2D.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "TextureResource.h"
 #include "Engine/DirectionalLight.h"
@@ -321,6 +322,19 @@ void ABlockoutEditorPlayerController::PlayerTick(float DeltaSeconds)
 		}
 	}
 
+	// M2 手柄拖拽中：持续更新尺寸
+	if (bResizeDragging)
+	{
+		FVector Origin, Dir;
+		if (GetMouseRay(Origin, Dir))
+		{
+			if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld()))
+			{
+				Sub->UpdateResizeDrag(Origin, Dir);
+			}
+		}
+	}
+
 	// gizmo 拖拽中：持续更新
 	if (bGizmoDragging)
 	{
@@ -496,6 +510,34 @@ void ABlockoutEditorPlayerController::OnLeftMouseDown()
 		return;
 	}
 
+	// 0.5) M2 手柄拖拽改尺寸：单选时手柄拾取优先于 gizmo（仅 Toolkit 式；ProBuilder 式走点线面）
+	{
+		UBlockoutEditorSubsystem* SubM2 = GetEditorSub(GetWorld());
+		if (SubM2 && SubM2->GetSelection().Num() == 1 && SubM2->GetInteractionMode() == EBlockoutInteractionMode::Toolkit)
+		{
+			TArray<FVector> HPos; TArray<int32> HAxes; TArray<int32> HSigns;
+			SubM2->GetResizeHandles(HPos, HAxes, HSigns);
+			for (int32 Hi = 0; Hi < HPos.Num(); ++Hi)
+			{
+				bool bVis = false;
+				FVector2D SP;
+				if (ProjectWorldLocationToScreen(HPos[Hi], SP, false))
+				{
+					FVector2D MouseP;
+					GetMousePosition(MouseP.X, MouseP.Y);
+					if (FVector2D::Distance(SP, MouseP) < 14.0)
+					{
+						if (SubM2->BeginResizeDrag(Origin, Dir, HAxes[Hi], HSigns[Hi]))
+						{
+							bResizeDragging = true;
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+
 	// 1) gizmo 轴拾取优先
 	if (ABlockoutGizmo* Gizmo = EnsureGizmo())
 	{
@@ -559,6 +601,14 @@ void ABlockoutEditorPlayerController::OnLeftMouseDown()
 
 void ABlockoutEditorPlayerController::OnLeftMouseUp()
 {
+	if (bResizeDragging)
+	{
+		if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld()))
+		{
+			Sub->EndResizeDrag();
+		}
+		bResizeDragging = false;
+	}
 	if (bGizmoDragging)
 	{
 		if (UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld()))
@@ -768,7 +818,15 @@ void ABlockoutEditorPlayerController::CreateBlockAtCursor(EBlockoutShape Shape)
 	}
 	FBlockoutShapeParams Params;
 	ABlockoutActor* A = Sub->SpawnBlock(Shape, SpawnLoc, Params);
-	if (A) Sub->SelectActor(A, false);
+	if (A)
+	{
+		Sub->SelectActor(A, false);
+		// M4 Auto-Align：门/窗/拱构件放置后对重叠墙体自动开洞
+		if (Shape == EBlockoutShape::DoorPiece || Shape == EBlockoutShape::WindowPiece || Shape == EBlockoutShape::Arch)
+		{
+			Sub->TryAutoAlignPiece(A);
+		}
+	}
 }
 
 void ABlockoutEditorPlayerController::FocusSelection()
@@ -1104,7 +1162,16 @@ void ABlockoutEditorPlayerController::AutoDemoTick(float DeltaSeconds)
 	{
 		AutoDemoRunT += DeltaSeconds / 20.f;
 		bDemoFollowCam = true;
-		if (APawn* DemoPawn = GetPawn()) { DemoPawn->SetActorHiddenInGame(true); DemoPawn->SetActorEnableCollision(false); }
+		// 用户要求：跑图必须可见官方小白人角色，禁止隐藏
+		if (APawn* DemoPawn = GetPawn())
+		{
+			DemoPawn->SetActorHiddenInGame(false);
+			DemoPawn->SetActorEnableCollision(true);
+			if (USkeletalMeshComponent* Skel = DemoPawn->FindComponentByClass<USkeletalMeshComponent>())
+			{
+				Skel->SetHiddenInGame(false);
+			}
+		}
 
 		if (GetPawn() && AutoDemoWaypoints.Num() >= 2)
 		{
@@ -1179,8 +1246,22 @@ void ABlockoutEditorPlayerController::OnKeyToggleRecord()
 void ABlockoutEditorPlayerController::OnKeyToggleSubEdit()
 {
 	if (bRotateCamera) return;
-	// 循环：物体 → 顶点 → 面 → 物体
-	SetSubEditMode((SubEditMode + 1) % 3);
+
+	// 交互方案差异：ProBuilder 式跳过物体模式，直接在顶点/面编辑间循环（建模优先）
+	const bool bProBuilderMode = [&]()
+	{
+		UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld());
+		return Sub && Sub->GetInteractionMode() == EBlockoutInteractionMode::ProBuilder;
+	}();
+	if (bProBuilderMode)
+	{
+		SetSubEditMode(SubEditMode == 1 ? 2 : 1);
+	}
+	else
+	{
+		// 循环：物体 → 顶点 → 面 → 物体
+		SetSubEditMode((SubEditMode + 1) % 3);
+	}
 	SelectedVerts.Reset();
 	SelectedFaces.Reset();
 

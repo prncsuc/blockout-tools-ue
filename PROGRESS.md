@@ -2,6 +2,17 @@
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_7631db5aca3b11f18b7f525400393706
+    ReservedCode1: 0jQnRUWH0CLQ+OHrEOyh9VcQA266lsR5wgrY37ofdW9fHJ+q107Pu+az8dY3IUHgPQtlUcJ4jncicbUlW1qiQoZZjt5Dv1SZjAmCrKkZzXLgUOtN/Q39TIYrpvVYQWeG2PrX83anqdsVHfGI/HyHY5YkN6Og+CA3jbqZPMK48n/BsnGv66UmawN743c=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_7631db5aca3b11f18b7f525400393706
+    ReservedCode2: 0jQnRUWH0CLQ+OHrEOyh9VcQA266lsR5wgrY37ofdW9fHJ+q107Pu+az8dY3IUHgPQtlUcJ4jncicbUlW1qiQoZZjt5Dv1SZjAmCrKkZzXLgUOtN/Q39TIYrpvVYQWeG2PrX83anqdsVHfGI/HyHY5YkN6Og+CA3jbqZPMK48n/BsnGv66UmawN743c=
+---
+
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
     ProduceID: 5227bc309b64902b9bfd2bb79d4de347_ac979e1ec9e811f196f9525400248c00
     ReservedCode1: BEsAjlMPHU2mTOUGP01YY5SiAQf6RnMDg0vhiCKeFx6I3IulXlIacr/zhoqWK6KHaSSiVszIcOrIM8Tqe3OxrmJxdja1SBpXALB/9RyjcScIcJoyRcnKezprJyQhVz1F2c209xn0U2B0q5WZHD9S4lrd7eA7cWpy71U3kYlSGO7/2smiO2bNYruzD5o=
     ContentPropagator: 001191440300708461136T1XGW3
@@ -166,3 +177,13 @@ UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡�
   - 解决：改用 int32 AutoDemoPlacedShot 标记法，按已拍摄张数无条件拍满 N 个机位，与帧率解耦。
 - **跑图视频相机被 Pawn mesh 遮挡穿模**：默认相机位于 Pawn 内部/贴身，画面被自身网格遮挡甚至穿模。
   - 解决：改第三人称跟随相机（后方 600、Z+260）；跑图阶段隐藏 Pawn 网格并关闭碰撞。
+*（内容由AI生成，仅供参考）*
+
+## 2026-10-18 批次：演示品质修复 + 功能补齐 + 交互方案切换
+
+- ① 演示品质：M_BlockoutBase 世界对齐三平面 UV + 顶面提亮（防面片感）；BlockoutTextureLib 手动 mip 链 + TMGS_NoMipmaps + TEXTUREGROUP_World（修闪烁）
+- ② 跑图角色：TestPawn 挂 SKM_Manny_Simple + ABP_Unarmed；AutoDemo 移除隐藏角色逻辑（可见跑动）
+- ③ 功能比对：产出 FEATURE_COMPARISON.md（与 BlockoutTools 插件、Blockout Toolkit 逐功能对照）；M2 手柄拖拽改尺寸 / M4 Auto-Align 开洞 / E10 场景树全部落地
+- ④ 材质/贴图质量：Toolkit 贴图资产复用（Content/PMB/BlockoutToolKit），程序材质参数对齐 Grid_Multi_Color
+- ⑤ 交互方案：EBlockoutInteractionMode（Toolkit 式 / ProBuilder 式）UI 菜单一键切换，手柄可视化/拾取与 Tab 子编辑循环按模式分流
+- 编译：BlockoutStudioEditor Win64 Development 通过；源码 UTF-8 BOM + CRLF 已核对

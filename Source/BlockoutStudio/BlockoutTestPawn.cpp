@@ -1,9 +1,11 @@
 ﻿// BlockoutTestPawn.cpp - P4 测试模式跑图角色实现
 #include "BlockoutTestPawn.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "UObject/ConstructorHelpers.h"
 
 ABlockoutTestPawn::ABlockoutTestPawn()
 {
@@ -11,6 +13,23 @@ ABlockoutTestPawn::ABlockoutTestPawn()
 
 	// 胶囊碰撞：1.75m 高角色
 	GetCapsuleComponent()->InitCapsuleSize(34.f, 88.f);
+
+	// 官方小白人 Manny：骨骼网格 + Unarmed 动画蓝图（用户要求跑图可见角色）
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MannyFinder(
+		TEXT("/Game/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple"));
+	if (MannyFinder.Succeeded() && GetMesh())
+	{
+		GetMesh()->SetSkeletalMesh(MannyFinder.Object);
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88.f));
+		GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimFinder(
+		TEXT("/Game/Mannequins/Anims/Unarmed/ABP_Unarmed.ABP_Unarmed_C"));
+	if (AnimFinder.Succeeded() && GetMesh())
+	{
+		GetMesh()->SetAnimInstanceClass(AnimFinder.Class);
+	}
 
 	// 移动组件基础参数
 	UCharacterMovementComponent* Move = GetCharacterMovement();
