@@ -4,6 +4,8 @@
 #include "CoreMinimal.h"
 #include "Widgets/SCompoundWidget.h"
 #include "Widgets/Views/SListView.h"
+#include "Widgets/Views/STableViewBase.h"
+#include "Input/Events.h"
 #include "BlockoutTypes.h"
 
 class ABlockoutEditorPlayerController;
@@ -62,9 +64,21 @@ private:
 	TSharedRef<SWidget> BuildSceneTreePanel();
 	void RefreshSceneTree();
 	void OnSceneTreeSelectionChanged(TSharedPtr<FString> Item, ESelectInfo::Type SelectInfo);
+	void SyncTreeSelectionFromSub();                     // 视口选中 → 树选中同步
+	void OnSceneTreeRenameCommitted(const FText& NewText, ETextCommit::Type CommitType, TWeakObjectPtr<ABlockoutActor> Actor);
+	FReply OnSceneTreeDragDetected(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent, TSharedPtr<FString> Item);
+	FReply OnSceneTreeAcceptDrop(const FDragDropEvent& Event, EItemDropZone DropZone, TSharedPtr<FString> TargetItem);
+	TOptional<EItemDropZone> OnSceneTreeCanAcceptDrop(const FDragDropEvent& Event, EItemDropZone DropZone, TSharedPtr<FString> TargetItem);
+	TSharedPtr<class SWidget> BuildSceneTreeContextMenu();
+	void SetSelectedHidden(bool bHidden);                // 右键菜单批量
+	void SetSelectedLocked(bool bLocked);
+	FString SceneSearchText;                             // 搜索过滤关键字
+	bool bSyncingTreeSelection = false;
+	float TreeRefreshTimer = 0.f;
 	TSharedPtr<class SListView<TSharedPtr<FString>>> SceneTreeView;
 	TArray<TSharedPtr<FString>> SceneTreeItems;      // 显示名列表
 	TArray<TWeakObjectPtr<ABlockoutActor>> SceneTreeActors; // 与显示名一一对应
+	TArray<TSharedPtr<class SInlineEditableTextBlock>> SceneTreeEditors; // 与显示名一一对应（重命名用）
 	int32 LastBlockCount = -1;
 
 	// ---------- 提示 ----------

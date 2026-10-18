@@ -21,8 +21,35 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Framework/Application/IMenu.h"
 #include "BlockoutFileDialog.h"
+#include "BlockoutShapePreview.h"
+#include "Widgets/Text/SInlineEditableTextBlock.h"
+#include "Input/DragAndDrop.h"
 #include "Engine/World.h"
 #include "Engine/Engine.h"
+
+// ---------- 场景树拖拽操作 ----------
+class FBlockoutTreeDragOp : public FDragDropOperation
+{
+public:
+	DRAG_DROP_OPERATOR_TYPE(FBlockoutTreeDragOp, FDragDropOperation)
+
+	TSharedPtr<FString> DraggedItem;
+
+	static TSharedRef<FBlockoutTreeDragOp> New(TSharedPtr<FString> InItem)
+	{
+		TSharedRef<FBlockoutTreeDragOp> Op = MakeShared<FBlockoutTreeDragOp>();
+		Op->DraggedItem = InItem;
+		Op->MouseCursor = EMouseCursor::GrabHandClosed;
+		return Op;
+	}
+
+	virtual TSharedPtr<SWidget> GetDefaultDecorator() const override
+	{
+		return SNew(STextBlock)
+			.Text(FText::FromString(DraggedItem.IsValid() ? *DraggedItem : TEXT("")))
+			.ColorAndOpacity(FLinearColor(1.f, 0.95f, 0.6f));
+	}
+};
 
 // ---------- i18n 预留 ----------
 namespace BlockoutUI
@@ -355,18 +382,37 @@ TSharedRef<SWidget> SBlockoutEditorUI::BuildCreatePanel()
 			for (int32 j = i; j < FMath::Min(i + PerRow, Idxs.Num()); ++j)
 			{
 				const int32 ShapeIdx = Idxs[j];
-				Row->AddSlot().AutoWidth().Padding(1)
+				Row->AddSlot().AutoWidth().Padding(2)
 				[
-					SNew(SBox)
-					.WidthOverride(88)
+					SNew(SButton)
+					.ToolTipText(FText::FromString(FString::Printf(TEXT("创建：%s"), Labels[ShapeIdx])))
+					.OnClicked_Lambda([this, ShapeIdx]()
+					{
+						OnShapePicked((EBlockoutShape)ShapeIdx);
+						return FReply::Handled();
+					})
 					[
-						SNew(SButton)
-						.Text(FText::FromString(Labels[ShapeIdx]))
-						.OnClicked_Lambda([this, ShapeIdx]()
-						{
-							OnShapePicked((EBlockoutShape)ShapeIdx);
-							return FReply::Handled();
-						})
+						// 缩略图卡片：几何预览图 + 名称
+						SNew(SVerticalBox)
+						+ SVerticalBox::Slot().AutoHeight()
+						[
+							SNew(SBox)
+							.WidthOverride(88)
+							.HeightOverride(54)
+							[
+								SNew(SBlockoutShapePreview)
+								.Shape((EBlockoutShape)ShapeIdx)
+								.LineColor(FLinearColor(0.72f, 0.82f, 0.96f))
+								.FillColor(FLinearColor(0.10f, 0.13f, 0.19f, 1.f))
+								.LineThickness(1.6f)
+							]
+						]
+						+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0, 3, 0, 1)
+						[
+							SNew(STextBlock)
+							.Text(FText::FromString(Labels[ShapeIdx]))
+							.Justification(ETextJustify::Center)
+						]
 					]
 				];
 			}
@@ -1114,16 +1160,20 @@ void SBlockoutEditorUI::Tick(const FGeometry& AllottedGeometry, const double InC
 	UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
 	if (!Sub) return;
 
-	// 选中集合变化时刷新属性面板
+	// 选中集合变化时刷新属性面板 + 场景树选中同步
 	if (Sub->GetSelection() != CachedSelection)
 	{
 		CachedSelection = Sub->GetSelection();
 		RefreshPropertyPanel();
+		SyncTreeSelectionFromSub();
 	}
 
-	// E10 场景树：体块数量变化时刷新
-	if (Sub->GetAllBlocks().Num() != LastBlockCount)
+	// E10 场景树：体块数量变化时立即刷新；名称/隐藏/锁定/顺序等变化用低频轮询兜底
+	const int32 CurCount = Sub->GetAllBlocks().Num();
+	TreeRefreshTimer += InDeltaTime;
+	if (CurCount != LastBlockCount || TreeRefreshTimer > 0.5f)
 	{
+		TreeRefreshTimer = 0.f;
 		RefreshSceneTree();
 	}
 }
@@ -1136,27 +1186,128 @@ TSharedRef<SWidget> SBlockoutEditorUI::BuildSceneTreePanel()
 		.OnGenerateRow_Lambda([this](TSharedPtr<FString> Item, const TSharedRef<STableViewBase>& OwnerTable) -> TSharedRef<ITableRow>
 		{
 			const int32 Idx = SceneTreeItems.IndexOfByKey(Item);
-			const bool bSelected = (Idx != INDEX_NONE) && SceneTreeActors.IsValidIndex(Idx) &&
-				SceneTreeActors[Idx].IsValid() &&
-				GetSub(PCPtr) && GetSub(PCPtr)->GetSelection().Contains(SceneTreeActors[Idx].Get());
-			return SNew(STableRow<TSharedPtr<FString>>, OwnerTable)
-			[
+			ABlockoutActor* Actor = (Idx != INDEX_NONE && SceneTreeActors.IsValidIndex(Idx))
+				? SceneTreeActors[Idx].Get() : nullptr;
+
+			// 类型图标（迷你几何预览）
+			TSharedRef<SWidget> TypeIcon =
+				SNew(SBox).WidthOverride(28).HeightOverride(20)
+				[
+					SNew(SBlockoutShapePreview)
+					.Shape(IsValid(Actor) ? Actor->Data.Shape : EBlockoutShape::Cube)
+					.LineColor(FLinearColor(0.62f, 0.76f, 0.95f))
+					.FillColor(FLinearColor(0.12f, 0.15f, 0.22f, 1.f))
+					.LineThickness(1.1f)
+				];
+
+			// 名称（双击 / F2 进入重命名）
+			TSharedPtr<SInlineEditableTextBlock> NameEditor;
+			TSharedRef<SWidget> NameWidget =
+				SAssignNew(NameEditor, SInlineEditableTextBlock)
+				.Text(FText::FromString(IsValid(Actor) ? Actor->Data.Name : TEXT("")))
+				.ToolTipText(FText::FromString(TEXT("双击重命名")))
+				.OnTextCommitted(this, &SBlockoutEditorUI::OnSceneTreeRenameCommitted,
+					TWeakObjectPtr<ABlockoutActor>(Actor));
+
+			// 分组标记
+			const bool bGrouped = IsValid(Actor) && Actor->Data.GroupId.IsValid();
+			TSharedRef<SWidget> GroupMark =
 				SNew(STextBlock)
-				.Text(FText::FromString(Item.IsValid() ? *Item : TEXT("")))
-				.ColorAndOpacity(bSelected ? FLinearColor(0.3f, 0.9f, 1.f) : FLinearColor::White)
-			];
+				.Text(FText::FromString(bGrouped ? TEXT("G") : TEXT("")))
+				.ColorAndOpacity(FLinearColor(0.45f, 0.85f, 0.5f))
+				.ToolTipText(FText::FromString(TEXT("已编组（拖拽到其它行可并组）")));
+
+			// 锁定开关
+			TSharedRef<SWidget> LockBox =
+				SNew(SCheckBox)
+				.IsChecked(IsValid(Actor) && Actor->Data.bLocked ? ECheckBoxState::Checked : ECheckBoxState::Unchecked)
+				.OnCheckStateChanged_Lambda([Weak = TWeakObjectPtr<ABlockoutActor>(Actor), this](ECheckBoxState S)
+				{
+					UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
+					if (!Sub || !Weak.IsValid()) return;
+					Sub->SetLocked(Weak.Get(), S == ECheckBoxState::Checked);
+					RefreshSceneTree();
+				})
+				.ToolTipText(FText::FromString(TEXT("锁定（勾选后不可选中编辑）")));
+
+			// 可见性开关
+			TSharedRef<SWidget> VisBox =
+				SNew(SCheckBox)
+				.IsChecked(IsValid(Actor) && !Actor->Data.bHidden ? ECheckBoxState::Checked : ECheckBoxState::Unchecked)
+				.OnCheckStateChanged_Lambda([Weak = TWeakObjectPtr<ABlockoutActor>(Actor), this](ECheckBoxState S)
+				{
+					UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
+					if (!Sub || !Weak.IsValid()) return;
+					Sub->SetHidden(Weak.Get(), S != ECheckBoxState::Checked);
+					RefreshSceneTree();
+				})
+				.ToolTipText(FText::FromString(TEXT("显示/隐藏")));
+
+			if (Idx != INDEX_NONE && SceneTreeEditors.IsValidIndex(Idx))
+			{
+				SceneTreeEditors[Idx] = NameEditor;
+			}
+
+			return SNew(STableRow<TSharedPtr<FString>>, OwnerTable)
+				.OnDragDetected(this, &SBlockoutEditorUI::OnSceneTreeDragDetected, Item)
+				.OnCanAcceptDrop(this, &SBlockoutEditorUI::OnSceneTreeCanAcceptDrop)
+				.OnAcceptDrop(this, &SBlockoutEditorUI::OnSceneTreeAcceptDrop)
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(2, 0, 4, 0)
+					[
+						TypeIcon
+					]
+					+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(0, 0, 3, 0)
+					[
+						GroupMark
+					]
+					+ SHorizontalBox::Slot().FillWidth(1.f).VAlign(VAlign_Center)
+					[
+						NameWidget
+					]
+					+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(1, 0)
+					[
+						LockBox
+					]
+					+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(1, 0)
+					[
+						VisBox
+					]
+				];
 		})
 		.OnSelectionChanged(this, &SBlockoutEditorUI::OnSceneTreeSelectionChanged)
-		.SelectionMode(ESelectionMode::Single);
+		.OnContextMenuOpening_Lambda([this]() -> TSharedPtr<SWidget>
+		{
+			return BuildSceneTreeContextMenu();
+		})
+		.SelectionMode(ESelectionMode::Multi);
 
 	return SNew(SVerticalBox)
 		+ SVerticalBox::Slot().AutoHeight().Padding(0, 0, 0, 4)
 		[
 			SNew(STextBlock).Text(FText::FromString(TEXT("场景树（E10）")))
 		]
+		// 搜索过滤
+		+ SVerticalBox::Slot().AutoHeight().Padding(0, 0, 0, 4)
+		[
+			SNew(SEditableTextBox)
+			.HintText(FText::FromString(TEXT("搜索过滤名称 / 类型...")))
+			.OnTextChanged_Lambda([this](const FText& NewText)
+			{
+				SceneSearchText = NewText.ToString();
+				RefreshSceneTree();
+			})
+		]
 		+ SVerticalBox::Slot().FillHeight(1.f)
 		[
 			SceneTreeView.ToSharedRef()
+		]
+		+ SVerticalBox::Slot().AutoHeight().Padding(0, 4, 0, 0)
+		[
+			SNew(STextBlock)
+			.Text(FText::FromString(TEXT("双击名称重命名 | 拖拽行排序 | 拖到行上编组")))
+			.ColorAndOpacity(FLinearColor(0.6f, 0.6f, 0.65f))
 		];
 }
 
@@ -1165,29 +1316,252 @@ void SBlockoutEditorUI::RefreshSceneTree()
 	UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
 	if (!Sub) return;
 
+	// 记录当前选中项（过滤/重建后恢复）
+	TArray<TWeakObjectPtr<ABlockoutActor>> PrevSelected;
+	if (SceneTreeView.IsValid())
+	{
+		for (TSharedPtr<FString>& Sel : SceneTreeView->GetSelectedItems())
+		{
+			const int32 Idx = SceneTreeItems.IndexOfByKey(Sel);
+			if (Idx != INDEX_NONE && SceneTreeActors.IsValidIndex(Idx) && SceneTreeActors[Idx].IsValid())
+			{
+				PrevSelected.Add(SceneTreeActors[Idx]);
+			}
+		}
+	}
+
 	SceneTreeItems.Reset();
 	SceneTreeActors.Reset();
+	SceneTreeEditors.Reset();
+	const FString Filter = SceneSearchText.TrimStartAndEnd();
 	const TArray<ABlockoutActor*>& Blocks = Sub->GetAllBlocks();
 	for (int32 i = 0; i < Blocks.Num(); ++i)
 	{
 		ABlockoutActor* A = Blocks[i];
 		if (!IsValid(A)) continue;
-		SceneTreeItems.Add(MakeShared<FString>(FString::Printf(TEXT("[%d] %s  %s"),
-			i, *A->GetActorNameOrLabel(), A->IsHidden() ? TEXT("(隐藏)") : TEXT(""))));
+
+		// 搜索过滤：名称 / 类型显示名
+		if (!Filter.IsEmpty())
+		{
+			const FString TypeName = UEnum::GetValueAsString(A->Data.Shape);
+			const bool bMatch = A->Data.Name.Contains(Filter, ESearchCase::IgnoreCase)
+				|| TypeName.Contains(Filter, ESearchCase::IgnoreCase);
+			if (!bMatch) continue;
+		}
+
+		SceneTreeItems.Add(MakeShared<FString>(A->Data.Name));
 		SceneTreeActors.Add(A);
+		SceneTreeEditors.Add(nullptr);
 	}
 	LastBlockCount = Blocks.Num();
 	if (SceneTreeView.IsValid())
 	{
 		SceneTreeView->RequestListRefresh();
+
+		// 恢复选中
+		bSyncingTreeSelection = true;
+		SceneTreeView->ClearSelection();
+		for (int32 i = 0; i < SceneTreeActors.Num(); ++i)
+		{
+			if (SceneTreeActors[i].IsValid() &&
+				PrevSelected.ContainsByPredicate([&](const TWeakObjectPtr<ABlockoutActor>& W) { return W.Get() == SceneTreeActors[i].Get(); }))
+			{
+				SceneTreeView->SetItemSelection(SceneTreeItems[i], true, ESelectInfo::Direct);
+			}
+		}
+		bSyncingTreeSelection = false;
 	}
 }
 
 void SBlockoutEditorUI::OnSceneTreeSelectionChanged(TSharedPtr<FString> Item, ESelectInfo::Type SelectInfo)
 {
+	if (bSyncingTreeSelection) return;
 	UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
-	if (!Sub || !Item.IsValid()) return;
-	const int32 Idx = SceneTreeItems.IndexOfByKey(Item);
-	if (Idx == INDEX_NONE || !SceneTreeActors.IsValidIndex(Idx) || !SceneTreeActors[Idx].IsValid()) return;
-	Sub->SelectActor(SceneTreeActors[Idx].Get(), false);
+	if (!Sub) return;
+
+	// 多选：按树选中集合重建 Sub 选择
+	Sub->ClearSelection();
+	if (SceneTreeView.IsValid())
+	{
+		for (TSharedPtr<FString>& Sel : SceneTreeView->GetSelectedItems())
+		{
+			const int32 Idx = SceneTreeItems.IndexOfByKey(Sel);
+			if (Idx != INDEX_NONE && SceneTreeActors.IsValidIndex(Idx) && SceneTreeActors[Idx].IsValid())
+			{
+				Sub->SelectActor(SceneTreeActors[Idx].Get(), true);
+			}
+		}
+	}
+	CachedSelection = Sub->GetSelection();
+	RefreshPropertyPanel();
+}
+
+void SBlockoutEditorUI::SyncTreeSelectionFromSub()
+{
+	if (!SceneTreeView.IsValid() || bSyncingTreeSelection) return;
+	UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
+	if (!Sub) return;
+
+	bSyncingTreeSelection = true;
+	SceneTreeView->ClearSelection();
+	const TArray<ABlockoutActor*>& Sel = Sub->GetSelection();
+	for (int32 i = 0; i < SceneTreeActors.Num(); ++i)
+	{
+		if (SceneTreeActors[i].IsValid() && Sel.Contains(SceneTreeActors[i].Get()))
+		{
+			SceneTreeView->SetItemSelection(SceneTreeItems[i], true, ESelectInfo::Direct);
+		}
+	}
+	bSyncingTreeSelection = false;
+}
+
+void SBlockoutEditorUI::OnSceneTreeRenameCommitted(const FText& NewText, ETextCommit::Type CommitType, TWeakObjectPtr<ABlockoutActor> Actor)
+{
+	if (!Actor.IsValid()) return;
+	if (CommitType != ETextCommit::OnEnter && CommitType != ETextCommit::OnUserMovedFocus) return;
+	const FString NewName = NewText.ToString().TrimStartAndEnd();
+	if (NewName.IsEmpty() || NewName == Actor->Data.Name) return;
+	UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
+	if (!Sub) return;
+	Sub->RenameActor(Actor.Get(), NewName);
+	RefreshSceneTree();
+	Toast(FString::Printf(TEXT("重命名为：%s"), *NewName));
+}
+
+FReply SBlockoutEditorUI::OnSceneTreeDragDetected(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent, TSharedPtr<FString> Item)
+{
+	if (!Item.IsValid()) return FReply::Unhandled();
+	return FReply::Handled().BeginDragDrop(FBlockoutTreeDragOp::New(Item));
+}
+
+TOptional<EItemDropZone> SBlockoutEditorUI::OnSceneTreeCanAcceptDrop(const FDragDropEvent& Event, EItemDropZone DropZone, TSharedPtr<FString> TargetItem)
+{
+	TSharedPtr<FBlockoutTreeDragOp> Op = Event.GetOperationAs<FBlockoutTreeDragOp>();
+	if (!Op.IsValid() || !TargetItem.IsValid() || Op->DraggedItem == TargetItem) return TOptional<EItemDropZone>();
+	return TOptional<EItemDropZone>(DropZone);
+}
+
+FReply SBlockoutEditorUI::OnSceneTreeAcceptDrop(const FDragDropEvent& Event, EItemDropZone DropZone, TSharedPtr<FString> TargetItem)
+{
+	TSharedPtr<FBlockoutTreeDragOp> Op = Event.GetOperationAs<FBlockoutTreeDragOp>();
+	if (!Op.IsValid() || !TargetItem.IsValid() || !Op->DraggedItem.IsValid() || Op->DraggedItem == TargetItem)
+	{
+		return FReply::Unhandled();
+	}
+	UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
+	if (!Sub) return FReply::Unhandled();
+
+	const int32 SrcIdx = SceneTreeItems.IndexOfByKey(Op->DraggedItem);
+	const int32 TgtIdx = SceneTreeItems.IndexOfByKey(TargetItem);
+	if (SrcIdx == INDEX_NONE || TgtIdx == INDEX_NONE ||
+		!SceneTreeActors.IsValidIndex(SrcIdx) || !SceneTreeActors.IsValidIndex(TgtIdx) ||
+		!SceneTreeActors[SrcIdx].IsValid() || !SceneTreeActors[TgtIdx].IsValid())
+	{
+		return FReply::Unhandled();
+	}
+	ABlockoutActor* SrcActor = SceneTreeActors[SrcIdx].Get();
+	ABlockoutActor* TgtActor = SceneTreeActors[TgtIdx].Get();
+
+	if (DropZone == EItemDropZone::OntoItem)
+	{
+		// 编组：并入目标组；目标无组则与目标新建组
+		FGuid Gid = TgtActor->Data.GroupId.IsValid() ? TgtActor->Data.GroupId : FGuid::NewGuid();
+		if (!TgtActor->Data.GroupId.IsValid())
+		{
+			Sub->AssignGroupToActor(TgtActor, Gid);
+		}
+		Sub->AssignGroupToActor(SrcActor, Gid);
+		Toast(TEXT("已编入同一组"));
+	}
+	else
+	{
+		// 排序：Above=放到目标前；Below=放到目标后
+		ABlockoutActor* BeforeActor = nullptr;
+		if (DropZone == EItemDropZone::AboveItem)
+		{
+			BeforeActor = TgtActor;
+		}
+		else // BelowItem
+		{
+			const TArray<ABlockoutActor*> All = Sub->GetAllBlocks();
+			const int32 Pos = All.IndexOfByKey(TgtActor);
+			BeforeActor = (Pos != INDEX_NONE && Pos + 1 < All.Num()) ? All[Pos + 1] : nullptr;
+		}
+		Sub->ReorderBlock(SrcActor, BeforeActor);
+		Toast(TEXT("已调整顺序"));
+	}
+	RefreshSceneTree();
+	return FReply::Handled();
+}
+
+TSharedPtr<SWidget> SBlockoutEditorUI::BuildSceneTreeContextMenu()
+{
+	UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
+	if (!Sub) return nullptr;
+
+	TSharedRef<SVerticalBox> Box = SNew(SVerticalBox);
+	auto AddBtn = [&Box](const FString& Label, TFunction<void()> Fn)
+	{
+		Box->AddSlot().AutoHeight().Padding(1)
+		[
+			SNew(SButton)
+			.Text(FText::FromString(Label))
+			.OnClicked_Lambda([Fn]()
+			{
+				FSlateApplication::Get().DismissAllMenus();
+				Fn();
+				return FReply::Handled();
+			})
+		];
+	};
+
+	AddBtn(TEXT("重命名（F2）"), [this]()
+	{
+		for (int32 i = 0; i < SceneTreeEditors.Num(); ++i)
+		{
+			if (SceneTreeEditors[i].IsValid() && SceneTreeActors.IsValidIndex(i) &&
+				SceneTreeActors[i].IsValid() && GetSub(PCPtr) &&
+				GetSub(PCPtr)->GetSelection().Contains(SceneTreeActors[i].Get()))
+			{
+				SceneTreeEditors[i]->EnterEditingMode();
+				break;
+			}
+		}
+	});
+	AddBtn(TEXT("复制 (Ctrl+D)"), [Sub]() { Sub->DuplicateSelected(); });
+	AddBtn(TEXT("删除 (Del)"), [Sub]() { Sub->DeleteSelected(); });
+	AddBtn(TEXT("隐藏"), [this]() { SetSelectedHidden(true); });
+	AddBtn(TEXT("显示"), [this]() { SetSelectedHidden(false); });
+	AddBtn(TEXT("锁定"), [this]() { SetSelectedLocked(true); });
+	AddBtn(TEXT("解锁"), [this]() { SetSelectedLocked(false); });
+	AddBtn(TEXT("编组"), [Sub]() { Sub->GroupSelected(); });
+	AddBtn(TEXT("解组"), [Sub]() { Sub->UngroupSelected(); });
+	AddBtn(TEXT("全选"), [Sub]() { Sub->SelectAll(); });
+	AddBtn(TEXT("清空选择"), [Sub]() { Sub->ClearSelection(); });
+
+	return Box;
+}
+
+void SBlockoutEditorUI::SetSelectedHidden(bool bHidden)
+{
+	UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
+	if (!Sub) return;
+	for (ABlockoutActor* A : Sub->GetSelection())
+	{
+		Sub->SetHidden(A, bHidden);
+	}
+	RefreshSceneTree();
+	Toast(bHidden ? TEXT("已隐藏选中") : TEXT("已显示选中"));
+}
+
+void SBlockoutEditorUI::SetSelectedLocked(bool bLocked)
+{
+	UBlockoutEditorSubsystem* Sub = GetSub(PCPtr);
+	if (!Sub) return;
+	for (ABlockoutActor* A : Sub->GetSelection())
+	{
+		Sub->SetLocked(A, bLocked);
+	}
+	RefreshSceneTree();
+	Toast(bLocked ? TEXT("已锁定选中") : TEXT("已解锁选中"));
 }

@@ -458,6 +458,30 @@ void UBlockoutEditorSubsystem::RenameActor(ABlockoutActor* Actor, const FString&
 	NotifyDirty();
 }
 
+void UBlockoutEditorSubsystem::ReorderBlock(ABlockoutActor* Actor, ABlockoutActor* TargetBefore)
+{
+	if (!Actor || Actor == TargetBefore || !AllBlocks.Contains(Actor)) return;
+	PushUndo(TEXT("场景树排序"));
+	AllBlocks.Remove(Actor);
+	if (TargetBefore && AllBlocks.Contains(TargetBefore))
+	{
+		AllBlocks.Insert(Actor, AllBlocks.IndexOfByKey(TargetBefore));
+	}
+	else
+	{
+		AllBlocks.Add(Actor);
+	}
+	NotifyDirty();
+}
+
+void UBlockoutEditorSubsystem::AssignGroupToActor(ABlockoutActor* Actor, const FGuid& GroupId)
+{
+	if (!Actor) return;
+	PushUndo(TEXT("拖拽编组"));
+	Actor->Data.GroupId = GroupId;
+	NotifyDirty();
+}
+
 void UBlockoutEditorSubsystem::SetHidden(ABlockoutActor* Actor, bool bHidden)
 {
 	if (!Actor) return;

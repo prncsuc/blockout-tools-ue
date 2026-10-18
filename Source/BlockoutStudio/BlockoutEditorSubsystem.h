@@ -73,6 +73,10 @@ public:
 	void RenameActor(ABlockoutActor* Actor, const FString& NewName);
 	void SetHidden(ABlockoutActor* Actor, bool bHidden);
 	void SetLocked(ABlockoutActor* Actor, bool bLocked);
+	// 场景树拖拽排序：把 Actor 移动到 AllBlocks 中 TargetBefore 之前（nullptr=末尾）
+	void ReorderBlock(ABlockoutActor* Actor, ABlockoutActor* TargetBefore);
+	// 场景树拖拽分组：把 Actor 并入目标组
+	void AssignGroupToActor(ABlockoutActor* Actor, const FGuid& GroupId);
 	void GroupSelected();
 	void UngroupSelected();
 	void SetColor(const FLinearColor& Color);
