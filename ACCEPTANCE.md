@@ -2,6 +2,17 @@
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_260c9a5ecaf311f18b7f525400393706
+    ReservedCode1: Z0pKGzkmK8IRMSetSrq+BKuFlQU2Sbn5LmtrqsRaHPM044c+8Ur2tAoDrYkDrHah7orh3RAXpLk0LXlKjRV4rI/OpE0YXU+W85bjejrFZ4jZ5ccvcTD2O5BHMgbc7tSZd7cL2+kGwlG0XziI01c3U1gb3yMrB3pAf0jwv8H7sfTtTZkqe83Qkk8A1hs=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_260c9a5ecaf311f18b7f525400393706
+    ReservedCode2: Z0pKGzkmK8IRMSetSrq+BKuFlQU2Sbn5LmtrqsRaHPM044c+8Ur2tAoDrYkDrHah7orh3RAXpLk0LXlKjRV4rI/OpE0YXU+W85bjejrFZ4jZ5ccvcTD2O5BHMgbc7tSZd7cL2+kGwlG0XziI01c3U1gb3yMrB3pAf0jwv8H7sfTtTZkqe83Qkk8A1hs=
+---
+
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
     ProduceID: 5227bc309b64902b9bfd2bb79d4de347_75666320ca3b11f18b7f525400393706
     ReservedCode1: /aM49oHvqyX/CZz7+MuUkr0x+cxVztc9lBFyRRHt3E7hy0CbTTEpes2FBuk56P31bgRlzFa9MEqLnMH2CgJkd9xV9g8tgSNKW9y7BTTDA+rANhOrTRzQgPZaftss6HWJ4FPsv1sOBkIJ8nMqHOz4/B7GZlrTp3ny2BqEPY/vlDLbE6PSGkVNYEigzsg=
     ContentPropagator: 001191440300708461136T1XGW3
@@ -61,4 +72,5 @@ P5 验收全部通过：鸟瞰图三关卡各 3 张视角互异；跑图视频 v
 | 抽帧验证帧（v2） | ...\temp\demo_souls_v2_f0/f1/f2.png、demo_dust2_v2_f0/f1/f2.png、demo_uncharted_v2_f0/f1/f2.png |
 
 （`...` = 历史开发会话的产物/临时目录，具体路径向用户索要；证据缺失时可用 `BlockoutStudio.exe -AutoDemoLevel=<关卡JSON> -AutoDemoOut=<输出目录>` 重新生成）
+*（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*

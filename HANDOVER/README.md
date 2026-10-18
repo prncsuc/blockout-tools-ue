@@ -2,12 +2,14 @@
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_05eda23ecad211f196f9525400248c00
-    ReservedCode1: iz4o6/Z9om6mEgyQM7R02dKKQo22a7dZmHOjfF8xefxsvHk/3aqPcPeKl0P5AB2fPKlR/GfgLjDQbRxvmOIGZN7hpGp40BU/JW8eaVWOvyRlI/a0i9JcFZ7oUP2Fdsatg7XUqWrkQhF169queTatcsibOH+eda9s2BSFRXAty9WUohYrcKRwaOY4XVY=
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_1fcd6834caf311f196f9525400248c00
+    ReservedCode1: 94cLjWP6IG6GqnVyxvUzr+zv+is5PVbgpM1LZ08TtzL5CsHf7FkUyiFCju2SJYuY/20ErrQAMlFzL+B7uKtgN1TvG01n8DG7lk8hLgeBASzF78I5nvdHql8jI8HIfW8rxJ5nTVcUpLZUWPuU9zGXO9UHBMqrn7qttdr+M+k3Kb4qGtACjU4rGXLSg8E=
     ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_05eda23ecad211f196f9525400248c00
-    ReservedCode2: iz4o6/Z9om6mEgyQM7R02dKKQo22a7dZmHOjfF8xefxsvHk/3aqPcPeKl0P5AB2fPKlR/GfgLjDQbRxvmOIGZN7hpGp40BU/JW8eaVWOvyRlI/a0i9JcFZ7oUP2Fdsatg7XUqWrkQhF169queTatcsibOH+eda9s2BSFRXAty9WUohYrcKRwaOY4XVY=
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_1fcd6834caf311f196f9525400248c00
+    ReservedCode2: 94cLjWP6IG6GqnVyxvUzr+zv+is5PVbgpM1LZ08TtzL5CsHf7FkUyiFCju2SJYuY/20ErrQAMlFzL+B7uKtgN1TvG01n8DG7lk8hLgeBASzF78I5nvdHql8jI8HIfW8rxJ5nTVcUpLZUWPuU9zGXO9UHBMqrn7qttdr+M+k3Kb4qGtACjU4rGXLSg8E=
 ---
+
+
 
 # HANDOVER — BlockoutStudio AI 开发交接包
 
@@ -58,4 +60,5 @@ AIGC:
 1. **坐标系数学必须正确**（世界/本地切换、UE 左手系 Z-up）——用户因 web 版坐标系错误而否定过旧项目；
 2. **禁止静默砍功能**——做不了就写入 `UNIMPLEMENTED.md`（功能名/原因/替代方案）并继续，不停下等用户；
 3. **C++ 源文件必须 UTF-8 with BOM + CRLF**；Markdown 的 YAML frontmatter 前不加 BOM。
+*（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*

@@ -2,12 +2,14 @@
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_075eba9ccad211f18b7f525400393706
-    ReservedCode1: 6U71+PzG2tl/jMLI4r7GFQnBsMqPADgTWlWFUSFsDoZRR5sYA7LbR8Ik+1AhVNHGwUHwSEzPwAH6jYyZlqrp93ZEGeGYF0CMfSueWJ/7OlO4yzSnU7xpOELPpiFo60daDOtYL3Tqia/fkzNBBWz56LNDxMLFMGaRiy2YZk+iwLMb7vhqqebxnJ2Cd5Y=
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_2155e355caf311f18b7f525400393706
+    ReservedCode1: BWvVnSE/jQQ+Z1NS7Ei1INo0EWBBwDZ+Zr6kbgLWgksmDF6yOHBeNHetfM3IeahaUn4SPmzPT5AGWPKUJGuQ6LX6AlqMwJLz/VzJmyyDoF/qJu20LtvEcy0kiw0ko5EhuuBpMMsvR/TydzNKJmO1eg6A5J7W3W4A4I94RnXG9+19drH6C59PKwW4Pm8=
     ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_075eba9ccad211f18b7f525400393706
-    ReservedCode2: 6U71+PzG2tl/jMLI4r7GFQnBsMqPADgTWlWFUSFsDoZRR5sYA7LbR8Ik+1AhVNHGwUHwSEzPwAH6jYyZlqrp93ZEGeGYF0CMfSueWJ/7OlO4yzSnU7xpOELPpiFo60daDOtYL3Tqia/fkzNBBWz56LNDxMLFMGaRiy2YZk+iwLMb7vhqqebxnJ2Cd5Y=
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_2155e355caf311f18b7f525400393706
+    ReservedCode2: BWvVnSE/jQQ+Z1NS7Ei1INo0EWBBwDZ+Zr6kbgLWgksmDF6yOHBeNHetfM3IeahaUn4SPmzPT5AGWPKUJGuQ6LX6AlqMwJLz/VzJmyyDoF/qJu20LtvEcy0kiw0ko5EhuuBpMMsvR/TydzNKJmO1eg6A5J7W3W4A4I94RnXG9+19drH6C59PKwW4Pm8=
 ---
+
+
 
 # 02 架构与模块清单
 
@@ -96,4 +98,5 @@ AIGC:
 - 场景树拖拽：`FDragDropOperation` 派生 `FBlockoutTreeDragOp`（含装饰器文本）；接收委托挂 `STableRow`（非 SListView）；OntoItem=编组、Above/Below=排序（ReorderBlock）；
 - 共面体块 +0.02uu 膨胀防 Z-fighting；
 - AutoDemo 机位用 `AutoDemoPlacedShot` 标记法（Timer<0.1f 会失效）。
+*（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*

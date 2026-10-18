@@ -2,12 +2,14 @@
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_0ae61ea3cad211f196f9525400248c00
-    ReservedCode1: NUPc9LRaJfHWe2M4D9tmuy0h5eFYKlK/xo6k98YkTKMwyyBRhOA2yJPOCqpe3v/BW/5ChmtoclbaoIlSZ2gZvMcsnDBU7noxtctSvO+JL/o6hcI9jb1SCjRswYxFQy6zLY00mbi7AwpdNFhadgnv+z/na5GI/mXI9rZiUPRzoPa5NgUHd52+me+MSwA=
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_2434e32acaf311f196f9525400248c00
+    ReservedCode1: 5+arnOaWqVxvtFgNButTtPaDzwDR5vBLdkS0Rj0d75hPc6kSkm+tgmg5piud9pqZQNMTpkBgEA4tQzf3FK/ligPF76Ct4FnjtPjWeZy8qa6jZLWm5b2f3s4yWJjQRhh524o/qmtAa18UuriMoNcwo8fYm+LAKcGrPUopjCA1O6y/MiEiSjcQAEdPyUs=
     ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_0ae61ea3cad211f196f9525400248c00
-    ReservedCode2: NUPc9LRaJfHWe2M4D9tmuy0h5eFYKlK/xo6k98YkTKMwyyBRhOA2yJPOCqpe3v/BW/5ChmtoclbaoIlSZ2gZvMcsnDBU7noxtctSvO+JL/o6hcI9jb1SCjRswYxFQy6zLY00mbi7AwpdNFhadgnv+z/na5GI/mXI9rZiUPRzoPa5NgUHd52+me+MSwA=
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_2434e32acaf311f196f9525400248c00
+    ReservedCode2: 5+arnOaWqVxvtFgNButTtPaDzwDR5vBLdkS0Rj0d75hPc6kSkm+tgmg5piud9pqZQNMTpkBgEA4tQzf3FK/ligPF76Ct4FnjtPjWeZy8qa6jZLWm5b2f3s4yWJjQRhh524o/qmtAa18UuriMoNcwo8fYm+LAKcGrPUopjCA1O6y/MiEiSjcQAEdPyUs=
 ---
+
+
 
 # 07 建议后续 AI 具备的能力 / skill 清单
 
@@ -65,4 +67,5 @@ AIGC:
 - [ ] 跑一次 `-AutoPerfTest=100` 确认打包 exe 可用；
 - [ ] 阅读 `docs/USER_MANUAL.md` 了解用户视角操作；
 - [ ] 查看 04_FEATURE_STATUS.md 遗留项，按优先级继续。
+*（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*

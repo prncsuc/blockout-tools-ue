@@ -2,6 +2,17 @@
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_26b2aa36caf311f196f9525400248c00
+    ReservedCode1: oQYU69aiZHxB7XBZMlIf1vqfNdSorSH36w+GnfT0DLmHpseleLfQJXdiOqGfxFlR2RCurbY+Zh32dO0OHoorUSJMPqF87lCZ3wg8SE5MlQJhJtXid4DXw0tjsSrXFyKsW95tC437CapnHkY5EGtMZdZghFbPsfYIzIuYnKBRrbZFejpCQQDBhNnEPq0=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_26b2aa36caf311f196f9525400248c00
+    ReservedCode2: oQYU69aiZHxB7XBZMlIf1vqfNdSorSH36w+GnfT0DLmHpseleLfQJXdiOqGfxFlR2RCurbY+Zh32dO0OHoorUSJMPqF87lCZ3wg8SE5MlQJhJtXid4DXw0tjsSrXFyKsW95tC437CapnHkY5EGtMZdZghFbPsfYIzIuYnKBRrbZFejpCQQDBhNnEPq0=
+---
+
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
     ProduceID: 5227bc309b64902b9bfd2bb79d4de347_7631db5aca3b11f18b7f525400393706
     ReservedCode1: 0jQnRUWH0CLQ+OHrEOyh9VcQA266lsR5wgrY37ofdW9fHJ+q107Pu+az8dY3IUHgPQtlUcJ4jncicbUlW1qiQoZZjt5Dv1SZjAmCrKkZzXLgUOtN/Q39TIYrpvVYQWeG2PrX83anqdsVHfGI/HyHY5YkN6Og+CA3jbqZPMK48n/BsnGv66UmawN743c=
     ContentPropagator: 001191440300708461136T1XGW3
@@ -197,3 +208,4 @@ UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡�
 - ④ HANDOVER/ AI 交接包：README + 01 项目背景与需求要点 + 02 架构与模块清单 + 03 踩坑全集 + 04 已完成/未完成与遗留项 + 05 验收标准 + 06 工作流程 + 07 skill 清单
 - ⑤ 根 README.md 补齐；全部文档与资产 commit+push
 - UE 5.6 Slate 经验：OnPaint 第3参数 const FSlateRect&；FDragDropOperation 在 Input/DragAndDrop.h；MakeBox 需 FSlateBrush*（取局部对象地址）；MakeLines 用 TArray<FVector2f> 值传；拖拽接收委托挂 STableRow 非 SListView
+*（内容由AI生成，仅供参考）*

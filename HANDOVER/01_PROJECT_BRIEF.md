@@ -2,12 +2,14 @@
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_06b48c57cad211f18b7f525400393706
-    ReservedCode1: GWcT+tcQ4KVFDOXqhQTKsiEBpFQtBxkb5fRhzPmoOxmTEu6x8jd97ozUqwmhtYuFsqY8wa1N359LVZVhDAqLv9QxVvFG4kHYNKRUtMi3HB0SrW79tVmvtjcFHUHjUOXtxpx+ryok+uaAXILagG94DxqlXUebNnidJ0CLUdfQDRIj+SAh8b/Q7v/Fmy0=
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_20bafa65caf311f18b7f525400393706
+    ReservedCode1: tDjQNaeRUFbGTk6GBlnmMa6AMSa4qz9thowip/B8bazZqonEK0AqjMWPGnv0UYDJ5LJODPByAfCL2Z5UDjMrjbKi/hKb3lUID9s8+lFzAqGxCh3nV4Vfh1zONnQJ3GZDMaXsSk9rbDgJE8O6BcfL0/42nlxTfp5OXCvN8pNjdoK3CCmhvasd64b6T/A=
     ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_06b48c57cad211f18b7f525400393706
-    ReservedCode2: GWcT+tcQ4KVFDOXqhQTKsiEBpFQtBxkb5fRhzPmoOxmTEu6x8jd97ozUqwmhtYuFsqY8wa1N359LVZVhDAqLv9QxVvFG4kHYNKRUtMi3HB0SrW79tVmvtjcFHUHjUOXtxpx+ryok+uaAXILagG94DxqlXUebNnidJ0CLUdfQDRIj+SAh8b/Q7v/Fmy0=
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_20bafa65caf311f18b7f525400393706
+    ReservedCode2: tDjQNaeRUFbGTk6GBlnmMa6AMSa4qz9thowip/B8bazZqonEK0AqjMWPGnv0UYDJ5LJODPByAfCL2Z5UDjMrjbKi/hKb3lUID9s8+lFzAqGxCh3nV4Vfh1zONnQJ3GZDMaXsSk9rbDgJE8O6BcfL0/42nlxTfp5OXCvN8pNjdoK3CCmhvasd64b6T/A=
 ---
+
+
 
 # 01 项目背景与需求规格要点
 
@@ -69,4 +71,5 @@ AIGC:
 - 视频录制优先免许可风险编码（WebM/VP8 或 ffmpeg LGPL 动态链接）；
 - 示例内容：3 个示例白盒（类 CS 竞技小图、类魂地牢、类神海攀爬遗迹）各含跑图录屏/轨迹；
 - 每阶段收尾：自查 → git commit → git push → 更新 `PROGRESS.md`。
+*（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*

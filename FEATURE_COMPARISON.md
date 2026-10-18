@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_27fdb1fdcaf311f18b7f525400393706
+    ReservedCode1: f4fzUmz3mnW6GQM0n3g/C7+H53zMIbY3LTn0GG7q23jjmvkKes7ZXzlEG1V3VwmLRSFzxf31LPHjuuTAdbxS8YRx6TnGSSxvdgWPR01rYWrSk3NSd5S/ThnmX+hics2kZzrsqdZXBevPW3DDW3NqmxhMxTa+t0WsdM36Kg39EYROCniTYNt3W6Q8/EM=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_27fdb1fdcaf311f18b7f525400393706
+    ReservedCode2: f4fzUmz3mnW6GQM0n3g/C7+H53zMIbY3LTn0GG7q23jjmvkKes7ZXzlEG1V3VwmLRSFzxf31LPHjuuTAdbxS8YRx6TnGSSxvdgWPR01rYWrSk3NSd5S/ThnmX+hics2kZzrsqdZXBevPW3DDW3NqmxhMxTa+t0WsdM36Kg39EYROCniTYNt3W6Q8/EM=
+---
+
 ﻿# BlockoutStudio 功能对照表（代码级逐功能比对）
 
 比对对象：
@@ -62,3 +73,4 @@
 
 - dust2 关卡 + 演示视频（用户第 6 点，留后续批）
 - 视频输出 MP4/WebM 转封装（当前 AVI MJPEG，属后处理，不影响功能）
+*（内容由AI生成，仅供参考）*

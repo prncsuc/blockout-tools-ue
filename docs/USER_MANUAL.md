@@ -2,12 +2,14 @@
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_05470db5cad211f18b7f525400393706
-    ReservedCode1: E97LGbhQc0R75cXrKC9nELnzOEwU61YP0q/Kw5/E54EbfRcaMJEAHWNqQTAMp8DFSZFDg+X7lUQDrwpGEjSIoMQECK3TyMhItVUMSISB926QgjvyK72kUAplDIYG69WUeSFnt+DzzvBJdsuhdSUpLzcFsYev/jCxCJ3Um9lBWJhD1vk1Va7zQmlLIDY=
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_25674817caf311f18b7f525400393706
+    ReservedCode1: EDTeWUuyw4ehHhz5vEO6XxAwCG2sFFB4B2bTMfthmSsRAnuAx5JYxGzBSC3TJtdikSa2PhZnPCmyQ0WuulvneyWKwY9NZArA1FbhZehKfSQz+yXwBdNj8SR7KlTekpUJpjzDlb5+5ys+PhtS71+pw1pg6T+MY9Kiu/mM9RiuObuGAf5zT1DAlMz1Nlk=
     ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_05470db5cad211f18b7f525400393706
-    ReservedCode2: E97LGbhQc0R75cXrKC9nELnzOEwU61YP0q/Kw5/E54EbfRcaMJEAHWNqQTAMp8DFSZFDg+X7lUQDrwpGEjSIoMQECK3TyMhItVUMSISB926QgjvyK72kUAplDIYG69WUeSFnt+DzzvBJdsuhdSUpLzcFsYev/jCxCJ3Um9lBWJhD1vk1Va7zQmlLIDY=
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_25674817caf311f18b7f525400393706
+    ReservedCode2: EDTeWUuyw4ehHhz5vEO6XxAwCG2sFFB4B2bTMfthmSsRAnuAx5JYxGzBSC3TJtdikSa2PhZnPCmyQ0WuulvneyWKwY9NZArA1FbhZehKfSQz+yXwBdNj8SR7KlTekpUJpjzDlb5+5ys+PhtS71+pw1pg6T+MY9Kiu/mM9RiuObuGAf5zT1DAlMz1Nlk=
 ---
+
+
 
 # BlockoutStudio 用户使用手册
 
@@ -424,4 +426,5 @@ BlockoutStudio.exe -AutoDemoLevel="<REPO_ROOT>\Content\Levels\level_dust2_final.
 ---
 
 > 相关文档：[需求规格逐条核对](../REQUIREMENT_CHECK.md) | [功能对比](../FEATURE_COMPARISON.md) | [验收记录](../ACCEPTANCE.md) | [开发进度](../PROGRESS.md) | [AI 交接包](../HANDOVER/README.md)
+*（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*

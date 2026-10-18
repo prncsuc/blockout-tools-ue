@@ -2,12 +2,14 @@
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_0452b5b6cad211f18b7f525400393706
-    ReservedCode1: grZNO0SsybR001tqCEjm8PWhhpYztzuLaETJSRFhMP1aE7DVbOSMh6GSSIfluyRqmlg6seXzCvnzTn7h9ze8Jrlpm1SJgoRDE8GmNt1JOBLfpDxXHfa+JgnX202rGtMVpX9bcCST3XPzY5AyCb+6N4Qk5pyPbrqKDILD/CnuUd7vuz9eMxcuobHpPus=
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_24cb1415caf311f196f9525400248c00
+    ReservedCode1: l0qHUvChJsu8kPsuF/xMlLlreMZyL4wwvZLyuCiF1VskkL2omi/ijXUEHd/ys8iU86rXunVL0Sj6hTavLa/5OMME6crfTMZrlnXyA1vCCDNXcoJykaO/uAGk4wh0ZnZOjSVN6sbq7U5KxvOyE1B/5Sl3RxD5ZiTzfhyp+J/up/CUbSBPSxBoABVsFCc=
     ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_0452b5b6cad211f18b7f525400393706
-    ReservedCode2: grZNO0SsybR001tqCEjm8PWhhpYztzuLaETJSRFhMP1aE7DVbOSMh6GSSIfluyRqmlg6seXzCvnzTn7h9ze8Jrlpm1SJgoRDE8GmNt1JOBLfpDxXHfa+JgnX202rGtMVpX9bcCST3XPzY5AyCb+6N4Qk5pyPbrqKDILD/CnuUd7vuz9eMxcuobHpPus=
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_24cb1415caf311f196f9525400248c00
+    ReservedCode2: l0qHUvChJsu8kPsuF/xMlLlreMZyL4wwvZLyuCiF1VskkL2omi/ijXUEHd/ys8iU86rXunVL0Sj6hTavLa/5OMME6crfTMZrlnXyA1vCCDNXcoJykaO/uAGk4wh0ZnZOjSVN6sbq7U5KxvOyE1B/5Sl3RxD5ZiTzfhyp+J/up/CUbSBPSxBoABVsFCc=
 ---
+
+
 
 # BlockoutStudio — UE5 独立白盒关卡工具
 
@@ -57,4 +59,5 @@ Packaged\Windows\BlockoutStudio.exe
 
 - 本工具自研代码随仓库发布；`Content\PMB\` 为 PMB – Blockout ToolKit 正版资产（Epic Marketplace 标准许可，不得单独再分发）；`Content\Characters\` 等为 Epic 官方示例资产。
 - ffmpeg 以 LGPL 动态链接方式分发（`ThirdParty\ffmpeg\`）。
+*（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*

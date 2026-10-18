@@ -2,12 +2,14 @@
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_081a6317cad211f18b7f525400393706
-    ReservedCode1: viKl7I/kfhI2isAvit/Zzz7w0bSVNvzHRmHoRdVIdJ/LCYLrgEI39nHsFDhA1OKLgLNlT+8t+Hnfgv6aglHfE6Ymx7Ts2TD8863HDq/d8d37JPyuHWhNOiOwd7vW4BTXcy7o4usQ42UA4qQUbxTrl6sDzjr/7U/nlDmopU1K/k0GoTlfgTpiYXxt/oI=
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_22040a21caf311f18b7f525400393706
+    ReservedCode1: OZUipYCEoFtueuldDimqNQ43rlGAQyEXe82gXV91FknTFcoss+YVpFPevolcCRx5aLJc5Wc8PClxkurQlO8MMW0eqcCOvGMSgV9AJFC3iQROafgPcUDNvvys4r+FMiy4bBnX98jFcVBPFknH/AGvC+GDXsBpFdYIUsTOO7wUn4+tWcjj2D69O1ScLTc=
     ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_081a6317cad211f18b7f525400393706
-    ReservedCode2: viKl7I/kfhI2isAvit/Zzz7w0bSVNvzHRmHoRdVIdJ/LCYLrgEI39nHsFDhA1OKLgLNlT+8t+Hnfgv6aglHfE6Ymx7Ts2TD8863HDq/d8d37JPyuHWhNOiOwd7vW4BTXcy7o4usQ42UA4qQUbxTrl6sDzjr/7U/nlDmopU1K/k0GoTlfgTpiYXxt/oI=
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_22040a21caf311f18b7f525400393706
+    ReservedCode2: OZUipYCEoFtueuldDimqNQ43rlGAQyEXe82gXV91FknTFcoss+YVpFPevolcCRx5aLJc5Wc8PClxkurQlO8MMW0eqcCOvGMSgV9AJFC3iQROafgPcUDNvvys4r+FMiy4bBnX98jFcVBPFknH/AGvC+GDXsBpFdYIUsTOO7wUn4+tWcjj2D69O1ScLTc=
 ---
+
+
 
 # 03 历史踩坑与避坑全集（必读）
 
@@ -103,4 +105,5 @@ AIGC:
 
 ### G3. Unity 导入实测
 - 历史开发机 Unity 2021.3.8f1 许可证未激活（batchmode 报 "Unity has not been activated with a valid License"），**不绕过验证**；接手后自行准备 Unity（2022+ 亦可）并请用户激活许可证，用导出样例（OBJ/FBX/glTF/GLB，可用 `-AutoExportTest` 重新生成）补跑导入实测。
+*（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*
