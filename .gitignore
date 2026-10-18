@@ -5,14 +5,6 @@
 /.vs/
 *.sln
 *.VC.db
-/Content/PMB/
-/Content/UEFirstPerson/
-/Content/__ExternalActors__/
-/Content/__ExternalObjects__/
-Packaged/
 Build/
 
-/Content/Mannequins/
-
-# Epic official mannequin assets (not committed)
-/Content/Characters/
+# Packaged binaries tracked via Git LFS (see .gitattributes)
