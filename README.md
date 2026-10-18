@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_0452b5b6cad211f18b7f525400393706
+    ReservedCode1: grZNO0SsybR001tqCEjm8PWhhpYztzuLaETJSRFhMP1aE7DVbOSMh6GSSIfluyRqmlg6seXzCvnzTn7h9ze8Jrlpm1SJgoRDE8GmNt1JOBLfpDxXHfa+JgnX202rGtMVpX9bcCST3XPzY5AyCb+6N4Qk5pyPbrqKDILD/CnuUd7vuz9eMxcuobHpPus=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_0452b5b6cad211f18b7f525400393706
+    ReservedCode2: grZNO0SsybR001tqCEjm8PWhhpYztzuLaETJSRFhMP1aE7DVbOSMh6GSSIfluyRqmlg6seXzCvnzTn7h9ze8Jrlpm1SJgoRDE8GmNt1JOBLfpDxXHfa+JgnX202rGtMVpX9bcCST3XPzY5AyCb+6N4Qk5pyPbrqKDILD/CnuUd7vuz9eMxcuobHpPus=
+---
+
 # BlockoutStudio — UE5 独立白盒关卡工具
 
 独立打包的 Windows 白盒关卡编辑器（非 UE 插件）：关卡设计师双击 exe 即可搭建类 CS:GO / 类魂 / 类神海的白盒关卡，支持 FPS/TPS 跑图测试、录制、导出 FBX/OBJ/glTF 进 Unity/UE。基于 UE 5.6.1，操作便捷度对标 PMB – Blockout ToolKit。
@@ -20,8 +31,10 @@
 Packaged\Windows\BlockoutStudio.exe
 
 :: 或从源码编译（UE 5.6.1）
-F:\UE_5.6\Engine\Build\BatchFiles\Build.bat BlockoutStudioEditor Win64 Development -project="E:\BlockoutStudio\BlockoutStudio.uproject" -waitmutex
+<UE_ROOT>\Engine\Build\BatchFiles\Build.bat BlockoutStudioEditor Win64 Development -project="<REPO_ROOT>\BlockoutStudio.uproject" -waitmutex
 ```
+
+> `<UE_ROOT>` = 本机 UE 5.6.1 安装目录（自行准备或向用户索要）；`<REPO_ROOT>` = 本仓库克隆根目录。
 
 ## 文档
 
@@ -44,3 +57,4 @@ F:\UE_5.6\Engine\Build\BatchFiles\Build.bat BlockoutStudioEditor Win64 Developme
 
 - 本工具自研代码随仓库发布；`Content\PMB\` 为 PMB – Blockout ToolKit 正版资产（Epic Marketplace 标准许可，不得单独再分发）；`Content\Characters\` 等为 Epic 官方示例资产。
 - ffmpeg 以 LGPL 动态链接方式分发（`ThirdParty\ffmpeg\`）。
+*（内容由AI生成，仅供参考）*

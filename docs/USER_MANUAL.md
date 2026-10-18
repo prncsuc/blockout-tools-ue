@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_05470db5cad211f18b7f525400393706
+    ReservedCode1: E97LGbhQc0R75cXrKC9nELnzOEwU61YP0q/Kw5/E54EbfRcaMJEAHWNqQTAMp8DFSZFDg+X7lUQDrwpGEjSIoMQECK3TyMhItVUMSISB926QgjvyK72kUAplDIYG69WUeSFnt+DzzvBJdsuhdSUpLzcFsYev/jCxCJ3Um9lBWJhD1vk1Va7zQmlLIDY=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_05470db5cad211f18b7f525400393706
+    ReservedCode2: E97LGbhQc0R75cXrKC9nELnzOEwU61YP0q/Kw5/E54EbfRcaMJEAHWNqQTAMp8DFSZFDg+X7lUQDrwpGEjSIoMQECK3TyMhItVUMSISB926QgjvyK72kUAplDIYG69WUeSFnt+DzzvBJdsuhdSUpLzcFsYev/jCxCJ3Um9lBWJhD1vk1Va7zQmlLIDY=
+---
+
 # BlockoutStudio 用户使用手册
 
 > UE5 独立白盒关卡编辑工具 | 版本 v1.0 | 适用 UE 5.6.1
@@ -51,21 +62,21 @@ BlockoutStudio 是一个**独立打包的 Windows 桌面程序**（非 UE 编辑
 
 | 项 | 要求 |
 |---|---|
-| 引擎 | UE 5.6.1（本项目开发环境路径 `F:\UE_5.6`） |
+| 引擎 | UE 5.6.1（安装目录记作 `<UE_ROOT>`，自行准备或向用户索要） |
 | IDE | Visual Studio 2022（含 C++ 游戏开发工作负载） |
 | 系统 | Windows 10/11 x64 |
-| 工程路径 | `E:\BlockoutStudio\BlockoutStudio.uproject` |
+| 工程路径 | 仓库克隆根目录下 `BlockoutStudio.uproject`（仓库根记作 `<REPO_ROOT>`） |
 
 **编译编辑器（日常开发）**
 
 ```bat
-F:\UE_5.6\Engine\Build\BatchFiles\Build.bat BlockoutStudioEditor Win64 Development -project="E:\BlockoutStudio\BlockoutStudio.uproject" -waitmutex
+<UE_ROOT>\Engine\Build\BatchFiles\Build.bat BlockoutStudioEditor Win64 Development -project="<REPO_ROOT>\BlockoutStudio.uproject" -waitmutex
 ```
 
 **Shipping 打包（便携版）**
 
 ```bat
-F:\UE_5.6\Engine\Build\BatchFiles\RunUAT.bat BuildCookRun -project="E:\BlockoutStudio\BlockoutStudio.uproject" -platform=Win64 -clientconfig=Shipping -build -cook -stage -pak -prereqs -archivedirectory="E:\BlockoutStudio\Packaged\Windows" -unattended
+<UE_ROOT>\Engine\Build\BatchFiles\RunUAT.bat BuildCookRun -project="<REPO_ROOT>\BlockoutStudio.uproject" -platform=Win64 -clientconfig=Shipping -build -cook -stage -pak -prereqs -archivedirectory="<REPO_ROOT>\Packaged\Windows" -unattended
 ```
 
 完整耗时约 1–3 分钟（增量）。打包注意事项见 [FAQ 14.2](#14-常见问题faq)。
@@ -357,7 +368,7 @@ F:\UE_5.6\Engine\Build\BatchFiles\RunUAT.bat BuildCookRun -project="E:\BlockoutS
 示例：
 
 ```bat
-BlockoutStudio.exe -AutoDemoLevel="E:\BlockoutStudio\Content\Levels\level_dust2_final.json" -AutoDemoOut="E:\BlockoutStudio\Saved\DemoOut"
+BlockoutStudio.exe -AutoDemoLevel="<REPO_ROOT>\Content\Levels\level_dust2_final.json" -AutoDemoOut="<REPO_ROOT>\Saved\DemoOut"
 ```
 
 内置示例关卡 JSON：`Content\Levels\`（dust2_final / dustyard / souls_castle / uncharted_ruins，各含 demoPath 演示轨迹）。
@@ -407,9 +418,10 @@ BlockoutStudio.exe -AutoDemoLevel="E:\BlockoutStudio\Content\Levels\level_dust2_
 
 ### 14.9 git / 推送问题
 
-- 推送走本地代理 `127.0.0.1:26001`（仓库已配置 http/https proxy）；
+- 推送优先直连（`git -c http.proxy= -c https.proxy= push`）；若所在网络必须走代理，代理地址向用户索要后再配置 http/https proxy；
 - `Packaged/**` 由 Git LFS 管理；`*.uasset/umap` 不走 LFS（防止超过 LFS 1GB 免费额度），全部资产直接入 git。
 
 ---
 
 > 相关文档：[需求规格逐条核对](../REQUIREMENT_CHECK.md) | [功能对比](../FEATURE_COMPARISON.md) | [验收记录](../ACCEPTANCE.md) | [开发进度](../PROGRESS.md) | [AI 交接包](../HANDOVER/README.md)
+*（内容由AI生成，仅供参考）*
