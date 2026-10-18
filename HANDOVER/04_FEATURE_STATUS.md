@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_08b7cb55cad211f196f9525400248c00
+    ReservedCode1: 70GUGJfHNZ+fNvfA3A9BowKds4blHJubQ5Vk+PjbKC/+Tqy+p39jOaOVtyx1LwXDz9Qb9jiIhSWDTCyAS0lhRFKE8f6cD5X3m86lQJSozRMhJTGMYLYzmpUCCoI02YYlfcJiZEz4TPcqGbSKgtxhLnE1o22c2MYLN+33Tc/NWyV14qdzbTXh/cTHvWc=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_08b7cb55cad211f196f9525400248c00
+    ReservedCode2: 70GUGJfHNZ+fNvfA3A9BowKds4blHJubQ5Vk+PjbKC/+Tqy+p39jOaOVtyx1LwXDz9Qb9jiIhSWDTCyAS0lhRFKE8f6cD5X3m86lQJSozRMhJTGMYLYzmpUCCoI02YYlfcJiZEz4TPcqGbSKgtxhLnE1o22c2MYLN+33Tc/NWyV14qdzbTXh/cTHvWc=
+---
+
 # 04 已完成 / 未完成功能清单与遗留项
 
 > 状态基准：`REQUIREMENT_CHECK.md`（2026-10-18 核对）+ 本交接轮 UI 收尾（commit 40784e7）。
@@ -26,19 +37,19 @@
 
 | 证据 | 位置 |
 |---|---|
-| 碰撞回归 JSON | 会话 output\p3_collision\（双关卡 pass=true） |
-| 性能报告 | 会话 output\d5_perf\perf_report.json |
-| 导出样例 | 会话 output\d3_export\（四格式） |
-| UE 导入实测 | 会话 output\d3_ue_import\（bounds 一致 [450.02,400.02,200.02]cm） |
-| 演示视频/截图 | 会话 output\r2_video\ 等；关卡 demoPath 轨迹 |
-| 需求逐条核对 | E:\BlockoutStudio\REQUIREMENT_CHECK.md |
-| 验收勾选 | E:\BlockoutStudio\ACCEPTANCE.md |
+| 碰撞回归 JSON | 历史产物 `p3_collision\`（双关卡 pass=true；产物随原开发会话交付，可用 `-AutoCollisionTest` 重跑生成） |
+| 性能报告 | 历史产物 `perf_report.json`（可用 `-AutoPerfTest` 重跑生成） |
+| 导出样例 | 历史产物 `d3_export\`（四格式，可用 `-AutoExportTest` 重新生成） |
+| UE 导入实测 | 历史产物 `d3_ue_import\`（bounds 一致 [450.02,400.02,200.02]cm） |
+| 演示视频/截图 | 历史产物 `r2_video\` 等；关卡 demoPath 轨迹 |
+| 需求逐条核对 | 仓库根 `<REPO_ROOT>\REQUIREMENT_CHECK.md` |
+| 验收勾选 | 仓库根 `<REPO_ROOT>\ACCEPTANCE.md` |
 
 ## 2. 未完成 / 遗留项（如实列出，禁止静默砍）
 
 | # | 项 | 现状 | 原因 | 替代方案/下一步 |
 |---|---|---|---|---|
-| 1 | **Unity 端导入实测补跑** | 未测（UE 端已测通过） | 本机 Unity 2021.3.8f1 Editor 许可证未激活，batchmode 报 "not been activated with a valid License"；不绕过安全验证 | 许可证激活后用 output\d3_export 样例（OBJ/FBX/glTF/GLB）在 Unity 2022+ 手动导入复验；导出端已按 Unity 规范（FBX Y-up/cm、glTF 米制）修正，预期无误 |
+| 1 | **Unity 端导入实测补跑** | 未测（UE 端已测通过） | 历史开发机 Unity 2021.3.8f1 许可证未激活，batchmode 报 "not been activated with a valid License"；不绕过安全验证（接手环境需自行准备 Unity 并请用户激活许可证） | 许可证激活后用 `-AutoExportTest` 导出样例（OBJ/FBX/glTF/GLB）在 Unity 2022+ 手动导入复验；导出端已按 Unity 规范（FBX Y-up/cm、glTF 米制）修正，预期无误 |
 | 2 | **dust2 演示收尾** | 暂缓 | 当时优先级让位于功能补齐（R2/D3/D5/P3） | 运行 `-AutoDemoLevel=Content\Levels\level_dust2_final.json -AutoDemoOut=<dir>` 补录；已有 dustyard/souls_castle/uncharted_ruins 演示可覆盖验收 |
 | 3 | **docs/screenshots 截图留档** | 缺失/不全 | 流程性遗留 | 需求 §0.2 要求每阶段截图存 docs\screenshots\；可在验收复跑时用 AutoDemo 鸟瞰截图补齐 |
 | 4 | GitHub PAT 轮换 | 未做 | token 在需求原件明文出现，属用户侧操作 | 提醒用户 GitHub Settings → Developer settings 撤销更换 |
@@ -52,3 +63,4 @@
 3. 按 05_ACCEPTANCE.md 在目标机器复跑一遍验收清单并签字；
 4. 提醒用户轮换 GitHub token；
 5. （可选）打包一次最终 Shipping 便携 zip 发布。
+*（内容由AI生成，仅供参考）*

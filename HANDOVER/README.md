@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_05eda23ecad211f196f9525400248c00
+    ReservedCode1: iz4o6/Z9om6mEgyQM7R02dKKQo22a7dZmHOjfF8xefxsvHk/3aqPcPeKl0P5AB2fPKlR/GfgLjDQbRxvmOIGZN7hpGp40BU/JW8eaVWOvyRlI/a0i9JcFZ7oUP2Fdsatg7XUqWrkQhF169queTatcsibOH+eda9s2BSFRXAty9WUohYrcKRwaOY4XVY=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_05eda23ecad211f196f9525400248c00
+    ReservedCode2: iz4o6/Z9om6mEgyQM7R02dKKQo22a7dZmHOjfF8xefxsvHk/3aqPcPeKl0P5AB2fPKlR/GfgLjDQbRxvmOIGZN7hpGp40BU/JW8eaVWOvyRlI/a0i9JcFZ7oUP2Fdsatg7XUqWrkQhF169queTatcsibOH+eda9s2BSFRXAty9WUohYrcKRwaOY4XVY=
+---
+
 # HANDOVER — BlockoutStudio AI 开发交接包
 
 > **本目录是给接手本项目的 AI 开发者的完整交接包**。读完本 README 后按顺序阅读各分册，即可在不依赖任何口头上下文的情况下继续开发。
@@ -18,16 +29,16 @@
 ## 一分钟上手
 
 ```bat
-:: 环境
-引擎   : UE 5.6.1 @ F:\UE_5.6
-工程   : E:\BlockoutStudio\BlockoutStudio.uproject
-仓库   : https://github.com/prncsuc/blockout-tools-ue (main 分支，remote 已内嵌 token；2026-10-18 起推荐直连推送，代理 127.0.0.1:26001 证书已失效，详见 03_PITFALLS F1)
+:: 环境（需自行准备，具体路径以实际机器为准）
+引擎   : UE 5.6.1（自行安装或向用户索要安装来源，下称 <UE_ROOT>）
+工程   : 本仓库根目录（BlockoutStudio.uproject 所在处，下称 <REPO_ROOT>）
+仓库   : https://github.com/prncsuc/blockout-tools-ue (main 分支；remote 含凭据时注意保护，网络代理按实际环境配置或向用户索要)
 
 :: 编译
-F:\UE_5.6\Engine\Build\BatchFiles\Build.bat BlockoutStudioEditor Win64 Development -project="E:\BlockoutStudio\BlockoutStudio.uproject" -waitmutex
+<UE_ROOT>\Engine\Build\BatchFiles\Build.bat BlockoutStudioEditor Win64 Development -project="<REPO_ROOT>\BlockoutStudio.uproject" -waitmutex
 
 :: Shipping 打包（约 1 分钟）
-F:\UE_5.6\Engine\Build\BatchFiles\RunUAT.bat BuildCookRun -project="E:\BlockoutStudio\BlockoutStudio.uproject" -platform=Win64 -clientconfig=Shipping -build -cook -stage -pak -prereqs -archivedirectory="E:\BlockoutStudio\Packaged\Windows" -unattended
+<UE_ROOT>\Engine\Build\BatchFiles\RunUAT.bat BuildCookRun -project="<REPO_ROOT>\BlockoutStudio.uproject" -platform=Win64 -clientconfig=Shipping -build -cook -stage -pak -prereqs -archivedirectory="<REPO_ROOT>\Packaged\Windows" -unattended
 ```
 
 ## 仓库文档地图
@@ -47,3 +58,4 @@ F:\UE_5.6\Engine\Build\BatchFiles\RunUAT.bat BuildCookRun -project="E:\BlockoutS
 1. **坐标系数学必须正确**（世界/本地切换、UE 左手系 Z-up）——用户因 web 版坐标系错误而否定过旧项目；
 2. **禁止静默砍功能**——做不了就写入 `UNIMPLEMENTED.md`（功能名/原因/替代方案）并继续，不停下等用户；
 3. **C++ 源文件必须 UTF-8 with BOM + CRLF**；Markdown 的 YAML frontmatter 前不加 BOM。
+*（内容由AI生成，仅供参考）*

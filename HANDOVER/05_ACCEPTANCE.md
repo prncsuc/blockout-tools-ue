@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_0970d204cad211f18b7f525400393706
+    ReservedCode1: vUQkgIDuCcX9jw+98+puaxngJ71O0LORj26NQe2GWnaQzYrLpev/sk7fDpieRCQK1qqNVjbCA21A/QNyiuF8mwg1KR0nSPk/i7HFxvugjnzWXE90lSJCLTRw9iOYsQU2fjr+ApcOaSBG38iSaFar8i7A3ai5TZh4XuUXsBmQX2EY7sDJNelQUsxPlzg=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_0970d204cad211f18b7f525400393706
+    ReservedCode2: vUQkgIDuCcX9jw+98+puaxngJ71O0LORj26NQe2GWnaQzYrLpev/sk7fDpieRCQK1qqNVjbCA21A/QNyiuF8mwg1KR0nSPk/i7HFxvugjnzWXE90lSJCLTRw9iOYsQU2fjr+ApcOaSBG38iSaFar8i7A3ai5TZh4XuUXsBmQX2EY7sDJNelQUsxPlzg=
+---
+
 # 05 验收标准与实测基准
 
 > 验收依据：需求原件 §8（16 条）+ §11 成功标准。逐条勾选结果存仓库 `ACCEPTANCE.md`；状态与证据以 `REQUIREMENT_CHECK.md` 为准。**不许粉饰验收结果**：未通过项如实记录原因。
@@ -49,3 +60,4 @@ BlockoutStudio.exe -AutoDemoLevel=<关卡JSON> -AutoDemoOut=<dir>  :: 演示/截
 - 每条必须实测勾选；未通过写入 `ACCEPTANCE.md`（项/原因/影响/替代）；
 - 禁止以"代码里有"代替"实测通过"；性能/碰撞/导出类结论必须附 JSON/截图证据；
 - 坐标系（#4）为用户红线，任何 gizmo/变换改动后必须人工复测轴向再勾选。
+*（内容由AI生成，仅供参考）*

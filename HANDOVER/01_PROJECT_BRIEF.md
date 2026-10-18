@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_06b48c57cad211f18b7f525400393706
+    ReservedCode1: GWcT+tcQ4KVFDOXqhQTKsiEBpFQtBxkb5fRhzPmoOxmTEu6x8jd97ozUqwmhtYuFsqY8wa1N359LVZVhDAqLv9QxVvFG4kHYNKRUtMi3HB0SrW79tVmvtjcFHUHjUOXtxpx+ryok+uaAXILagG94DxqlXUebNnidJ0CLUdfQDRIj+SAh8b/Q7v/Fmy0=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_06b48c57cad211f18b7f525400393706
+    ReservedCode2: GWcT+tcQ4KVFDOXqhQTKsiEBpFQtBxkb5fRhzPmoOxmTEu6x8jd97ozUqwmhtYuFsqY8wa1N359LVZVhDAqLv9QxVvFG4kHYNKRUtMi3HB0SrW79tVmvtjcFHUHjUOXtxpx+ryok+uaAXILagG94DxqlXUebNnidJ0CLUdfQDRIj+SAh8b/Q7v/Fmy0=
+---
+
 # 01 项目背景与需求规格要点
 
 ## 1. 背景与目标
@@ -10,7 +21,7 @@
 
 ## 2. 需求规格要点
 
-> 完整需求原件：`C:\Users\mail\Documents\Tencent Files\1281037797\FileRecv\MobileFile\prod_1a14616b547_4e87dc67a359_UE5白盒关卡工具-需求规格与开发交接文.md`（v1.1，364 行，**唯一完整需求来源**）。本节只摘要点，冲突时以原件 §4 功能清单为准。
+> 完整需求原件：《UE5白盒关卡工具-需求规格与开发交接文 v1.1》（364 行，**唯一完整需求来源**）。该文档为仓库外资料，**不在本仓库内——请向用户索要**，或向用户确认可查阅的历史会话/知识库。本节只摘要点，冲突时以原件 §4 功能清单为准。
 
 ### 2.1 功能编号体系（开发与验收均按编号对照）
 
@@ -46,7 +57,7 @@
 
 | 参考 | 说明 |
 |---|---|
-| PMB – Blockout ToolKit | UE 资产（Blueprints，依赖 Geometry Script 插件）；三大核心：Auto-Align Boolean、Dynamic Mesh Actor、Handle Controls。开发机已装正版，位于 `Content\PMB\BlockoutToolKit`（网格贴图 T_Grid 已被本工具复用）。许可注意：可合入打包，禁止单独再分发资产文件 |
+| PMB – Blockout ToolKit | UE 资产（Blueprints，依赖 Geometry Script 插件）；三大核心：Auto-Align Boolean、Dynamic Mesh Actor、Handle Controls。开发前需自行获取正版（Epic Marketplace 市场获取或向用户索要），已随仓库存放于 `Content\PMB\BlockoutToolKit`（网格贴图 T_Grid 已被本工具复用）。许可注意：可合入打包，禁止单独再分发资产文件 |
 | Unity ProBuilder | 点线面子层级编辑交互参考 |
 | layout tools (KluiYao) | 网页版关卡交互思路 |
 | 旧 web 版原型 `prncsuc/blockout-tools` | **交互被用户否定，禁止照搬**；功能清单可参考（12 种体块/分色/挖洞/跑图/录屏/JSON/GLB/OBJ/FBX 导出等） |
@@ -58,3 +69,4 @@
 - 视频录制优先免许可风险编码（WebM/VP8 或 ffmpeg LGPL 动态链接）；
 - 示例内容：3 个示例白盒（类 CS 竞技小图、类魂地牢、类神海攀爬遗迹）各含跑图录屏/轨迹；
 - 每阶段收尾：自查 → git commit → git push → 更新 `PROGRESS.md`。
+*（内容由AI生成，仅供参考）*

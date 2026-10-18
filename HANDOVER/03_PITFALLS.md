@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_081a6317cad211f18b7f525400393706
+    ReservedCode1: viKl7I/kfhI2isAvit/Zzz7w0bSVNvzHRmHoRdVIdJ/LCYLrgEI39nHsFDhA1OKLgLNlT+8t+Hnfgv6aglHfE6Ymx7Ts2TD8863HDq/d8d37JPyuHWhNOiOwd7vW4BTXcy7o4usQ42UA4qQUbxTrl6sDzjr/7U/nlDmopU1K/k0GoTlfgTpiYXxt/oI=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_081a6317cad211f18b7f525400393706
+    ReservedCode2: viKl7I/kfhI2isAvit/Zzz7w0bSVNvzHRmHoRdVIdJ/LCYLrgEI39nHsFDhA1OKLgLNlT+8t+Hnfgv6aglHfE6Ymx7Ts2TD8863HDq/d8d37JPyuHWhNOiOwd7vW4BTXcy7o4usQ42UA4qQUbxTrl6sDzjr/7U/nlDmopU1K/k0GoTlfgTpiYXxt/oI=
+---
+
 # 03 历史踩坑与避坑全集（必读）
 
 > 本项目全部历史踩坑记录。接手后修改代码/打包/提交前请先过一遍本清单，绝大部分坑会重复出现。
@@ -65,14 +76,14 @@
 - 同文件编辑互相冲突，必须一次一轮串行执行；不同文件才可并行。
 
 ### E4. 中间产物
-- 临时脚本/清单写入会话工作目录的 `temp\`；最终产物写 `output\`；禁止写桌面、`C:\Temp` 等。
+- 临时脚本/清单写入当前会话/工作区约定的中间产物目录（如 `temp\`）；最终产物写结果目录（如 `output\`）；禁止写桌面、系统临时目录等任意位置。
 
 ## F. Git 与仓库
 
-### F1. 推送代理与证书（2026-10-18 更新）
-- 历史推送走本地代理 `http://127.0.0.1:26001`（写在 repo git config http/https proxy）；
-- **2026-10-18 起该代理 MITM 证书异常**（schannel 报 SEC_E_WRONG_PRINCIPAL、openssl 报证书主机名不含 github.com），**改用直连推送成功**：`git -c http.proxy= -c https.proxy= push origin main`（schannel 证书验证正常）。接手后优先直连，失败再试代理；
-- remote URL 内嵌 PAT token（来自需求原件 §9，用户应尽快轮换）。
+### F1. 推送通道与凭据（2026-10-18 更新）
+- **优先直连推送**：`git -c http.proxy= -c https.proxy= push`（2026-10-18 实测直连成功）；
+- 若网络无法直连 GitHub，需配置本地代理——**代理地址不在交接范围内，请向用户索要**；历史代理曾出现 MITM 证书异常（schannel 报 SEC_E_WRONG_PRINCIPAL、openssl 报证书主机名不匹配），遇同类证书错误先排查代理；
+- remote URL 可能内嵌 PAT token（来自需求原件 §9，用户应尽快轮换），注意凭据保护。
 
 ### F2. Git LFS 策略（当前）
 - `Packaged/**` 走 LFS；
@@ -91,4 +102,5 @@
 - 无法实现→写 `UNIMPLEMENTED.md`（功能名/原因/替代方案）→继续；不许粉饰验收结果。
 
 ### G3. Unity 导入实测
-- 本机 Unity 2021.3.8f1 许可证未激活（batchmode 报 "Unity has not been activated with a valid License"），**不绕过验证**；激活后用 `output\d3_export` 样例补跑导入实测。
+- 历史开发机 Unity 2021.3.8f1 许可证未激活（batchmode 报 "Unity has not been activated with a valid License"），**不绕过验证**；接手后自行准备 Unity（2022+ 亦可）并请用户激活许可证，用导出样例（OBJ/FBX/glTF/GLB，可用 `-AutoExportTest` 重新生成）补跑导入实测。
+*（内容由AI生成，仅供参考）*
