@@ -7,7 +7,7 @@
 1. **连续执行不中断**：用户是甩手掌柜，拿到任务连续执行到底，不等待用户确认（高风险破坏性操作除外）；
 2. **每阶段收尾四件事**：自查 → `git commit` → `git push` → 更新 `PROGRESS.md`（阶段进度与关键决策）；
 3. **commit 粒度**：每个功能块/修复块一次提交；提交信息中文或 Conventional Commits（`feat/fix/chore`）均可，历史上两种混用，保持可读即可；
-4. **push 通道**：仓库 remote 已内嵌 PAT token，推送必须走本地代理 `http://127.0.0.1:26001`（repo config 已设 http/https proxy）。
+4. **push 通道**：remote 已内嵌 PAT token。优先直连推送 `git -c http.proxy= -c https.proxy= push`（2026-10-18 实测直连成功）；本地代理 `http://127.0.0.1:26001`（repo config 已设）当前证书异常，仅作备选（详见 03_PITFALLS F1）。
 
 ## 2. 产物与目录约定
 

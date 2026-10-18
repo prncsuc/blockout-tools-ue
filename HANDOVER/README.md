@@ -21,7 +21,7 @@
 :: 环境
 引擎   : UE 5.6.1 @ F:\UE_5.6
 工程   : E:\BlockoutStudio\BlockoutStudio.uproject
-仓库   : https://github.com/prncsuc/blockout-tools-ue (main 分支，remote 已内嵌 token，推送走代理 127.0.0.1:26001)
+仓库   : https://github.com/prncsuc/blockout-tools-ue (main 分支，remote 已内嵌 token；2026-10-18 起推荐直连推送，代理 127.0.0.1:26001 证书已失效，详见 03_PITFALLS F1)
 
 :: 编译
 F:\UE_5.6\Engine\Build\BatchFiles\Build.bat BlockoutStudioEditor Win64 Development -project="E:\BlockoutStudio\BlockoutStudio.uproject" -waitmutex

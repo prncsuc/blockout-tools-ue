@@ -69,8 +69,10 @@
 
 ## F. Git 与仓库
 
-### F1. 推送代理
-- 推送走本地代理 `http://127.0.0.1:26001`（已写入 repo git config http/https proxy）；remote URL 内嵌 PAT token（来自需求原件 §9，用户应尽快轮换）。
+### F1. 推送代理与证书（2026-10-18 更新）
+- 历史推送走本地代理 `http://127.0.0.1:26001`（写在 repo git config http/https proxy）；
+- **2026-10-18 起该代理 MITM 证书异常**（schannel 报 SEC_E_WRONG_PRINCIPAL、openssl 报证书主机名不含 github.com），**改用直连推送成功**：`git -c http.proxy= -c https.proxy= push origin main`（schannel 证书验证正常）。接手后优先直连，失败再试代理；
+- remote URL 内嵌 PAT token（来自需求原件 §9，用户应尽快轮换）。
 
 ### F2. Git LFS 策略（当前）
 - `Packaged/**` 走 LFS；
