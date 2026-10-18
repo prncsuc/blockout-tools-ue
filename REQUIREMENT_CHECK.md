@@ -12,7 +12,7 @@ AIGC:
 ﻿# BlockoutStudio 需求规格逐条核对结论表
 
 核对基准：《UE5 独立白盒关卡工具 —— 需求规格与开发交接文档 v1.1》§4 功能清单 + §8 验收清单
-核对日期：2026-10-18 | 环境：UE 5.6.1 / Windows 11 / E:\BlockoutStudio
+核对日期：2026-10-18 | 环境：UE 5.6.1 / Windows 11 / `<REPO_ROOT>`
 核对方式：代码级证据核验（源码符号可查）+ 既有验收记录（ACCEPTANCE.md / FEATURE_COMPARISON.md / PROGRESS.md）
 
 图例：达标（代码/验收证据齐全） | 部分达标（核心可用，存在明确差距） | 待实测（功能已实现，本轮未重新跑运行时验证）

@@ -58,10 +58,10 @@ UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡�
 
 ## 环境
 
-- 引擎：F:\UE_5.6（UE 5.6.1）
+- 引擎：UE 5.6.1（安装目录记作 `<UE_ROOT>`，自行准备或向用户索要）
 - 工具链：VS 2022 BuildTools 17.14（VCTools workload）
-- 项目：E:\BlockoutStudio
-- 网络：github 访问经本地代理 127.0.0.1:26001（git http.sslBackend=schannel）
+- 项目：本仓库克隆根目录（记作 `<REPO_ROOT>`）
+- 网络：github 推送优先直连（`git -c http.proxy= -c https.proxy= push`）；若所在网络必须走代理，代理地址向用户索要后再配置
 
 ## 待完成
 

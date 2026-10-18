@@ -11,7 +11,7 @@ AIGC:
 
 ﻿# BlockoutStudio P5 验收清单
 
-UE5 白盒关卡工具（E:\BlockoutStudio），P5 验收测试（需求规格 v1.1 §8）。验收日期：2026-10-17。验收环境：UE 5.6.1 / Windows 11 / Shipping 打包跑图。
+UE5 白盒关卡工具（`<REPO_ROOT>`），P5 验收测试（需求规格 v1.1 §8）。验收日期：2026-10-17。验收环境：UE 5.6.1 / Windows 11 / Shipping 打包跑图。
 
 ## P5 验收清单
 
@@ -52,7 +52,7 @@ P5 验收全部通过：鸟瞰图三关卡各 3 张视角互异；跑图视频 v
 
 | 证据 | 路径 |
 |---|---|
-| 鸟瞰图（类魂） | C:\Users\mail\AppData\Roaming\Tencent\Marvis\User\49669A1552B1EA7C8AB5DFD758A55155\workspace\conv_8fdc8b8718904d11afccd6f0b4798006\output\demo_souls\aerial_1.png ～ aerial_3.png |
+| 鸟瞰图（类魂） | ...\output\demo_souls\aerial_1.png ～ aerial_3.png |
 | 鸟瞰图（类 CS） | ...\output\demo_dust2\aerial_1.png ～ aerial_3.png |
 | 鸟瞰图（类神海） | ...\output\demo_uncharted\aerial_1.png ～ aerial_3.png |
 | 跑图视频 v2（类魂） | ...\output\demo_souls\runthrough.avi |
@@ -60,5 +60,5 @@ P5 验收全部通过：鸟瞰图三关卡各 3 张视角互异；跑图视频 v
 | 跑图视频 v2（类神海） | ...\output\demo_uncharted\runthrough.avi |
 | 抽帧验证帧（v2） | ...\temp\demo_souls_v2_f0/f1/f2.png、demo_dust2_v2_f0/f1/f2.png、demo_uncharted_v2_f0/f1/f2.png |
 
-（路径前缀均为 C:\Users\mail\AppData\Roaming\Tencent\Marvis\User\49669A1552B1EA7C8AB5DFD758A55155\workspace\conv_8fdc8b8718904d11afccd6f0b4798006）
+（`...` = 历史开发会话的产物/临时目录，具体路径向用户索要；证据缺失时可用 `BlockoutStudio.exe -AutoDemoLevel=<关卡JSON> -AutoDemoOut=<输出目录>` 重新生成）
 *（内容由AI生成，仅供参考）*

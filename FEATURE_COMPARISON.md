@@ -1,9 +1,9 @@
 ﻿# BlockoutStudio 功能对照表（代码级逐功能比对）
 
 比对对象：
-- **本项目**：E:\BlockoutStudio（Source\BlockoutStudio，UE5.6 白盒关卡工具）
-- **参考插件 A**：F:\UE_5.6\Engine\Plugins\Marketplace\Blockoutd2a06d30e0e2V13（Blockout Tools，C++ Actor 式）
-- **参考插件 B**：E:\tianfynx_blockout\Content\Blockout_Toolkit（Blockout Toolkit，蓝图资产包）
+- **本项目**：本仓库（`<REPO_ROOT>`，Source\BlockoutStudio，UE5.6 白盒关卡工具）
+- **参考插件 A**：Blockout Tools（Epic Marketplace 插件，C++ Actor 式；装于 `<UE_ROOT>\Engine\Plugins\Marketplace\` 下，目录名以实际安装为准；插件自行获取或向用户索要）
+- **参考插件 B**：Blockout Toolkit（蓝图资产包，位于第三方工程 `Content\Blockout_Toolkit`，来源自行搜索或向用户索要）
 - **需求规格**：UE5 白盒关卡工具-需求规格与开发交接文档（功能编号 E1-E11 / M1-M5 / T1-T3 / A1-A4 / P1-P5 / R1-R3 / D1-D5）
 
 图例：✅ 已实现（代码可查） / 🔧 本批补齐 / ♻️ 直接复用参考资源 / ⚠️ 部分实现
