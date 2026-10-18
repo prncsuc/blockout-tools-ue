@@ -187,3 +187,13 @@ UE5 独立白盒关卡工具（Windows 桌面程序），按《UE5 白盒关卡�
 - ④ 材质/贴图质量：Toolkit 贴图资产复用（Content/PMB/BlockoutToolKit），程序材质参数对齐 Grid_Multi_Color
 - ⑤ 交互方案：EBlockoutInteractionMode（Toolkit 式 / ProBuilder 式）UI 菜单一键切换，手柄可视化/拾取与 Tab 子编辑循环按模式分流
 - 编译：BlockoutStudioEditor Win64 Development 通过；源码 UTF-8 BOM + CRLF 已核对
+
+
+## 2026-10-18 批次：UI 收尾 + 文档 + HANDOVER 交接包
+
+- ① 左侧创建面板改造：新增 SBlockoutShapePreview（Slate 程序绘制形状缩略图折线几何），BuildCreatePanel 改为缩略图网格卡片（88x54 预览 + 名称 + Tooltip，每行 3 列），6 基本体笔刷 + 12 建筑预制件每项均有直观图形
+- ② 场景树增强：多选（Ctrl/Shift）、拖拽排序（ReorderBlock）、拖拽编组（AssignGroupToActor，Onto 目标行）、双击行内重命名（SInlineEditableTextBlock）、形状类型迷你图标、可见性/锁定行内开关、搜索过滤（名称+类型）、右键菜单全套；视口↔树选择双向同步 + 0.5s 低频轮询兜底
+- ③ docs/USER_MANUAL.md 详细使用手册（安装运行/界面布局/全部操作/快捷键表/双模式切换/导出导入/录制/FAQ）
+- ④ HANDOVER/ AI 交接包：README + 01 项目背景与需求要点 + 02 架构与模块清单 + 03 踩坑全集 + 04 已完成/未完成与遗留项 + 05 验收标准 + 06 工作流程 + 07 skill 清单
+- ⑤ 根 README.md 补齐；全部文档与资产 commit+push
+- UE 5.6 Slate 经验：OnPaint 第3参数 const FSlateRect&；FDragDropOperation 在 Input/DragAndDrop.h；MakeBox 需 FSlateBrush*（取局部对象地址）；MakeLines 用 TArray<FVector2f> 值传；拖拽接收委托挂 STableRow 非 SListView

@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 5227bc309b64902b9bfd2bb79d4de347_dc20627ecacb11f196f9525400248c00
+    ReservedCode1: Wy1LbUz9tEDXKpz2tSYs7K9UPHqxSaze3Jbt98RINqcZ63cpvCiWG8k1EmsxhoDBIlMPmRu1GgTdrNcxiYmQc5o4F3w7Dr0kZ/5po5htTt6yc7hwNhHHSb9Hj/ZuMSuM2TXv2Mzol1uT7NnfMZXfWKXUfRQqqT61v1oWF/cyZHqQH3PQxoy1fbPS3Cg=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 5227bc309b64902b9bfd2bb79d4de347_dc20627ecacb11f196f9525400248c00
+    ReservedCode2: Wy1LbUz9tEDXKpz2tSYs7K9UPHqxSaze3Jbt98RINqcZ63cpvCiWG8k1EmsxhoDBIlMPmRu1GgTdrNcxiYmQc5o4F3w7Dr0kZ/5po5htTt6yc7hwNhHHSb9Hj/ZuMSuM2TXv2Mzol1uT7NnfMZXfWKXUfRQqqT61v1oWF/cyZHqQH3PQxoy1fbPS3Cg=
+---
+
 ﻿# BlockoutStudio 需求规格逐条核对结论表
 
 核对基准：《UE5 独立白盒关卡工具 —— 需求规格与开发交接文档 v1.1》§4 功能清单 + §8 验收清单
@@ -133,3 +144,4 @@
 | Source\BlockoutStudio\BlockoutStudio.Build.cs | ③+EnhancedInput |
 | Config\DefaultInput.ini | ③Enhanced Input 默认类 |
 | Source\BlockoutStudio\BlockoutEditorUI.h/.cpp | ④UE 编辑器三区布局（左创建面板/右详情面板/上工具栏） |
+*（内容由AI生成，仅供参考）*
