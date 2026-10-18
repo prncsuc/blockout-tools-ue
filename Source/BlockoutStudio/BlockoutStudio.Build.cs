@@ -27,6 +27,7 @@ public class BlockoutStudio : ModuleRules
 			"GeometryFramework",
 			"InteractiveToolsFramework",
 			"ImageWrapper",
+			"EnhancedInput",
 			// DesktopPlatform 不可再分发（Shipping 打包报错），改用 Win32 通用对话框 FBlockoutFileDialog
 		});
 	}

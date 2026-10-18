@@ -526,8 +526,45 @@ void FBlockoutMeshGen::BuildShape(EBlockoutShape Shape, const FBlockoutShapePara
 	}
 }
 
-void FBlockoutMeshGen::FinalizeMesh(FDynamicMesh3& M, bool bSmoothNormals, double UVScale)
+void FBlockoutMeshGen::FinalizeMesh(FDynamicMesh3& M, bool bSmoothNormals, double UVScale, bool bDepthSeparation)
 {
+	// 反 Z-fighting：同位置顶点组（含硬边副本）按组法线方向统一微外扩，
+	// 同组副本获得相同位移 => 无裂缝；交错/贴合体块的共面面因此拉开深度差，不再闪烁。
+	if (bDepthSeparation && M.TriangleCount() > 0)
+	{
+		const double Eps = 0.02; // 0.2mm，远小于视觉阈值，远大于深度精度噪声
+		TMap<FIntVector, FVector3d> GroupDir;
+		TMap<FIntVector, TArray<int32>> GroupVerts;
+		auto KeyOf = [](const FVector3d& V) -> FIntVector
+		{
+			return FIntVector(
+				FMath::RoundToInt(V.X * 100.0),
+				FMath::RoundToInt(V.Y * 100.0),
+				FMath::RoundToInt(V.Z * 100.0));
+		};
+		for (int32 ti = 0; ti < M.TriangleCount(); ti++)
+		{
+			FIndex3i Tri = M.GetTriangle(ti);
+			FVector3d A = M.GetVertex(Tri.A), B = M.GetVertex(Tri.B), C = M.GetVertex(Tri.C);
+			FVector3d FN = FVector3d::CrossProduct(B - A, C - A).GetSafeNormal();
+			const int32 Vids[3] = { Tri.A, Tri.B, Tri.C };
+			for (int32 c = 0; c < 3; c++)
+			{
+				FIntVector K = KeyOf(M.GetVertex(Vids[c]));
+				GroupDir.FindOrAdd(K) += FN;
+				GroupVerts.FindOrAdd(K).AddUnique(Vids[c]);
+			}
+		}
+		for (const TPair<FIntVector, TArray<int32>>& Pair : GroupVerts)
+		{
+			FVector3d D = GroupDir[Pair.Key].GetSafeNormal() * Eps;
+			for (int32 vid : Pair.Value)
+			{
+				M.SetVertex(vid, M.GetVertex(vid) + D);
+			}
+		}
+	}
+
 	M.EnableAttributes();
 	if (!M.HasAttributes() || M.Attributes()->NumNormalLayers() == 0) M.Attributes()->SetNumNormalLayers(1);
 	if (!M.HasAttributes() || M.Attributes()->NumUVLayers() == 0) M.Attributes()->SetNumUVLayers(1);

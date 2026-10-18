@@ -179,6 +179,7 @@ private:
 	bool bDemoFollowCam = false;     // 跑图阶段用第三人称跟随相机
 	FVector DemoFollowLoc;
 	FRotator DemoFollowRot;
+	UPROPERTY() class ABlockoutTestPawn* DemoManny = nullptr;  // 跑图角色（UE 官方小白人 Manny/Quinn + 官方 FPS/TPS 模板）
 	float AutoDemoRunT = 0.0f;
 	TArray<FVector> AutoDemoWaypoints;
 	void AutoDemoTick(float DeltaSeconds);
@@ -201,6 +202,7 @@ private:
 	void OnTestToggleRun();
 	void OnTestCrouch();
 	void OnTestToggleView();
+	void OnTestToggleCharacter();
 	void OnTestPresetCS();
 	void OnTestPresetSouls();
 	void OnTestPresetUncharted();

@@ -31,6 +31,7 @@ private:
 
 	// ---------- 工具栏 ----------
 	TSharedRef<SWidget> BuildToolbar();
+	TSharedRef<SWidget> BuildCreatePanel();   // 左侧创建面板（UE 编辑器布局）：预制件 + 笔刷
 	TSharedRef<SWidget> BuildShapeMenu();
 	TSharedRef<SWidget> BuildExportMenu();
 	TSharedRef<SWidget> BuildToolsMenu();   // P4：测距/参考体/导入/快照/俯视出图

@@ -52,13 +52,17 @@ namespace
 				Mip.SizeX = DstSize;
 				Mip.SizeY = DstSize;
 				Mip.SizeZ = 1;
+				// BulkData 必须先 Realloc 分配空间再 Lock，否则 Lock 返回空指针导致崩溃
+				Mip.BulkData.Realloc(Dst.Num());
 				void* MipData = Mip.BulkData.Lock(LOCK_READ_WRITE);
 				FMemory::Memcpy(MipData, Dst.GetData(), Dst.Num());
 				Mip.BulkData.Unlock();
 				Src = MoveTemp(Dst);
 				SrcSize = DstSize;
 			}
-			Tex->MipGenSettings = TMGS_NoMipmaps; // mip 链已手动提供
+#if WITH_EDITORONLY_DATA
+			Tex->MipGenSettings = TMGS_NoMipmaps; // mip 链已手动提供（仅编辑器/烘焙，Shipping 无此属性）
+#endif
 		}
 
 		Tex->SRGB = true;
@@ -74,6 +78,17 @@ namespace
 UTexture2D* FBlockoutTextureLib::GetPatternTexture(EBlockoutTexturePattern Pattern)
 {
 	if (UTexture2D** Found = Cache.Find(Pattern)) return *Found;
+
+	// A2 对齐 PMB - Blockout ToolKit：网格贴图直接复用官方 T_Grid 资产，网格纹理观感与 PMB 完全一致；
+	// 资产缺失时才回退到程序化生成的仿 ProBuilder 网格。
+	if (Pattern == EBlockoutTexturePattern::Grid)
+	{
+		if (UTexture2D* PMBGrid = LoadObject<UTexture2D>(nullptr, TEXT("/Game/PMB/BlockoutToolKit/Textures/T_Grid.T_Grid")))
+		{
+			Cache.Add(Pattern, PMBGrid);
+			return PMBGrid;
+		}
+	}
 
 	const int32 S = 512;
 	TArray<uint8> P;

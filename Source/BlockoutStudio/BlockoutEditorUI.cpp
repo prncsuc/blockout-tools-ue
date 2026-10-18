@@ -91,7 +91,7 @@ void SBlockoutEditorUI::Construct(const FArguments& InArgs)
 			]
 		]
 
-		// 左侧属性面板
+		// 左侧创建面板（UE 编辑器布局）：预制件 + 笔刷
 		+ SOverlay::Slot()
 		.HAlign(HAlign_Left)
 		.VAlign(VAlign_Top)
@@ -103,18 +103,18 @@ void SBlockoutEditorUI::Construct(const FArguments& InArgs)
 			[
 				SNew(SBox)
 				.WidthOverride(300)
-				.MaxDesiredHeight(600)
+				.MaxDesiredHeight(680)
 				[
 					SNew(SScrollBox)
 					+ SScrollBox::Slot()
 					[
-						BuildPropertyPanel()
+						BuildCreatePanel()
 					]
 				]
 			]
 		]
 
-		// 右侧场景树（E10）
+		// 右侧详情面板（UE 编辑器布局）：选中对象属性 + 场景树（E10）
 		+ SOverlay::Slot()
 		.HAlign(HAlign_Right)
 		.VAlign(VAlign_Top)
@@ -125,10 +125,21 @@ void SBlockoutEditorUI::Construct(const FArguments& InArgs)
 			.Padding(FMargin(8))
 			[
 				SNew(SBox)
-				.WidthOverride(260)
-				.MaxDesiredHeight(600)
+				.WidthOverride(320)
+				.MaxDesiredHeight(680)
 				[
-					BuildSceneTreePanel()
+					SNew(SScrollBox)
+					+ SScrollBox::Slot()
+					[
+						BuildPropertyPanel()
+					]
+					+ SScrollBox::Slot()
+					[
+						SNew(SBox).Padding(FMargin(0, 10, 0, 0))
+						[
+							BuildSceneTreePanel()
+						]
+					]
 				]
 			]
 		]
@@ -312,6 +323,67 @@ TSharedRef<SWidget> SBlockoutEditorUI::BuildToolbar()
 		})
 	]
 	;
+}
+
+// ================= 左侧创建面板（UE 编辑器布局：预制件 + 笔刷） =================
+TSharedRef<SWidget> SBlockoutEditorUI::BuildCreatePanel()
+{
+	const TCHAR* Labels[] = {
+		TEXT("立方体"), TEXT("墙体"), TEXT("楼梯"), TEXT("斜坡"), TEXT("楔形"), TEXT("拱门"),
+		TEXT("门洞墙"), TEXT("窗洞墙"), TEXT("圆柱"), TEXT("球体"), TEXT("胶囊体"), TEXT("管道"),
+		TEXT("柱廊"), TEXT("围墙"), TEXT("楼梯间"), TEXT("地板"), TEXT("门构件"), TEXT("窗构件")
+	};
+
+	TSharedRef<SVerticalBox> Box = SNew(SVerticalBox);
+
+	auto SectionTitle = [&Box](const FString& Title)
+	{
+		Box->AddSlot().AutoHeight().Padding(2, 8, 2, 2)
+		[
+			SNew(STextBlock)
+			.Text(FText::FromString(Title))
+			.ColorAndOpacity(FSlateColor(FLinearColor(0.9f, 0.78f, 0.32f)))
+		];
+	};
+
+	auto AddShapeGrid = [this, &Box, &Labels](const TArray<int32>& Idxs)
+	{
+		const int32 PerRow = 3;
+		for (int32 i = 0; i < Idxs.Num(); i += PerRow)
+		{
+			TSharedRef<SHorizontalBox> Row = SNew(SHorizontalBox);
+			for (int32 j = i; j < FMath::Min(i + PerRow, Idxs.Num()); ++j)
+			{
+				const int32 ShapeIdx = Idxs[j];
+				Row->AddSlot().AutoWidth().Padding(1)
+				[
+					SNew(SBox)
+					.WidthOverride(88)
+					[
+						SNew(SButton)
+						.Text(FText::FromString(Labels[ShapeIdx]))
+						.OnClicked_Lambda([this, ShapeIdx]()
+						{
+							OnShapePicked((EBlockoutShape)ShapeIdx);
+							return FReply::Handled();
+						})
+					]
+				];
+			}
+			Box->AddSlot().AutoHeight().Padding(0, 1)
+			[
+				Row
+			];
+		}
+	};
+
+	SectionTitle(TEXT("基本体笔刷"));
+	AddShapeGrid({ 0, 8, 9, 10, 11, 4 });
+
+	SectionTitle(TEXT("建筑预制件"));
+	AddShapeGrid({ 1, 2, 3, 5, 6, 7, 12, 13, 14, 15, 16, 17 });
+
+	return Box;
 }
 
 TSharedRef<SWidget> SBlockoutEditorUI::BuildShapeMenu()
@@ -1101,7 +1173,7 @@ void SBlockoutEditorUI::RefreshSceneTree()
 		ABlockoutActor* A = Blocks[i];
 		if (!IsValid(A)) continue;
 		SceneTreeItems.Add(MakeShared<FString>(FString::Printf(TEXT("[%d] %s  %s"),
-			i, *A->GetActorLabel(), A->IsHiddenEd() || A->IsHidden() ? TEXT("(隐藏)") : TEXT(""))));
+			i, *A->GetActorNameOrLabel(), A->IsHidden() ? TEXT("(隐藏)") : TEXT(""))));
 		SceneTreeActors.Add(A);
 	}
 	LastBlockCount = Blocks.Num();

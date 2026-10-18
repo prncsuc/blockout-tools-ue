@@ -36,5 +36,6 @@ public:
 	static bool BooleanOp(FDynamicMesh3& A, const FDynamicMesh3& B, const FTransform& BTransform, bool bSubtract);
 
 	// 后处理：平直/平滑法线 + 盒式 UV 投影
-	static void FinalizeMesh(FDynamicMesh3& M, bool bSmoothNormals = false, double UVScale = 100.0);
+	// bDepthSeparation=true 时对同位置顶点组做统一微外扩（0.02uu），打破共面/近共面深度竞争，消除交错处 Z-fighting
+	static void FinalizeMesh(FDynamicMesh3& M, bool bSmoothNormals = false, double UVScale = 100.0, bool bDepthSeparation = true);
 };

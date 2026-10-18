@@ -22,12 +22,22 @@
 #include "Slate/SceneViewport.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Animation/SkeletalMeshActor.h"
+#include "Engine/SkeletalMesh.h"
+#include "Animation/AnimationAsset.h"
+#include "Dom/JsonObject.h"
+#include "Serialization/JsonSerializer.h"
+#include "Serialization/JsonReader.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "TextureResource.h"
 #include "Engine/DirectionalLight.h"
 #include "Engine/SkyLight.h"
+#include "Engine/PointLight.h"
 #include "Components/LightComponent.h"
 #include "Components/SkyLightComponent.h"
+#include "Components/PointLightComponent.h"
 
 // T1 测距综合标注：距离 + 高差 + 与水平面夹角
 static FString BuildMeasureLabel(const FVector& A, const FVector& B)
@@ -138,14 +148,12 @@ void ABlockoutEditorPlayerController::BindEditorKeyBindings()
 
 void ABlockoutEditorPlayerController::BindTestKeyBindings()
 {
-	// P4 测试模式按键
+	// P4 测试模式按键：移动/视角/跳跃/跑/蹲由测试角色的官方 Enhanced Input 处理
+	// （IA_Move=WASD / IA_Look=鼠标 / IA_Jump=空格 / Shift 冲刺 / Ctrl 蹲，官方 FPS/TPS 模板操作）
 	InputComponent->BindKey(EKeys::F5, IE_Pressed, this, &ABlockoutEditorPlayerController::ToggleTestMode);
 	InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &ABlockoutEditorPlayerController::ToggleTestMode);
-	InputComponent->BindKey(EKeys::SpaceBar, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestJump);
-	InputComponent->BindKey(EKeys::LeftShift, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestToggleRun);
-	InputComponent->BindKey(EKeys::LeftControl, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestCrouch);
 	InputComponent->BindKey(EKeys::V, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestToggleView);
-	InputComponent->BindKey(EKeys::Q, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestRoll);
+	InputComponent->BindKey(EKeys::B, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestToggleCharacter);
 	InputComponent->BindKey(EKeys::One, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestPresetCS);
 	InputComponent->BindKey(EKeys::Two, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestPresetSouls);
 	InputComponent->BindKey(EKeys::Three, IE_Pressed, this, &ABlockoutEditorPlayerController::OnTestPresetUncharted);
@@ -185,7 +193,7 @@ void ABlockoutEditorPlayerController::ToggleTestMode()
 		}
 		if (ABlockoutHUD* HUD = GetHUD<ABlockoutHUD>())
 		{
-			HUD->ShowToast(TEXT("测试模式：WASD 移动 / Shift 跑 / Ctrl 蹲 / 空格 跳 / Q 翻滚 / V 视角 / 1-3 尺度 / F5 退出"), 6.f);
+			HUD->ShowToast(TEXT("测试模式（官方模板）：WASD 移动 / 鼠标 视角 / 空格 跳 / Shift 跑 / Ctrl 蹲 / V FPS|TPS / B 切角色 / 1-3 尺度 / F5 退出"), 6.f);
 		}
 	}
 	else
@@ -245,6 +253,11 @@ void ABlockoutEditorPlayerController::OnTestCrouch()
 void ABlockoutEditorPlayerController::OnTestToggleView()
 {
 	if (bTestMode && TestPawn) TestPawn->ToggleViewMode();
+}
+
+void ABlockoutEditorPlayerController::OnTestToggleCharacter()
+{
+	if (bTestMode && TestPawn) TestPawn->ToggleCharacter();
 }
 
 void ABlockoutEditorPlayerController::OnTestRoll()
@@ -388,16 +401,8 @@ void ABlockoutEditorPlayerController::PlayerTick(float DeltaSeconds)
 // ---------- 相机 ----------
 void ABlockoutEditorPlayerController::MoveForward(float Value)
 {
-	// P4 测试模式：轴输入转发给测试角色
-	if (bTestMode)
-	{
-		if (TestPawn && FMath::Abs(Value) > KINDA_SMALL_NUMBER)
-		{
-			const FRotator Rot(0.f, GetControlRotation().Yaw, 0.f);
-			TestPawn->AddMovementInput(Rot.Vector(), Value);
-		}
-		return;
-	}
+	// P4 测试模式：移动由官方 Enhanced Input IA_Move 处理（见 ABlockoutTestPawn::InputMove）
+	if (bTestMode) return;
 	if (!bRotateCamera) return;
 	if (FMath::Abs(Value) > KINDA_SMALL_NUMBER && GetPawn())
 	{
@@ -408,16 +413,8 @@ void ABlockoutEditorPlayerController::MoveForward(float Value)
 
 void ABlockoutEditorPlayerController::MoveRight(float Value)
 {
-	// P4 测试模式：轴输入转发给测试角色
-	if (bTestMode)
-	{
-		if (TestPawn && FMath::Abs(Value) > KINDA_SMALL_NUMBER)
-		{
-			const FRotator Rot(0.f, GetControlRotation().Yaw, 0.f);
-			TestPawn->AddMovementInput(FRotator(0.f, 90.f, 0.f).RotateVector(Rot.Vector()), Value);
-		}
-		return;
-	}
+	// P4 测试模式：移动由官方 Enhanced Input IA_Move 处理（见 ABlockoutTestPawn::InputMove）
+	if (bTestMode) return;
 	if (!bRotateCamera) return;
 	if (FMath::Abs(Value) > KINDA_SMALL_NUMBER && GetPawn())
 	{
@@ -1073,12 +1070,41 @@ void ABlockoutEditorPlayerController::AutoDemoTick(float DeltaSeconds)
 		const float EyeZ = Bounds.Min.Z + 180.f; // 角色眼高
 
 		AutoDemoWaypoints.Reset();
+
+		// 优先使用关卡 JSON 顶层 demoPath（贴合走廊的走线，z=角色中心高度）
+		{
+			FString JsonStr;
+			if (FFileHelper::LoadFileToString(JsonStr, *AutoDemoLevelPath))
+			{
+				TSharedPtr<FJsonObject> Root;
+				const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonStr);
+				const TArray<TSharedPtr<FJsonValue>>* PathArr = nullptr;
+				if (FJsonSerializer::Deserialize(Reader, Root) && Root.IsValid() &&
+					Root->TryGetArrayField(TEXT("demoPath"), PathArr))
+				{
+					for (const TSharedPtr<FJsonValue>& V : *PathArr)
+					{
+						const TArray<TSharedPtr<FJsonValue>>* P = nullptr;
+						if (V->TryGetArray(P) && P->Num() >= 3)
+						{
+							AutoDemoWaypoints.Add(FVector((*P)[0]->AsNumber(), (*P)[1]->AsNumber(), (*P)[2]->AsNumber()));
+						}
+					}
+					UE_LOG(LogTemp, Log, TEXT("AutoDemo: demoPath waypoints=%d"), AutoDemoWaypoints.Num());
+				}
+			}
+		}
+
+		// 兜底：无 demoPath 时按包围盒生成折线
+		if (AutoDemoWaypoints.Num() < 2)
+		{
 		AutoDemoWaypoints.Add(FVector(Bounds.Min.X - 300.f, Bounds.Min.Y - 300.f, EyeZ));
 		AutoDemoWaypoints.Add(FVector(C.X - E.X * 0.5f, C.Y - E.Y * 0.5f, EyeZ));
 		AutoDemoWaypoints.Add(FVector(C.X + E.X * 0.5f, C.Y - E.Y * 0.2f, EyeZ));
 		AutoDemoWaypoints.Add(FVector(C.X + E.X * 0.2f, C.Y + E.Y * 0.5f, EyeZ + 150.f));
 		AutoDemoWaypoints.Add(FVector(C.X - E.X * 0.4f, C.Y + E.Y * 0.3f, EyeZ + 60.f));
 		AutoDemoWaypoints.Add(FVector(Bounds.Max.X + 300.f, Bounds.Max.Y + 300.f, EyeZ + 200.f));
+		}
 
 		IFileManager::Get().MakeDirectory(*AutoDemoOutDir, true);
 
@@ -1093,7 +1119,40 @@ void ABlockoutEditorPlayerController::AutoDemoTick(float DeltaSeconds)
 				if (Sky)
 				{
 					USkyLightComponent* SC = Cast<USkyLightComponent>(Sky->GetLightComponent());
-					if (SC) { SC->SourceType = ESkyLightSourceType::SLS_CapturedScene; SC->SetIntensity(1.2f); SC->RecaptureSky(); }
+					if (SC) { SC->SourceType = ESkyLightSourceType::SLS_CapturedScene; SC->SetIntensity(2.5f); SC->RecaptureSky(); }
+				}
+			}
+		}
+
+		// 可见跑动角色：UE 官方小白人（Manny/Quinn + 官方 ABP_Unarmed + 官方 TPS 相机）
+		{
+			UWorld* W = GetWorld();
+			if (W)
+			{
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+				DemoManny = W->SpawnActor<ABlockoutTestPawn>(SpawnParams);
+				if (DemoManny)
+				{
+					// 跑图由路点驱动，不参与物理
+					DemoManny->SetActorEnableCollision(false);
+					UE_LOG(LogTemp, Log, TEXT("AutoDemo: DemoManny official character spawned mesh=%d"),
+						(DemoManny->GetMesh() && DemoManny->GetMesh()->GetSkeletalMeshAsset()) ? 1 : 0);
+				}
+
+				// 沿跑图路径布置点光源，避免室内/隧道无光死角全黑（灯位置于通道净空内）
+				for (int32 i = 0; i < AutoDemoWaypoints.Num(); i += 1)
+				{
+					APointLight* PL = W->SpawnActor<APointLight>(AutoDemoWaypoints[i] + FVector(0.f, 0.f, 120.f), FRotator::ZeroRotator);
+					if (PL)
+					{
+						if (UPointLightComponent* PLC = Cast<UPointLightComponent>(PL->GetLightComponent()))
+						{
+							PLC->SetAttenuationRadius(4500.f);
+							PLC->SetIntensity(60000.f);
+							PLC->SetLightColor(FLinearColor(1.f, 0.97f, 0.9f));
+						}
+					}
 				}
 			}
 		}
@@ -1104,9 +1163,12 @@ void ABlockoutEditorPlayerController::AutoDemoTick(float DeltaSeconds)
 
 		// 诊断：记录加载状态与场景范围
 		{
+			const bool bMannyMesh = DemoManny && DemoManny->GetMesh() &&
+				DemoManny->GetMesh()->GetSkeletalMeshAsset();
 			const FString Status = FString::Printf(
-				TEXT("{\"load\":%d,\"parsed\":%d,\"spawned\":%d,\"blocks\":%d,\"min\":[%.0f,%.0f,%.0f],\"max\":[%.0f,%.0f,%.0f]}"),
+				TEXT("{\"load\":%d,\"parsed\":%d,\"spawned\":%d,\"blocks\":%d,\"waypoints\":%d,\"manny\":%d,\"min\":[%.0f,%.0f,%.0f],\"max\":[%.0f,%.0f,%.0f]}"),
 				bAutoDemoLoaded ? 1 : 0, Sub->LastLoadParsed, Sub->LastLoadSpawned, Sub->GetAllBlocks().Num(),
+				AutoDemoWaypoints.Num(), bMannyMesh ? 1 : 0,
 				Bounds.Min.X, Bounds.Min.Y, Bounds.Min.Z, Bounds.Max.X, Bounds.Max.Y, Bounds.Max.Z);
 			FFileHelper::SaveStringToFile(Status, *(AutoDemoOutDir / TEXT("status.json")));
 		}
@@ -1158,20 +1220,10 @@ void ABlockoutEditorPlayerController::AutoDemoTick(float DeltaSeconds)
 		}
 		break;
 	}
-	case 2: // 跑图：沿路径移动 + 逐帧录制（约 20s 全程）
+	case 2: // 跑图：Manny 可见跑动 + 第三人称跟随相机防穿模 + 逐帧录制（约 45s 全程）
 	{
-		AutoDemoRunT += DeltaSeconds / 20.f;
+		AutoDemoRunT += DeltaSeconds / 45.f;
 		bDemoFollowCam = true;
-		// 用户要求：跑图必须可见官方小白人角色，禁止隐藏
-		if (APawn* DemoPawn = GetPawn())
-		{
-			DemoPawn->SetActorHiddenInGame(false);
-			DemoPawn->SetActorEnableCollision(true);
-			if (USkeletalMeshComponent* Skel = DemoPawn->FindComponentByClass<USkeletalMeshComponent>())
-			{
-				Skel->SetHiddenInGame(false);
-			}
-		}
 
 		if (GetPawn() && AutoDemoWaypoints.Num() >= 2)
 		{
@@ -1179,18 +1231,36 @@ void ABlockoutEditorPlayerController::AutoDemoTick(float DeltaSeconds)
 			const int32 Idx = FMath::Clamp((int32)Seg, 0, AutoDemoWaypoints.Num() - 2);
 			const float Alpha = FMath::Clamp(Seg - Idx, 0.f, 1.f);
 			const FVector Loc = FMath::Lerp(AutoDemoWaypoints[Idx], AutoDemoWaypoints[Idx + 1], Alpha);
-			GetPawn()->SetActorLocation(Loc);
-			if (Idx + 1 < AutoDemoWaypoints.Num())
-			{
-				SetControlRotation((AutoDemoWaypoints[Idx + 1] - Loc).Rotation());
-			}
-
-			// 第三人称跟随机位：角色后上方看向前进方向，避免眼点穿模/被 Pawn 遮挡
 			const FRotator MoveRot = (Idx + 1 < AutoDemoWaypoints.Num())
 				? (AutoDemoWaypoints[Idx + 1] - Loc).Rotation()
 				: GetControlRotation();
-			DemoFollowLoc = Loc - MoveRot.Vector() * 600.f + FVector(0.f, 0.f, 260.f);
-			DemoFollowRot = ((Loc + MoveRot.Vector() * 400.f + FVector(0.f, 0.f, 80.f)) - DemoFollowLoc).Rotation();
+
+			// 可见角色：官方小白人沿路径跑动（waypoints z=角色中心，胶囊角色原点即中心无需偏移），
+			// 速度喂给官方 ABP_Unarmed，走/跑姿态由移动速度驱动
+			if (DemoManny)
+			{
+				const FVector OldLoc = DemoManny->GetActorLocation();
+				DemoManny->SetActorLocation(Loc);
+				DemoManny->SetActorRotation(FRotator(0.f, MoveRot.Yaw, 0.f));
+				if (UCharacterMovementComponent* Move = DemoManny->GetCharacterMovement())
+				{
+					Move->Velocity = MoveRot.Vector() * ((Loc - OldLoc).Size() / FMath::Max(DeltaSeconds, 0.001f));
+				}
+			}
+			SetControlRotation((Idx + 1 < AutoDemoWaypoints.Num())
+				? (AutoDemoWaypoints[Idx + 1] - Loc).Rotation()
+				: GetControlRotation());
+
+			// 官方 TPS 相机：DemoManny 自带官方 SpringArm（400 臂长 + 防穿模 probe 拉近 + camera lag），
+			// 采集机位直接取官方相机组件，替代原自研跟随/防穿模相机
+			if (DemoManny)
+			{
+				if (UCameraComponent* Cam = DemoManny->FindComponentByClass<UCameraComponent>())
+				{
+					DemoFollowLoc = Cam->GetComponentLocation();
+					DemoFollowRot = Cam->GetComponentRotation();
+				}
+			}
 		}
 
 		if (AutoDemoRunT >= 1.f)
