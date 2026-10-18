@@ -1,1 +1,2688 @@
-{"version": "1.0", "savedAt": "2026-10-17T00:00:00", "blocks": [{"Id": "A6923FD2-BCDE-4543-A1EA-6DB0B08AF624", "Name": "Ground", "Shape": "Floor", "Params": {"Length": 11000, "Width": 9000, "Height": 20, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 0, "Y": 0, "Z": -10}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.55, "G": 0.48, "B": 0.38, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 6, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "B98B2176-A2F1-471A-997A-4B3416E604BC", "Name": "TSpawn_S", "Shape": "Wall", "Params": {"Length": 2400, "Width": 30, "Height": 450, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -4000, "Y": -4100.0, "Z": 225.0}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "DABC027B-3918-404E-BA68-121F5B3B9FD6", "Name": "TSpawn_N", "Shape": "Wall", "Params": {"Length": 2400, "Width": 30, "Height": 450, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -4000, "Y": -2300.0, "Z": 225.0}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "5D338E18-D9CB-4830-815E-ED95AA2C8A51", "Name": "TSpawn_W", "Shape": "Wall", "Params": {"Length": 1800, "Width": 30, "Height": 450, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -5200.0, "Y": -3200, "Z": 225.0}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "C65F3CD4-6AC7-42D6-902D-42DCF7146038", "Name": "TSpawn_E", "Shape": "DoorWall", "Params": {"Length": 1800, "Width": 30, "Height": 450, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 300, "HoleHeight": 300, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -2800.0, "Y": -3200, "Z": 225.0}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "D6583C96-388D-48AC-8404-15CFDDD3FDEA", "Name": "TSpawn_Floor", "Shape": "Floor", "Params": {"Length": 2400, "Width": 1800, "Height": 20, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -4000, "Y": -3200, "Z": -10}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.35, "G": 0.35, "B": 0.38, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 2, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "7979DC70-1F39-47DE-8878-DAE13A932FC7", "Name": "TSpawn_RoofMark", "Shape": "Floor", "Params": {"Length": 2400, "Width": 1800, "Height": 20, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -4000, "Y": -3200, "Z": 460}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.5, "G": 0.42, "B": 0.33, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "66AFAD45-4401-4A54-8061-B473C6BBC115", "Name": "CTSpawn_S", "Shape": "Wall", "Params": {"Length": 2400, "Width": 30, "Height": 450, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 4000, "Y": 2300.0, "Z": 225.0}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "0C5DC4D3-B75E-4926-8956-D00FE838996E", "Name": "CTSpawn_N", "Shape": "Wall", "Params": {"Length": 2400, "Width": 30, "Height": 450, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 4000, "Y": 4100.0, "Z": 225.0}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "1528D61A-4613-4AE1-8642-244136AA6916", "Name": "CTSpawn_W", "Shape": "DoorWall", "Params": {"Length": 1800, "Width": 30, "Height": 450, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 300, "HoleHeight": 300, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 2800.0, "Y": 3200, "Z": 225.0}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "79D9E836-2BA7-4D54-9348-BB5B007D5871", "Name": "CTSpawn_E", "Shape": "Wall", "Params": {"Length": 1800, "Width": 30, "Height": 450, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 5200.0, "Y": 3200, "Z": 225.0}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "27F67178-6A53-49FD-A1FE-0E7600541993", "Name": "CTSpawn_Floor", "Shape": "Floor", "Params": {"Length": 2400, "Width": 1800, "Height": 20, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 4000, "Y": 3200, "Z": -10}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.35, "G": 0.35, "B": 0.38, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 2, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "C9E94154-08CD-48AC-BE0B-EF6197CE0FEE", "Name": "ASite_S", "Shape": "DoorWall", "Params": {"Length": 2600, "Width": 30, "Height": 420, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 300, "HoleHeight": 300, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -3600, "Y": 1500.0, "Z": 210.0}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.82, "G": 0.78, "B": 0.7, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "B0530E4F-5B7A-46B6-ACB8-E90A832B0FD1", "Name": "ASite_N", "Shape": "Wall", "Params": {"Length": 2600, "Width": 30, "Height": 420, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -3600, "Y": 3700.0, "Z": 210.0}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.82, "G": 0.78, "B": 0.7, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "51C6AEA9-4372-4EC8-92E2-2CD599AE015E", "Name": "ASite_W", "Shape": "Wall", "Params": {"Length": 2200, "Width": 30, "Height": 420, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -4900.0, "Y": 2600, "Z": 210.0}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.82, "G": 0.78, "B": 0.7, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "673BE35B-ADF5-4744-83FA-9586B36E3EF5", "Name": "ASite_E", "Shape": "DoorWall", "Params": {"Length": 2200, "Width": 30, "Height": 420, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 300, "HoleHeight": 300, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -2300.0, "Y": 2600, "Z": 210.0}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.82, "G": 0.78, "B": 0.7, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "62F9F7A4-C7C7-4614-8FBA-ABFEE586F872", "Name": "ASite_Floor", "Shape": "Floor", "Params": {"Length": 2600, "Width": 2200, "Height": 20, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -3600, "Y": 2600, "Z": -10}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.35, "G": 0.35, "B": 0.38, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 2, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "93F6A682-34BD-4150-B976-BE7EE859F30D", "Name": "A_Box1", "Shape": "Cube", "Params": {"Length": 500, "Width": 500, "Height": 500, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -3900, "Y": 2500, "Z": 250}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.65, "G": 0.55, "B": 0.4, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "1B2C1EFE-3EA7-465B-AEDB-F34DFB6F1827", "Name": "A_Box2", "Shape": "Cube", "Params": {"Length": 600, "Width": 400, "Height": 400, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -3300, "Y": 2900, "Z": 200}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.65, "G": 0.55, "B": 0.4, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "2A63EC1E-0693-447C-8AC3-E3FA49CE26CC", "Name": "A_Platform", "Shape": "Cube", "Params": {"Length": 700, "Width": 900, "Height": 450, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -4200, "Y": 3200, "Z": 225}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.65, "G": 0.55, "B": 0.4, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "08C77338-C531-4735-A298-FE8C4A80E1C3", "Name": "BSite_S", "Shape": "Wall", "Params": {"Length": 2600, "Width": 30, "Height": 420, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 3600, "Y": -3700.0, "Z": 210.0}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.82, "G": 0.78, "B": 0.7, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "03DF756E-7100-4BF1-A8D9-12343E739DE1", "Name": "BSite_N", "Shape": "DoorWall", "Params": {"Length": 2600, "Width": 30, "Height": 420, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 300, "HoleHeight": 300, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 3600, "Y": -1500.0, "Z": 210.0}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.82, "G": 0.78, "B": 0.7, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "3B189F33-6B0A-4CF2-BAFA-CBA896C0FFBA", "Name": "BSite_W", "Shape": "DoorWall", "Params": {"Length": 2200, "Width": 30, "Height": 420, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 300, "HoleHeight": 300, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 2300.0, "Y": -2600, "Z": 210.0}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.82, "G": 0.78, "B": 0.7, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "E4AEF072-C6CF-4E1D-85DC-C391CED18BD5", "Name": "BSite_E", "Shape": "Wall", "Params": {"Length": 2200, "Width": 30, "Height": 420, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 4900.0, "Y": -2600, "Z": 210.0}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.82, "G": 0.78, "B": 0.7, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "5C01C05C-5F23-4808-AD16-B8084AEFB5C3", "Name": "BSite_Floor", "Shape": "Floor", "Params": {"Length": 2600, "Width": 2200, "Height": 20, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 3600, "Y": -2600, "Z": -10}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.35, "G": 0.35, "B": 0.38, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 2, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "67CC305D-E8BB-4726-881B-A0198EECF2AD", "Name": "B_Box1", "Shape": "Cube", "Params": {"Length": 500, "Width": 500, "Height": 500, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 3900, "Y": -2500, "Z": 250}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.65, "G": 0.55, "B": 0.4, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "29DC44B2-AD89-4E50-9F61-7F7B2D2E2837", "Name": "B_Stair", "Shape": "Staircase", "Params": {"Length": 700, "Width": 900, "Height": 400, "Thickness": 20, "AngleDeg": 90, "Steps": 8, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 3000, "Y": -3100, "Z": 200}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.65, "G": 0.55, "B": 0.4, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "3F247EFB-214B-4B28-9063-44C7D4B8110B", "Name": "B_HighGround", "Shape": "Floor", "Params": {"Length": 1600, "Width": 700, "Height": 30, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 3000, "Y": -3600, "Z": 410}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.65, "G": 0.55, "B": 0.4, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "81B91C15-F9A2-4784-A9A2-11692F6E0E7D", "Name": "MidWall_N", "Shape": "Wall", "Params": {"Length": 6000, "Width": 40, "Height": 700, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 0, "Y": 1200, "Z": 350}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "390B0973-1177-4E57-A500-AB9C1DD95645", "Name": "MidWall_S", "Shape": "Wall", "Params": {"Length": 6000, "Width": 40, "Height": 700, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 0, "Y": -1200, "Z": 350}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "8BD8F439-CECB-4435-8AF3-1202EFDED10B", "Name": "MidDoor", "Shape": "DoorWall", "Params": {"Length": 1200, "Width": 40, "Height": 600, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 320, "HoleHeight": 380, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 0, "Y": 0, "Z": 300}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.82, "G": 0.78, "B": 0.7, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "80998BF9-9955-4DD8-BA86-A9DAC5890B3B", "Name": "MidDoor_N", "Shape": "Wall", "Params": {"Length": 1200, "Width": 40, "Height": 700, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 0, "Y": 700, "Z": 350}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "929C08EE-E14F-414D-93F1-1DAB28DF97AD", "Name": "MidDoor_S", "Shape": "Wall", "Params": {"Length": 1200, "Width": 40, "Height": 700, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 0, "Y": -700, "Z": 350}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "9819732C-28B4-4510-91B1-F77BFB45F152", "Name": "MidBox_0", "Shape": "Cube", "Params": {"Length": 450, "Width": 450, "Height": 450, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -800, "Y": -300, "Z": 225}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.65, "G": 0.55, "B": 0.4, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "10B52729-D521-4F4D-A89D-7630CBA82E15", "Name": "MidBox_1", "Shape": "Cube", "Params": {"Length": 450, "Width": 450, "Height": 450, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 600, "Y": 400, "Z": 225}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.65, "G": 0.55, "B": 0.4, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "D44948FA-ACFA-4B75-99D7-3D8E3D29ADF7", "Name": "MidBox_2", "Shape": "Cube", "Params": {"Length": 450, "Width": 450, "Height": 450, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 0, "Y": -600, "Z": 225}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.65, "G": 0.55, "B": 0.4, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "266649A9-B741-4855-9440-6565599FB943", "Name": "MidBox_3", "Shape": "Cube", "Params": {"Length": 450, "Width": 450, "Height": 450, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -200, "Y": 700, "Z": 225}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.65, "G": 0.55, "B": 0.4, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "F1EFE4D5-CE89-470A-ACA2-8A8437455B05", "Name": "LongWall_E", "Shape": "Wall", "Params": {"Length": 3600, "Width": 40, "Height": 700, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -2000, "Y": -800, "Z": 350}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "6D92CE18-0C3F-48D4-9086-280D73E4DEFA", "Name": "LongWall_W", "Shape": "Wall", "Params": {"Length": 3600, "Width": 40, "Height": 700, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -3400, "Y": -800, "Z": 350}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "469677DF-2A08-4BFB-A0AC-BCAB019ADCC9", "Name": "LongArch", "Shape": "Arch", "Params": {"Length": 500, "Width": 300, "Height": 600, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 280, "HoleHeight": 400, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -2700, "Y": 800, "Z": 300}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.82, "G": 0.78, "B": 0.7, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "C543CB8B-0135-43E1-B458-96A13EB61843", "Name": "ShortWall_E", "Shape": "Wall", "Params": {"Length": 3200, "Width": 40, "Height": 700, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 2200, "Y": 800, "Z": 350}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "8FBC7044-CC89-429C-9C8B-DA488D786FE9", "Name": "ShortWall_W", "Shape": "Wall", "Params": {"Length": 3200, "Width": 40, "Height": 700, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 1100, "Y": 800, "Z": 350}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "353B7A08-7CD5-4B25-ADB0-22FCB40771EF", "Name": "TunnelArch", "Shape": "Arch", "Params": {"Length": 500, "Width": 300, "Height": 500, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 260, "HoleHeight": 350, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 1200, "Y": -800, "Z": 250}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.82, "G": 0.78, "B": 0.7, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "E519198E-9A6C-4013-9D41-7954CF0710E1", "Name": "TunnelWall", "Shape": "Wall", "Params": {"Length": 3200, "Width": 40, "Height": 700, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 1700, "Y": -800, "Z": 350}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.72, "G": 0.62, "B": 0.45, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "B3E15B31-2EB1-4437-8A3B-DDEA28F6AF8C", "Name": "Ramp_North", "Shape": "Ramp", "Params": {"Length": 1200, "Width": 1600, "Height": 300, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -1200, "Y": 1800, "Z": 150}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.65, "G": 0.55, "B": 0.4, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "E1226315-97E3-4368-9F37-D01FB91910B1", "Name": "Ramp_South", "Shape": "Ramp", "Params": {"Length": 1200, "Width": 1600, "Height": 300, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 1200, "Y": -1800, "Z": 150}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 1.0, "W": 6.123233995736766e-17}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.65, "G": 0.55, "B": 0.4, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "ADD1C1C8-CDBC-4C3E-BD20-71B69C2FA3F2", "Name": "Boundary_N", "Shape": "Wall", "Params": {"Length": 11000, "Width": 60, "Height": 800, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 0, "Y": 4500, "Z": 400}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.5, "G": 0.44, "B": 0.35, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "BC14E3A6-2194-4509-A1B5-23A3F06C0F1C", "Name": "Boundary_S", "Shape": "Wall", "Params": {"Length": 11000, "Width": 60, "Height": 800, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 0, "Y": -4500, "Z": 400}, "Rotation": {"X": 0, "Y": 0, "Z": 0, "W": 1.0}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.5, "G": 0.44, "B": 0.35, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "FDBD6172-548A-49C0-9709-2194FD9BA707", "Name": "Boundary_W", "Shape": "Wall", "Params": {"Length": 9000, "Width": 60, "Height": 800, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": -5500, "Y": 0, "Z": 400}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.5, "G": 0.44, "B": 0.35, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}, {"Id": "F7319085-88B9-4325-A2B3-6B612397DF9B", "Name": "Boundary_E", "Shape": "Wall", "Params": {"Length": 9000, "Width": 60, "Height": 800, "Thickness": 20, "AngleDeg": 90, "Steps": 5, "Segments": 24, "HoleWidth": 100, "HoleHeight": 200, "HoleOffsetZ": 0, "ArrayCount": 4, "ArraySpacing": 300, "bThroughHole": true}, "Transform": {"Translation": {"X": 5500, "Y": 0, "Z": 400}, "Rotation": {"X": 0.0, "Y": 0.0, "Z": 0.7071067811865476, "W": 0.7071067811865476}, "Scale3D": {"X": 1, "Y": 1, "Z": 1}}, "SurfaceType": "Wall", "Color": {"R": 0.5, "G": 0.44, "B": 0.35, "A": 1.0}, "TexturePattern": "Grid", "Tiling": 1.0, "bHidden": false, "bLocked": false, "GroupId": "00000000-0000-0000-0000-000000000000", "bFreeform": false, "Vertices": [], "Triangles": []}]}
+{
+ "version": "1.0",
+ "savedAt": "2026-10-17T00:00:00",
+ "blocks": [
+  {
+   "Id": "A6923FD2-BCDE-4543-A1EA-6DB0B08AF624",
+   "Name": "Ground",
+   "Shape": "Floor",
+   "Params": {
+    "Length": 11000,
+    "Width": 9000,
+    "Height": 20,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 0,
+     "Y": 0,
+     "Z": -10
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.55,
+    "G": 0.48,
+    "B": 0.38,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 6,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "B98B2176-A2F1-471A-997A-4B3416E604BC",
+   "Name": "TSpawn_S",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 2400,
+    "Width": 30,
+    "Height": 450,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -4000,
+     "Y": -4100.0,
+     "Z": 225.0
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "DABC027B-3918-404E-BA68-121F5B3B9FD6",
+   "Name": "TSpawn_N",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 2400,
+    "Width": 30,
+    "Height": 450,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -4000,
+     "Y": -2300.0,
+     "Z": 225.0
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "5D338E18-D9CB-4830-815E-ED95AA2C8A51",
+   "Name": "TSpawn_W",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 1800,
+    "Width": 30,
+    "Height": 450,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -5200.0,
+     "Y": -3200,
+     "Z": 225.0
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "C65F3CD4-6AC7-42D6-902D-42DCF7146038",
+   "Name": "TSpawn_E",
+   "Shape": "DoorWall",
+   "Params": {
+    "Length": 1800,
+    "Width": 30,
+    "Height": 450,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 300,
+    "HoleHeight": 300,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -2800.0,
+     "Y": -3200,
+     "Z": 225.0
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "D6583C96-388D-48AC-8404-15CFDDD3FDEA",
+   "Name": "TSpawn_Floor",
+   "Shape": "Floor",
+   "Params": {
+    "Length": 2400,
+    "Width": 1800,
+    "Height": 20,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -4000,
+     "Y": -3200,
+     "Z": -10
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.35,
+    "G": 0.35,
+    "B": 0.38,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 2,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "7979DC70-1F39-47DE-8878-DAE13A932FC7",
+   "Name": "TSpawn_RoofMark",
+   "Shape": "Floor",
+   "Params": {
+    "Length": 2400,
+    "Width": 1800,
+    "Height": 20,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -4000,
+     "Y": -3200,
+     "Z": 460
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.5,
+    "G": 0.42,
+    "B": 0.33,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "66AFAD45-4401-4A54-8061-B473C6BBC115",
+   "Name": "CTSpawn_S",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 2400,
+    "Width": 30,
+    "Height": 450,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 4000,
+     "Y": 2300.0,
+     "Z": 225.0
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "0C5DC4D3-B75E-4926-8956-D00FE838996E",
+   "Name": "CTSpawn_N",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 2400,
+    "Width": 30,
+    "Height": 450,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 4000,
+     "Y": 4100.0,
+     "Z": 225.0
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "1528D61A-4613-4AE1-8642-244136AA6916",
+   "Name": "CTSpawn_W",
+   "Shape": "DoorWall",
+   "Params": {
+    "Length": 1800,
+    "Width": 30,
+    "Height": 450,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 300,
+    "HoleHeight": 300,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 2800.0,
+     "Y": 3200,
+     "Z": 225.0
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "79D9E836-2BA7-4D54-9348-BB5B007D5871",
+   "Name": "CTSpawn_E",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 1800,
+    "Width": 30,
+    "Height": 450,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 5200.0,
+     "Y": 3200,
+     "Z": 225.0
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "27F67178-6A53-49FD-A1FE-0E7600541993",
+   "Name": "CTSpawn_Floor",
+   "Shape": "Floor",
+   "Params": {
+    "Length": 2400,
+    "Width": 1800,
+    "Height": 20,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 4000,
+     "Y": 3200,
+     "Z": -10
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.35,
+    "G": 0.35,
+    "B": 0.38,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 2,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "C9E94154-08CD-48AC-BE0B-EF6197CE0FEE",
+   "Name": "ASite_S",
+   "Shape": "DoorWall",
+   "Params": {
+    "Length": 2600,
+    "Width": 30,
+    "Height": 420,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 300,
+    "HoleHeight": 300,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -3600,
+     "Y": 1500.0,
+     "Z": 210.0
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.82,
+    "G": 0.78,
+    "B": 0.7,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "B0530E4F-5B7A-46B6-ACB8-E90A832B0FD1",
+   "Name": "ASite_N",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 2600,
+    "Width": 30,
+    "Height": 420,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -3600,
+     "Y": 3700.0,
+     "Z": 210.0
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.82,
+    "G": 0.78,
+    "B": 0.7,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "51C6AEA9-4372-4EC8-92E2-2CD599AE015E",
+   "Name": "ASite_W",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 2200,
+    "Width": 30,
+    "Height": 420,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -4900.0,
+     "Y": 2600,
+     "Z": 210.0
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.82,
+    "G": 0.78,
+    "B": 0.7,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "673BE35B-ADF5-4744-83FA-9586B36E3EF5",
+   "Name": "ASite_E",
+   "Shape": "DoorWall",
+   "Params": {
+    "Length": 2200,
+    "Width": 30,
+    "Height": 420,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 300,
+    "HoleHeight": 300,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -2300.0,
+     "Y": 2600,
+     "Z": 210.0
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.82,
+    "G": 0.78,
+    "B": 0.7,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "62F9F7A4-C7C7-4614-8FBA-ABFEE586F872",
+   "Name": "ASite_Floor",
+   "Shape": "Floor",
+   "Params": {
+    "Length": 2600,
+    "Width": 2200,
+    "Height": 20,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -3600,
+     "Y": 2600,
+     "Z": -10
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.35,
+    "G": 0.35,
+    "B": 0.38,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 2,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "93F6A682-34BD-4150-B976-BE7EE859F30D",
+   "Name": "A_Box1",
+   "Shape": "Cube",
+   "Params": {
+    "Length": 500,
+    "Width": 500,
+    "Height": 500,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -3900,
+     "Y": 2500,
+     "Z": 250
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.65,
+    "G": 0.55,
+    "B": 0.4,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "1B2C1EFE-3EA7-465B-AEDB-F34DFB6F1827",
+   "Name": "A_Box2",
+   "Shape": "Cube",
+   "Params": {
+    "Length": 600,
+    "Width": 400,
+    "Height": 400,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -3300,
+     "Y": 2900,
+     "Z": 200
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.65,
+    "G": 0.55,
+    "B": 0.4,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "2A63EC1E-0693-447C-8AC3-E3FA49CE26CC",
+   "Name": "A_Platform",
+   "Shape": "Cube",
+   "Params": {
+    "Length": 700,
+    "Width": 900,
+    "Height": 450,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -4200,
+     "Y": 3200,
+     "Z": 225
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.65,
+    "G": 0.55,
+    "B": 0.4,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "08C77338-C531-4735-A298-FE8C4A80E1C3",
+   "Name": "BSite_S",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 2600,
+    "Width": 30,
+    "Height": 420,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 3600,
+     "Y": -3700.0,
+     "Z": 210.0
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.82,
+    "G": 0.78,
+    "B": 0.7,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "03DF756E-7100-4BF1-A8D9-12343E739DE1",
+   "Name": "BSite_N",
+   "Shape": "DoorWall",
+   "Params": {
+    "Length": 2600,
+    "Width": 30,
+    "Height": 420,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 300,
+    "HoleHeight": 300,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 3600,
+     "Y": -1500.0,
+     "Z": 210.0
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.82,
+    "G": 0.78,
+    "B": 0.7,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "3B189F33-6B0A-4CF2-BAFA-CBA896C0FFBA",
+   "Name": "BSite_W",
+   "Shape": "DoorWall",
+   "Params": {
+    "Length": 2200,
+    "Width": 30,
+    "Height": 420,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 300,
+    "HoleHeight": 300,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 2300.0,
+     "Y": -2600,
+     "Z": 210.0
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.82,
+    "G": 0.78,
+    "B": 0.7,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "E4AEF072-C6CF-4E1D-85DC-C391CED18BD5",
+   "Name": "BSite_E",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 2200,
+    "Width": 30,
+    "Height": 420,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 4900.0,
+     "Y": -2600,
+     "Z": 210.0
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.82,
+    "G": 0.78,
+    "B": 0.7,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "5C01C05C-5F23-4808-AD16-B8084AEFB5C3",
+   "Name": "BSite_Floor",
+   "Shape": "Floor",
+   "Params": {
+    "Length": 2600,
+    "Width": 2200,
+    "Height": 20,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 3600,
+     "Y": -2600,
+     "Z": -10
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.35,
+    "G": 0.35,
+    "B": 0.38,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 2,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "67CC305D-E8BB-4726-881B-A0198EECF2AD",
+   "Name": "B_Box1",
+   "Shape": "Cube",
+   "Params": {
+    "Length": 500,
+    "Width": 500,
+    "Height": 500,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 3900,
+     "Y": -2500,
+     "Z": 250
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.65,
+    "G": 0.55,
+    "B": 0.4,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "29DC44B2-AD89-4E50-9F61-7F7B2D2E2837",
+   "Name": "B_Stair",
+   "Shape": "Staircase",
+   "Params": {
+    "Length": 700,
+    "Width": 900,
+    "Height": 400,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 8,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 3000,
+     "Y": -3100,
+     "Z": 200
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.65,
+    "G": 0.55,
+    "B": 0.4,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "3F247EFB-214B-4B28-9063-44C7D4B8110B",
+   "Name": "B_HighGround",
+   "Shape": "Floor",
+   "Params": {
+    "Length": 1600,
+    "Width": 700,
+    "Height": 30,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 3000,
+     "Y": -3600,
+     "Z": 410
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.65,
+    "G": 0.55,
+    "B": 0.4,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "81B91C15-F9A2-4784-A9A2-11692F6E0E7D",
+   "Name": "MidWall_N",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 6000,
+    "Width": 40,
+    "Height": 700,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 0,
+     "Y": 1200,
+     "Z": 350
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "390B0973-1177-4E57-A500-AB9C1DD95645",
+   "Name": "MidWall_S",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 6000,
+    "Width": 40,
+    "Height": 700,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 0,
+     "Y": -1200,
+     "Z": 350
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "8BD8F439-CECB-4435-8AF3-1202EFDED10B",
+   "Name": "MidDoor",
+   "Shape": "DoorWall",
+   "Params": {
+    "Length": 1200,
+    "Width": 40,
+    "Height": 600,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 320,
+    "HoleHeight": 380,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 300
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.82,
+    "G": 0.78,
+    "B": 0.7,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "80998BF9-9955-4DD8-BA86-A9DAC5890B3B",
+   "Name": "MidDoor_N",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 1200,
+    "Width": 40,
+    "Height": 700,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 0,
+     "Y": 700,
+     "Z": 350
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "929C08EE-E14F-414D-93F1-1DAB28DF97AD",
+   "Name": "MidDoor_S",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 1200,
+    "Width": 40,
+    "Height": 700,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 0,
+     "Y": -700,
+     "Z": 350
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "9819732C-28B4-4510-91B1-F77BFB45F152",
+   "Name": "MidBox_0",
+   "Shape": "Cube",
+   "Params": {
+    "Length": 450,
+    "Width": 450,
+    "Height": 450,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -800,
+     "Y": -300,
+     "Z": 225
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.65,
+    "G": 0.55,
+    "B": 0.4,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "10B52729-D521-4F4D-A89D-7630CBA82E15",
+   "Name": "MidBox_1",
+   "Shape": "Cube",
+   "Params": {
+    "Length": 450,
+    "Width": 450,
+    "Height": 450,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 600,
+     "Y": 400,
+     "Z": 225
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.65,
+    "G": 0.55,
+    "B": 0.4,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "D44948FA-ACFA-4B75-99D7-3D8E3D29ADF7",
+   "Name": "MidBox_2",
+   "Shape": "Cube",
+   "Params": {
+    "Length": 450,
+    "Width": 450,
+    "Height": 450,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 0,
+     "Y": -600,
+     "Z": 225
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.65,
+    "G": 0.55,
+    "B": 0.4,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "266649A9-B741-4855-9440-6565599FB943",
+   "Name": "MidBox_3",
+   "Shape": "Cube",
+   "Params": {
+    "Length": 450,
+    "Width": 450,
+    "Height": 450,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -200,
+     "Y": 700,
+     "Z": 225
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.65,
+    "G": 0.55,
+    "B": 0.4,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "F1EFE4D5-CE89-470A-ACA2-8A8437455B05",
+   "Name": "LongWall_E",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 3600,
+    "Width": 40,
+    "Height": 700,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -2000,
+     "Y": -800,
+     "Z": 350
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "6D92CE18-0C3F-48D4-9086-280D73E4DEFA",
+   "Name": "LongWall_W",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 3600,
+    "Width": 40,
+    "Height": 700,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -3400,
+     "Y": -800,
+     "Z": 350
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "469677DF-2A08-4BFB-A0AC-BCAB019ADCC9",
+   "Name": "LongArch",
+   "Shape": "Arch",
+   "Params": {
+    "Length": 500,
+    "Width": 300,
+    "Height": 600,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 280,
+    "HoleHeight": 400,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -2700,
+     "Y": 800,
+     "Z": 300
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.82,
+    "G": 0.78,
+    "B": 0.7,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "C543CB8B-0135-43E1-B458-96A13EB61843",
+   "Name": "ShortWall_E",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 3200,
+    "Width": 40,
+    "Height": 700,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 2200,
+     "Y": 800,
+     "Z": 350
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "8FBC7044-CC89-429C-9C8B-DA488D786FE9",
+   "Name": "ShortWall_W",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 3200,
+    "Width": 40,
+    "Height": 700,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 1100,
+     "Y": 800,
+     "Z": 350
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "353B7A08-7CD5-4B25-ADB0-22FCB40771EF",
+   "Name": "TunnelArch",
+   "Shape": "Arch",
+   "Params": {
+    "Length": 500,
+    "Width": 300,
+    "Height": 500,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 260,
+    "HoleHeight": 350,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 1200,
+     "Y": -800,
+     "Z": 250
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.82,
+    "G": 0.78,
+    "B": 0.7,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "E519198E-9A6C-4013-9D41-7954CF0710E1",
+   "Name": "TunnelWall",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 3200,
+    "Width": 40,
+    "Height": 700,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 1700,
+     "Y": -800,
+     "Z": 350
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.72,
+    "G": 0.62,
+    "B": 0.45,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "B3E15B31-2EB1-4437-8A3B-DDEA28F6AF8C",
+   "Name": "Ramp_North",
+   "Shape": "Ramp",
+   "Params": {
+    "Length": 1200,
+    "Width": 1600,
+    "Height": 300,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -1200,
+     "Y": 1800,
+     "Z": 150
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.65,
+    "G": 0.55,
+    "B": 0.4,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "E1226315-97E3-4368-9F37-D01FB91910B1",
+   "Name": "Ramp_South",
+   "Shape": "Ramp",
+   "Params": {
+    "Length": 1200,
+    "Width": 1600,
+    "Height": 300,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 1200,
+     "Y": -1800,
+     "Z": 150
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 1.0,
+     "W": 6.123233995736766e-17
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.65,
+    "G": 0.55,
+    "B": 0.4,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "ADD1C1C8-CDBC-4C3E-BD20-71B69C2FA3F2",
+   "Name": "Boundary_N",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 11000,
+    "Width": 60,
+    "Height": 800,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 0,
+     "Y": 4500,
+     "Z": 400
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.5,
+    "G": 0.44,
+    "B": 0.35,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "BC14E3A6-2194-4509-A1B5-23A3F06C0F1C",
+   "Name": "Boundary_S",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 11000,
+    "Width": 60,
+    "Height": 800,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 0,
+     "Y": -4500,
+     "Z": 400
+    },
+    "Rotation": {
+     "X": 0,
+     "Y": 0,
+     "Z": 0,
+     "W": 1.0
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.5,
+    "G": 0.44,
+    "B": 0.35,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "FDBD6172-548A-49C0-9709-2194FD9BA707",
+   "Name": "Boundary_W",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 9000,
+    "Width": 60,
+    "Height": 800,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": -5500,
+     "Y": 0,
+     "Z": 400
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.5,
+    "G": 0.44,
+    "B": 0.35,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  },
+  {
+   "Id": "F7319085-88B9-4325-A2B3-6B612397DF9B",
+   "Name": "Boundary_E",
+   "Shape": "Wall",
+   "Params": {
+    "Length": 9000,
+    "Width": 60,
+    "Height": 800,
+    "Thickness": 20,
+    "AngleDeg": 90,
+    "Steps": 5,
+    "Segments": 24,
+    "HoleWidth": 100,
+    "HoleHeight": 200,
+    "HoleOffsetZ": 0,
+    "ArrayCount": 4,
+    "ArraySpacing": 300,
+    "bThroughHole": true
+   },
+   "Transform": {
+    "Translation": {
+     "X": 5500,
+     "Y": 0,
+     "Z": 400
+    },
+    "Rotation": {
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.7071067811865476,
+     "W": 0.7071067811865476
+    },
+    "Scale3D": {
+     "X": 1,
+     "Y": 1,
+     "Z": 1
+    }
+   },
+   "SurfaceType": "Wall",
+   "Color": {
+    "R": 0.5,
+    "G": 0.44,
+    "B": 0.35,
+    "A": 1.0
+   },
+   "TexturePattern": "Grid",
+   "Tiling": 1.0,
+   "bHidden": false,
+   "bLocked": false,
+   "GroupId": "00000000-0000-0000-0000-000000000000",
+   "bFreeform": false,
+   "Vertices": [],
+   "Triangles": []
+  }
+ ],
+ "demoPath": [
+  [
+   5500.0,
+   -5300.0,
+   0.0
+  ],
+  [
+   5500.0,
+   -4900.0,
+   0.0
+  ],
+  [
+   5500.0,
+   -4500.0,
+   0.0
+  ],
+  [
+   5500.0,
+   4700.0,
+   0.0
+  ],
+  [
+   5500.0,
+   5100.0,
+   0.0
+  ],
+  [
+   5500.0,
+   5500.0,
+   0.0
+  ]
+ ]
+}

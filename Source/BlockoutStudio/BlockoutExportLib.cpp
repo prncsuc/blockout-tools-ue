@@ -164,24 +164,30 @@ bool FBlockoutExportLib::ExportFBX(const TArray<ABlockoutActor*>& Actors, const 
 	TArray<FExportMesh> Meshes;
 	GatherMeshes(Actors, Meshes, true);
 	if (bGroupByMaterial) MergeByMaterial(Meshes);
-	// D3：FBX 顶点 ×0.01（cm→m），适配 Unity 米制导入
-	const double FbxScale = 0.01;
+	// D3：FBX 约定 Y-up（右手系），顶点做 UE(Z-up)→FBX(Y-up) 转换 (x,y,z)→(x,z,-y)；
+	// 顶点保留 cm 数值（UnitScaleFactor=1.0 即 cm），由 DCC 按单位自动换算（UE cm / Unity m），双端比例一致
+	auto FbxConv = [](const FVector3d& V) { return FVector3d(V.X, V.Z, -V.Y); };
 	TStringBuilder<8192> Sb;
 	Sb.Append(TEXT("; FBX 7.4.0 project file\nFBXHeaderExtension:  {\n\tFBXHeaderVersion: 1003\n\tFBXVersion: 7400\n\tCreator: \"BlockoutStudio\"\n}\n"));
 	Sb.Append(TEXT("GlobalSettings:  {\n\tVersion: 1000\n\tProperties70:  {\n\t\tP: \"UnitScaleFactor\", \"double\", \"Number\", \"\",1.0\n\t}\n}\n"));
-	// Objects
+	// Definitions（FBX SDK 解析必需：类对象声明）
+	Sb.Appendf(TEXT("Definitions:  {\n\tVersion: 100\n\tCount: %d\n\tObjectType: \"Geometry\" {\n\t\tCount: %d\n\t}\n\tObjectType: \"Model\" {\n\t\tCount: %d\n\t}\n\tObjectType: \"Material\" {\n\t\tCount: %d\n\t}\n}\n"),
+		Meshes.Num() * 3, Meshes.Num(), Meshes.Num(), Meshes.Num());
+	// Objects（规范要求单一块）
 	int32 GeoIdBase = 1000000;
+	Sb.Append(TEXT("Objects:  {\n"));
 	for (int32 mi = 0; mi < Meshes.Num(); mi++)
 	{
 		const FExportMesh& M = Meshes[mi];
 		int32 GeoId = GeoIdBase + mi * 10;
 		int32 ModelId = GeoId + 1;
 		int32 MatId = GeoId + 2;
-		Sb.Appendf(TEXT("Objects:  {\n\tGeometry: %d, \"Geometry::%s\", \"Mesh\" {\n"), GeoId, *M.Name);
+		Sb.Appendf(TEXT("\tGeometry: %d, \"Geometry::%s\", \"Mesh\" {\n"), GeoId, *M.Name);
 		Sb.Appendf(TEXT("\t\tVertices: *%d {\n\t\t\ta: "), M.Verts.Num() * 3);
 		for (int32 i = 0; i < M.Verts.Num(); i++)
 		{
-			Sb.Appendf(TEXT("%s%.6f,%.6f,%.6f"), i ? TEXT(",") : TEXT(""), M.Verts[i].X * FbxScale, M.Verts[i].Y * FbxScale, M.Verts[i].Z * FbxScale);
+			const FVector3d W = FbxConv(M.Verts[i]);
+			Sb.Appendf(TEXT("%s%.6f,%.6f,%.6f"), i ? TEXT(",") : TEXT(""), W.X, W.Y, W.Z);
 		}
 		Sb.Append(TEXT("\n\t\t}\n\t\tPolygonVertexIndex: *"));
 		TArray<int32> PolyIdx;
@@ -203,8 +209,8 @@ bool FBlockoutExportLib::ExportFBX(const TArray<ABlockoutActor*>& Actors, const 
 		// Material
 		Sb.Appendf(TEXT("\tMaterial: %d, \"Material::%s_mat\", \"\" {\n\t\tShadingModel: \"lambert\"\n\t\tProperties70:  {\n\t\t\tP: \"DiffuseColor\", \"Color\", \"\", \"A\",%.4f,%.4f,%.4f\n\t\t}\n\t}\n"),
 			MatId, *M.Name, M.Color.R, M.Color.G, M.Color.B);
-		Sb.Append(TEXT("}\n"));
 	}
+	Sb.Append(TEXT("}\n"));
 	Sb.Append(TEXT("Connections:  {\n"));
 	for (int32 mi = 0; mi < Meshes.Num(); mi++)
 	{
@@ -234,10 +240,11 @@ bool FBlockoutExportLib::ExportGLTF(const TArray<ABlockoutActor*>& Actors, const
 	{
 		FMeshRange R;
 		R.PosOff = Buffer.Num();
-		for (const FVector3d& V : M.Verts) { float F[3] = { (float)V.X, (float)V.Y, (float)V.Z }; Buffer.Append((uint8*)F, 12); }
+		// glTF 规范 Y-up、单位米：顶点 UE(Z-up,cm) → (x,z,-y)*0.01，DCC 按单位还原（UE cm / Unity m）
+		for (const FVector3d& V : M.Verts) { float F[3] = { (float)(V.X * 0.01), (float)(V.Z * 0.01), (float)(-V.Y * 0.01) }; Buffer.Append((uint8*)F, 12); }
 		R.PosLen = Buffer.Num() - R.PosOff;
 		R.NrmOff = Buffer.Num();
-		for (const FVector3d& N : M.Normals) { float F[3] = { (float)N.X, (float)N.Y, (float)N.Z }; Buffer.Append((uint8*)F, 12); }
+		for (const FVector3d& N : M.Normals) { float F[3] = { (float)N.X, (float)N.Z, (float)-N.Y }; Buffer.Append((uint8*)F, 12); }
 		R.NrmLen = Buffer.Num() - R.NrmOff;
 		R.UvOff = Buffer.Num();
 		for (const FVector2d& UV : M.UVs) { float F[2] = { (float)UV.X, (float)UV.Y }; Buffer.Append((uint8*)F, 8); }

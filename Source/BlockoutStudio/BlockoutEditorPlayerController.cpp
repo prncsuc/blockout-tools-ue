@@ -3,6 +3,7 @@
 #include "BlockoutGizmo.h"
 #include "BlockoutActor.h"
 #include "BlockoutEditorSubsystem.h"
+#include "BlockoutExportLib.h"
 #include "BlockoutEditorUI.h"
 #include "BlockoutMeshEditLib.h"
 #include "BlockoutMeasureLib.h"
@@ -24,11 +25,15 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Character.h"
+#include "Components/CapsuleComponent.h"
 #include "Animation/SkeletalMeshActor.h"
 #include "Engine/SkeletalMesh.h"
 #include "Animation/AnimationAsset.h"
 #include "Dom/JsonObject.h"
 #include "Serialization/JsonSerializer.h"
+#include "Serialization/JsonWriter.h"
+#include "Engine/OverlapResult.h"
 #include "Serialization/JsonReader.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "TextureResource.h"
@@ -78,8 +83,47 @@ void ABlockoutEditorPlayerController::BeginPlay()
 		UE_LOG(LogTemp, Log, TEXT("AutoDemo: enabled level=%s out=%s"), *AutoDemoLevelPath, *AutoDemoOutDir);
 	}
 
+	// D3 自动导出实测：-AutoExportTest=输出目录
+	FString ExportOut;
+	if (FParse::Value(FCommandLine::Get(), TEXT("AutoExportTest="), ExportOut) && !ExportOut.IsEmpty())
+	{
+		bAutoExportTest = true;
+		AutoExportOutDir = ExportOut;
+		UE_LOG(LogTemp, Log, TEXT("AutoExportTest: enabled out=%s"), *AutoExportOutDir);
+	}
+
+	// D5 性能压测：-AutoPerfTest=体块数 -AutoPerfOut=输出目录
+	FString PerfBlocks;
+	if (FParse::Value(FCommandLine::Get(), TEXT("AutoPerfTest="), PerfBlocks))
+	{
+		bAutoPerfTest = true;
+		AutoPerfBlocks = FMath::Clamp(FCString::Atoi(*PerfBlocks), 1, 20000);
+		FParse::Value(FCommandLine::Get(), TEXT("AutoPerfOut="), DemoOut);
+		AutoPerfOutDir = DemoOut.IsEmpty() ? (FPaths::ProjectSavedDir() / TEXT("PerfTest")) : DemoOut;
+		UE_LOG(LogTemp, Log, TEXT("AutoPerfTest: enabled blocks=%d out=%s"), AutoPerfBlocks, *AutoPerfOutDir);
+	}
+
+	// P3 碰撞回归：-AutoCollisionTest=关卡JSON -AutoCollisionOut=输出目录
+	FString CollLevel;
+	if (FParse::Value(FCommandLine::Get(), TEXT("AutoCollisionTest="), CollLevel) && !CollLevel.IsEmpty())
+	{
+		bAutoCollisionTest = true;
+		AutoCollisionLevelPath = CollLevel;
+		FParse::Value(FCommandLine::Get(), TEXT("AutoCollisionOut="), DemoOut);
+		AutoCollisionOutDir = DemoOut.IsEmpty() ? (FPaths::ProjectSavedDir() / TEXT("CollisionTest")) : DemoOut;
+		UE_LOG(LogTemp, Log, TEXT("AutoCollisionTest: enabled level=%s out=%s"), *AutoCollisionLevelPath, *AutoCollisionOutDir);
+	}
+
 	// 创建 Slate 工具 UI 并挂入视口
 	SlateUI = SNew(SBlockoutEditorUI).PC(this);
+
+	// 诊断：打包环境无法看日志，落盘命令行与各自动开关（绝对路径，避免 Saved 路径问题）
+	{
+		FString Diag = FString::Printf(TEXT("cmdline: %s\nAutoDemo=%d AutoExport=%d AutoPerf=%d AutoColl=%d\nSavedDir: %s\n"),
+			FCommandLine::Get(), bAutoDemo ? 1 : 0, bAutoExportTest ? 1 : 0,
+			bAutoPerfTest ? 1 : 0, bAutoCollisionTest ? 1 : 0, *FPaths::ProjectSavedDir());
+		FFileHelper::SaveStringToFile(Diag, TEXT("C:/Users/mail/AppData/Roaming/Tencent/Marvis/User/49669A1552B1EA7C8AB5DFD758A55155/workspace/conv_8fdc8b8718904d11afccd6f0b4798006/temp/auto_diag.txt"));
+	}
 	if (GEngine && GEngine->GameViewport)
 	{
 		GEngine->GameViewport->AddViewportWidgetContent(SlateUI.ToSharedRef(), 100);
@@ -290,6 +334,11 @@ void ABlockoutEditorPlayerController::PlayerTick(float DeltaSeconds)
 	{
 		AutoDemoTick(DeltaSeconds);
 	}
+
+	// D3/D5/P3 自动化验证驱动（与 AutoDemo 互斥使用）
+	if (bAutoExportTest) AutoExportTick(DeltaSeconds);
+	if (bAutoPerfTest) AutoPerfTick(DeltaSeconds);
+	if (bAutoCollisionTest) AutoCollisionTick(DeltaSeconds);
 
 	// R1：录制中逐帧采集轨迹 + 视口 JPEG
 	if (RecSession.bRecording)
@@ -878,8 +927,13 @@ bool ABlockoutEditorPlayerController::SaveRecording(const FString& BaseName)
 	bool bOk = FBlockoutRecordLib::SaveTrajectoryJSON(RecSession, Dir / (Base + TEXT(".json")));
 	if (RecSession.JpegFrames.Num() > 0)
 	{
-		// R3：MJPEG-AVI 导出（备选录制方案）
-		bOk = FBlockoutRecordLib::WriteMjpegAVI(RecSession, Dir / (Base + TEXT(".avi"))) || bOk;
+		// R3：MJPEG-AVI 导出（备选录制方案）；R2：进一步封装 MP4/WebM 成品视频
+		const FString AviPath = Dir / (Base + TEXT(".avi"));
+		bOk = FBlockoutRecordLib::WriteMjpegAVI(RecSession, AviPath) || bOk;
+		const bool bMp4 = FBlockoutRecordLib::ConvertToMp4(AviPath, Dir / (Base + TEXT(".mp4")));
+		const bool bWebM = FBlockoutRecordLib::ConvertToWebM(AviPath, Dir / (Base + TEXT(".webm")));
+		UE_LOG(LogTemp, Log, TEXT("R2 video mux: mp4=%d webm=%d (avi retained)"), bMp4 ? 1 : 0, bWebM ? 1 : 0);
+		bOk = bMp4 || bWebM || bOk;
 	}
 	return bOk;
 }
@@ -1277,7 +1331,7 @@ void ABlockoutEditorPlayerController::AutoDemoTick(float DeltaSeconds)
 	{
 		if (AutoDemoTimer < 1.5f) break;
 		const FString SrcBase = FPaths::ProjectSavedDir() / TEXT("Records");
-		for (const FString& Ext : { TEXT(".avi"), TEXT(".json") })
+		for (const FString& Ext : { TEXT(".avi"), TEXT(".json"), TEXT(".mp4"), TEXT(".webm") })
 		{
 			const FString Src = SrcBase / (FString(TEXT("runthrough")) + Ext);
 			if (FPaths::FileExists(Src))
@@ -1558,4 +1612,339 @@ bool ABlockoutEditorPlayerController::PickWorldPoint(FVector& OutPoint) const
 	}
 	OutPoint = Origin + Dir * 600.0;
 	return true;
+}
+
+// ---------- D3：自动导出实测（-AutoExportTest=目录） ----------
+void ABlockoutEditorPlayerController::AutoExportTick(float DeltaSeconds)
+{
+	AutoDemoTimer += DeltaSeconds;
+	switch (AutoDemoPhase)
+	{
+	case 0:
+	{
+		if (AutoDemoTimer < 3.f) break;
+		UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld());
+		if (!Sub) { FPlatformMisc::RequestExit(false); break; }
+
+		// 生成 4 个代表形状体块（1uu=1cm：200uu=2m 立方）
+		FBlockoutShapeParams P;
+		Sub->SpawnBlock(EBlockoutShape::Cube, FVector(0.f, 0.f, 100.f), P);
+		FBlockoutShapeParams Wp; Wp.Length = 400.f; Wp.Height = 300.f; Wp.Thickness = 20.f;
+		Sub->SpawnBlock(EBlockoutShape::Wall, FVector(600.f, 0.f, 150.f), Wp);
+		FBlockoutShapeParams St; St.Steps = 6;
+		Sub->SpawnBlock(EBlockoutShape::Staircase, FVector(0.f, 600.f, 0.f), St);
+		FBlockoutShapeParams Ar; Ar.HoleWidth = 100.f; Ar.HoleHeight = 180.f;
+		Sub->SpawnBlock(EBlockoutShape::Arch, FVector(600.f, 600.f, 0.f), Ar);
+
+		TArray<ABlockoutActor*> Blocks = Sub->GetAllBlocks();
+		IFileManager::Get().MakeDirectory(*AutoExportOutDir, true);
+
+		const bool bObj = FBlockoutExportLib::ExportOBJ(Blocks, AutoExportOutDir / TEXT("blockout_sample.obj"), true);
+		const bool bObjMat = FBlockoutExportLib::ExportOBJ(Blocks, AutoExportOutDir / TEXT("blockout_sample_mat.obj"), true, true);
+		const bool bFbx = FBlockoutExportLib::ExportFBX(Blocks, AutoExportOutDir / TEXT("blockout_sample.fbx"));
+		const bool bGltf = FBlockoutExportLib::ExportGLTF(Blocks, AutoExportOutDir / TEXT("blockout_sample.gltf"), false, false);
+
+		TSharedPtr<FJsonObject> R = MakeShared<FJsonObject>();
+		R->SetNumberField(TEXT("blockCount"), Blocks.Num());
+		R->SetBoolField(TEXT("obj"), bObj);
+		R->SetBoolField(TEXT("objGroupByMaterial"), bObjMat);
+		R->SetBoolField(TEXT("fbx"), bFbx);
+		R->SetBoolField(TEXT("gltf"), bGltf);
+		FString Out;
+		TSharedRef<TJsonWriter<TCHAR, TPrettyJsonPrintPolicy<TCHAR>>> JW = TJsonWriterFactory<TCHAR, TPrettyJsonPrintPolicy<TCHAR>>::Create(&Out);
+		FJsonSerializer::Serialize(R.ToSharedRef(), JW);
+		FFileHelper::SaveStringToFile(Out, *(AutoExportOutDir / TEXT("export_report.json")));
+		UE_LOG(LogTemp, Log, TEXT("AutoExportTest: obj=%d objMat=%d fbx=%d gltf=%d blocks=%d"),
+			bObj ? 1 : 0, bObjMat ? 1 : 0, bFbx ? 1 : 0, bGltf ? 1 : 0, Blocks.Num());
+
+		AutoDemoTimer = 0.f;
+		AutoDemoPhase = 1;
+		break;
+	}
+	case 1:
+	{
+		if (AutoDemoTimer < 1.f) break;
+		FPlatformMisc::RequestExit(false);
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+// ---------- D5：性能压测（-AutoPerfTest=体块数 -AutoPerfOut=目录） ----------
+void ABlockoutEditorPlayerController::AutoPerfTick(float DeltaSeconds)
+{
+	AutoDemoTimer += DeltaSeconds;
+	switch (AutoDemoPhase)
+	{
+	case 0: // 生成 N 体块（网格布局）
+	{
+		if (AutoDemoTimer < 2.f) break;
+		UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld());
+		if (!Sub) { FPlatformMisc::RequestExit(false); break; }
+		const int32 N = AutoPerfBlocks;
+		const int32 Side = FMath::CeilToInt(FMath::Pow((float)N, 1.f / 3.f));
+		FBlockoutShapeParams P;
+		for (int32 i = 0; i < N; i++)
+		{
+			const int32 X = i % Side, Y = (i / Side) % Side, Z = i / (Side * Side);
+			Sub->SpawnBlock(EBlockoutShape::Cube, FVector(X * 300.f, Y * 300.f, Z * 300.f + 100.f), P);
+		}
+		UE_LOG(LogTemp, Log, TEXT("AutoPerfTest: spawned %d blocks (side=%d)"), Sub->GetAllBlocks().Num(), Side);
+		AutoDemoTimer = 0.f;
+		AutoDemoPhase = 1;
+		break;
+	}
+	case 1: // 稳定期 2s（shader/物理预热）
+		if (AutoDemoTimer >= 2.f)
+		{
+			AutoPerfDts.Reset();
+			AutoDemoTimer = 0.f;
+			AutoDemoPhase = 2;
+		}
+		break;
+	case 2: // 采样 10s
+	{
+		AutoPerfDts.Add(DeltaSeconds);
+		if (AutoDemoTimer < 10.f) break;
+
+		float TotalT = 0.f;
+		for (const float D : AutoPerfDts) { TotalT += D; }
+		const float AvgFps = AutoPerfDts.Num() / FMath::Max(TotalT, 1e-4f);
+
+		// 1s 滑窗 fps（min/max/1% low 更能反映卡顿）
+		TArray<float> WindowFps;
+		float WinT = 0.f; int32 WinN = 0;
+		for (const float D : AutoPerfDts)
+		{
+			WinT += D; WinN++;
+			if (WinT >= 1.f) { WindowFps.Add(WinN / WinT); WinT = 0.f; WinN = 0; }
+		}
+		if (WinN > 0 && WinT > 0.2f) { WindowFps.Add(WinN / WinT); }
+		WindowFps.Sort();
+		const float MinFps = WindowFps.Num() ? WindowFps[0] : 0.f;
+		const float MaxFps = WindowFps.Num() ? WindowFps.Last() : 0.f;
+		const int32 P1Idx = FMath::Clamp((int32)(WindowFps.Num() * 0.01f), 0, WindowFps.Num() - 1);
+		const float P1LowFps = WindowFps.Num() ? WindowFps[P1Idx] : 0.f;
+
+		IFileManager::Get().MakeDirectory(*AutoPerfOutDir, true);
+		TSharedPtr<FJsonObject> R = MakeShared<FJsonObject>();
+		R->SetNumberField(TEXT("blocks"), AutoPerfBlocks);
+		R->SetNumberField(TEXT("frames"), AutoPerfDts.Num());
+		R->SetNumberField(TEXT("sampleSeconds"), TotalT);
+		R->SetNumberField(TEXT("avgFps"), AvgFps);
+		R->SetNumberField(TEXT("minFps1sWindow"), MinFps);
+		R->SetNumberField(TEXT("maxFps1sWindow"), MaxFps);
+		R->SetNumberField(TEXT("onePercentLowFps"), P1LowFps);
+		R->SetBoolField(TEXT("pass60"), AvgFps >= 60.f);
+		FString Out;
+		TSharedRef<TJsonWriter<TCHAR, TPrettyJsonPrintPolicy<TCHAR>>> JW = TJsonWriterFactory<TCHAR, TPrettyJsonPrintPolicy<TCHAR>>::Create(&Out);
+		FJsonSerializer::Serialize(R.ToSharedRef(), JW);
+		FFileHelper::SaveStringToFile(Out, *(AutoPerfOutDir / TEXT("perf_report.json")));
+		UE_LOG(LogTemp, Log, TEXT("AutoPerfTest: blocks=%d avgFps=%.1f min=%.1f max=%.1f p1Low=%.1f"),
+			AutoPerfBlocks, AvgFps, MinFps, MaxFps, P1LowFps);
+
+		AutoDemoTimer = 0.f;
+		AutoDemoPhase = 3;
+		break;
+	}
+	case 3:
+	{
+		if (AutoDemoTimer < 0.5f) break;
+		FPlatformMisc::RequestExit(false);
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+// ---------- P3：碰撞回归（-AutoCollisionTest=关卡JSON -AutoCollisionOut=目录） ----------
+void ABlockoutEditorPlayerController::AutoCollisionTick(float DeltaSeconds)
+{
+	AutoDemoTimer += DeltaSeconds;
+	switch (AutoDemoPhase)
+	{
+	case 0: // 载入关卡 + 解析 demoPath
+	{
+		if (AutoDemoTimer < 3.f) break;
+		UBlockoutEditorSubsystem* Sub = GetEditorSub(GetWorld());
+		if (!Sub) { FPlatformMisc::RequestExit(false); break; }
+		const bool bLoaded = Sub->LoadProject(AutoCollisionLevelPath);
+		AutoDemoWaypoints.Reset();
+		FString JsonStr;
+		if (FFileHelper::LoadFileToString(JsonStr, *AutoCollisionLevelPath))
+		{
+			TSharedPtr<FJsonObject> Root;
+			TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonStr);
+			if (FJsonSerializer::Deserialize(Reader, Root) && Root.IsValid())
+			{
+				const TArray<TSharedPtr<FJsonValue>>* P = nullptr;
+				if (Root->TryGetArrayField(TEXT("demoPath"), P))
+				{
+					for (const TSharedPtr<FJsonValue>& V : *P)
+					{
+						const TArray<TSharedPtr<FJsonValue>>* Pt = nullptr;
+						if (V->TryGetArray(Pt) && Pt->Num() >= 3)
+						{
+							AutoDemoWaypoints.Add(FVector((*Pt)[0]->AsNumber(), (*Pt)[1]->AsNumber(), (*Pt)[2]->AsNumber()));
+						}
+					}
+				}
+			}
+		}
+		UE_LOG(LogTemp, Log, TEXT("AutoCollisionTest: loaded=%d waypoints=%d blocks=%d"),
+			bLoaded ? 1 : 0, AutoDemoWaypoints.Num(), Sub->GetAllBlocks().Num());
+		if (AutoDemoWaypoints.Num() < 2)
+		{
+			UE_LOG(LogTemp, Error, TEXT("AutoCollisionTest: no demoPath waypoints"));
+			FPlatformMisc::RequestExit(false);
+			break;
+		}
+		// 传送角色到起点上方，避免落在体块内。
+		// 默认 Pawn 是无碰撞相机（ABlockoutCameraPawn），此处 spawn 官方模板等效的小白人
+		// （ACharacter 胶囊 + CharacterMovement，参数与 UE 官方 ThirdPerson 小白人一致）作为测试载体。
+		ACharacter* Ch = Cast<ACharacter>(GetPawn());
+		if (!Ch)
+		{
+			FActorSpawnParameters SP;
+			SP.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			Ch = GetWorld()->SpawnActor<ACharacter>(ACharacter::StaticClass(),
+				AutoDemoWaypoints[0] + FVector(0.f, 0.f, 150.f), FRotator::ZeroRotator, SP);
+			if (Ch)
+			{
+				Ch->GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
+				Possess(Ch);
+			}
+		}
+		if (Ch)
+		{
+			Ch->SetActorLocation(AutoDemoWaypoints[0] + FVector(0.f, 0.f, 150.f), false, nullptr, ETeleportType::TeleportPhysics);
+		}
+		CollWaypointIdx = 1;
+		AutoDemoTimer = 0.f;
+		AutoDemoPhase = 1;
+		break;
+	}
+	case 1: // 走/跑/蹲/跳驱动 + 每帧穿模采样
+	{
+		ACharacter* Ch = Cast<ACharacter>(GetPawn());
+		UCharacterMovementComponent* Move = Ch ? Ch->GetCharacterMovement() : nullptr;
+		if (!Ch || !Move) { AutoDemoTimer = 0.f; AutoDemoPhase = 2; break; }
+
+		// 动作阶段：0-12s 走 12-24s 跑 24-31s 蹲走 31s+ 跑+每 5s 跳
+		const float T = AutoDemoTimer;
+		if (T < 12.f)
+		{
+			Move->MaxWalkSpeed = 250.f;
+			if (Ch->bIsCrouched) Ch->UnCrouch();
+			CollWalkTime += DeltaSeconds;
+		}
+		else if (T < 24.f)
+		{
+			Move->MaxWalkSpeed = 600.f;
+			if (Ch->bIsCrouched) Ch->UnCrouch();
+			CollRunTime += DeltaSeconds;
+		}
+		else if (T < 31.f)
+		{
+			Move->MaxWalkSpeed = 120.f;
+			if (!Ch->bIsCrouched) Ch->Crouch();
+			CollCrouchTime += DeltaSeconds;
+		}
+		else
+		{
+			Move->MaxWalkSpeed = 600.f;
+			if (Ch->bIsCrouched) Ch->UnCrouch();
+			CollRunTime += DeltaSeconds;
+			const int32 JumpSlot = (int32)((T - 31.f) / 5.f);
+			if (JumpSlot != CollJumpActed && Move->IsMovingOnGround())
+			{
+				Ch->Jump();
+				CollJumpActed = JumpSlot;
+				CollJumpCount += 1.f;
+			}
+		}
+
+		// 导航到当前 waypoint（CharacterMovement 真实驱动，碰撞自然生效）；走完回绕循环巡逻，保证蹲/跳阶段也在移动
+		if (CollWaypointIdx < AutoDemoWaypoints.Num())
+		{
+			const FVector Target = AutoDemoWaypoints[CollWaypointIdx];
+			const FVector Loc = Ch->GetActorLocation();
+			const FVector Dir = (Target - Loc).GetSafeNormal2D();
+			Ch->AddMovementInput(Dir, 1.f);
+			SetControlRotation(Dir.Rotation());
+			if (FVector::Dist2D(Loc, Target) < 260.f)
+			{
+				CollWaypointIdx++;
+				CollWaypointsVisited++;
+			}
+		}
+		if (CollWaypointIdx >= AutoDemoWaypoints.Num()) CollWaypointIdx = 0;
+		if (T > 45.f) // 走 12s + 跑 12s + 蹲 7s + 跑跳 14s，动作阶段完整覆盖
+		{
+			AutoDemoTimer = 0.f;
+			AutoDemoPhase = 2;
+			break;
+		}
+
+		// 每帧穿模采样：胶囊与体块 overlap + 穿透深度
+		if (UCapsuleComponent* Cap = Ch->GetCapsuleComponent())
+		{
+			UWorld* W = GetWorld();
+			FCollisionQueryParams Q(SCENE_QUERY_STAT(AutoCollTest), false, Ch);
+			const FCollisionShape Capsule = FCollisionShape::MakeCapsule(Cap->GetScaledCapsuleRadius(), Cap->GetScaledCapsuleHalfHeight());
+			TArray<FOverlapResult> Overlaps;
+			W->OverlapMultiByChannel(Overlaps, Ch->GetActorLocation(), Ch->GetActorQuat(), ECollisionChannel::ECC_Pawn, Capsule, Q);
+			CollTotalFrames++;
+			if (Overlaps.Num() > 0)
+			{
+				CollOverlapFrames++;
+				for (const FOverlapResult& O : Overlaps)
+				{
+					if (UPrimitiveComponent* Comp = O.Component.Get())
+					{
+						FMTDResult MTD;
+						if (Comp->ComputePenetration(MTD, Capsule, Ch->GetActorLocation(), Ch->GetActorQuat()))
+						{
+							CollMaxPenetration = FMath::Max(CollMaxPenetration, FMath::Abs(MTD.Distance));
+						}
+					}
+				}
+			}
+		}
+		break;
+	}
+	case 2: // 写碰撞报告后退出
+	{
+		if (AutoDemoTimer < 1.f) break;
+		IFileManager::Get().MakeDirectory(*AutoCollisionOutDir, true);
+		const float OverlapRatio = CollTotalFrames > 0 ? (float)CollOverlapFrames / (float)CollTotalFrames : 0.f;
+		// 判定：穿透深度 < 10uu 且 overlap 帧占比 < 2%（贴面接触容忍）
+		const bool bPass = (CollMaxPenetration < 10.f) && (OverlapRatio < 0.02f);
+		TSharedPtr<FJsonObject> R = MakeShared<FJsonObject>();
+		R->SetStringField(TEXT("level"), AutoCollisionLevelPath);
+		R->SetNumberField(TEXT("frames"), CollTotalFrames);
+		R->SetNumberField(TEXT("overlapFrames"), CollOverlapFrames);
+		R->SetNumberField(TEXT("overlapRatio"), OverlapRatio);
+		R->SetNumberField(TEXT("maxPenetrationUU"), CollMaxPenetration);
+		R->SetNumberField(TEXT("walkTime"), CollWalkTime);
+		R->SetNumberField(TEXT("runTime"), CollRunTime);
+		R->SetNumberField(TEXT("crouchTime"), CollCrouchTime);
+		R->SetNumberField(TEXT("jumpCount"), CollJumpCount);
+		R->SetNumberField(TEXT("waypointsVisited"), CollWaypointsVisited);
+		R->SetBoolField(TEXT("pass"), bPass);
+		FString Out;
+		TSharedRef<TJsonWriter<TCHAR, TPrettyJsonPrintPolicy<TCHAR>>> JW = TJsonWriterFactory<TCHAR, TPrettyJsonPrintPolicy<TCHAR>>::Create(&Out);
+		FJsonSerializer::Serialize(R.ToSharedRef(), JW);
+		FFileHelper::SaveStringToFile(Out, *(AutoCollisionOutDir / TEXT("collision_report.json")));
+		UE_LOG(LogTemp, Log, TEXT("AutoCollisionTest: pass=%d maxPen=%.2f overlapRatio=%.4f walk=%.1f run=%.1f crouch=%.1f jump=%.0f"),
+			bPass ? 1 : 0, CollMaxPenetration, OverlapRatio, CollWalkTime, CollRunTime, CollCrouchTime, CollJumpCount);
+		FPlatformMisc::RequestExit(false);
+		break;
+	}
+	default:
+		break;
+	}
 }

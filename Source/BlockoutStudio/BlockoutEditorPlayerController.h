@@ -183,6 +183,32 @@ private:
 	float AutoDemoRunT = 0.0f;
 	TArray<FVector> AutoDemoWaypoints;
 	void AutoDemoTick(float DeltaSeconds);
+
+	// ---------- 自动化验证（D3/D5/P3 命令行驱动） ----------
+	// D3：-AutoExportTest=目录 —— 生成体块并导出 OBJ/FBX/glTF 样例后退出
+	bool bAutoExportTest = false;
+	FString AutoExportOutDir;
+	void AutoExportTick(float DeltaSeconds);
+
+	// D5：-AutoPerfTest=体块数 -AutoPerfOut=目录 —— 生成 N 体块采样帧率后退出
+	bool bAutoPerfTest = false;
+	int32 AutoPerfBlocks = 1000;
+	FString AutoPerfOutDir;
+	TArray<float> AutoPerfDts;
+	void AutoPerfTick(float DeltaSeconds);
+
+	// P3：-AutoCollisionTest=关卡JSON -AutoCollisionOut=目录 —— 官方小白人走/跑/蹲/跳碰撞回归
+	bool bAutoCollisionTest = false;
+	FString AutoCollisionLevelPath;
+	FString AutoCollisionOutDir;
+	int32 CollWaypointIdx = 0;
+	int32 CollWaypointsVisited = 0;
+	int32 CollOverlapFrames = 0;
+	int32 CollTotalFrames = 0;
+	float CollMaxPenetration = 0.f;
+	float CollWalkTime = 0.f, CollRunTime = 0.f, CollCrouchTime = 0.f, CollJumpCount = 0.f;
+	int32 CollJumpActed = -1;
+	void AutoCollisionTick(float DeltaSeconds);
 	void SaveViewportPNG(const FString& Path);
 
 	// ---------- M3 子对象编辑状态 ----------

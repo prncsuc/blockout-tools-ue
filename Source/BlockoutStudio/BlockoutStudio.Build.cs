@@ -30,5 +30,8 @@ public class BlockoutStudio : ModuleRules
 			"EnhancedInput",
 			// DesktopPlatform 不可再分发（Shipping 打包报错），改用 Win32 通用对话框 FBlockoutFileDialog
 		});
+
+		// R2：ffmpeg 随包分发（AVI→MP4/WebM 转封装），打包后位于 Binaries/Win64/ffmpeg.exe
+		RuntimeDependencies.Add("$(BinaryOutputDir)/ffmpeg.exe", "$(ProjectDir)/ThirdParty/ffmpeg/ffmpeg.exe");
 	}
 }

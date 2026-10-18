@@ -45,6 +45,14 @@ public:
 	// R3：MJPEG-AVI 导出（纯手工 RIFF 容器，无第三方依赖）
 	static bool WriteMjpegAVI(const FBlockoutRecordSession& Session, const FString& Path);
 
+	// R2：视频封装 MP4/WebM（ffmpeg AVI→MP4(H.264)/WebM(VP8) 转码封装）
+	// 查找顺序：exe 同目录 → 项目 ThirdParty/ffmpeg → 系统 PATH；找不到返回空
+	static FString FindFFmpeg();
+	static bool ConvertToMp4(const FString& AviPath, const FString& Mp4Path);
+	static bool ConvertToWebM(const FString& AviPath, const FString& WebMPath);
+	// 按输出扩展名(.mp4/.webm)自动选择编码；ffmpeg 缺失时保留 AVI 并返回 false
+	static bool ConvertVideo(const FString& AviPath, const FString& OutPath);
+
 	// R2：回放：按轨迹时间采样当前相机变换
 	static bool SamplePlayback(const TArray<FBlockoutRecordFrame>& Frames, double PlayTime, FBlockoutRecordFrame& OutFrame);
 

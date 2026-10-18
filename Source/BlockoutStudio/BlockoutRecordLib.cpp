@@ -2,6 +2,7 @@
 #include "BlockoutRecordLib.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
+#include "HAL/PlatformProcess.h"
 #include "Serialization/JsonSerializer.h"
 #include "Serialization/JsonWriter.h"
 #include "Dom/JsonObject.h"
@@ -262,4 +263,60 @@ bool FBlockoutRecordLib::SamplePlayback(const TArray<FBlockoutRecordFrame>& Fram
 	}
 	OutFrame = Frames.Last();
 	return true;
+}
+
+// ---------- R2：视频封装 MP4/WebM（外部 ffmpeg 转码封装） ----------
+
+namespace
+{
+	bool RunFFmpegProcess(const FString& Exe, const FString& Args)
+	{
+		uint32 ProcId = 0;
+		FProcHandle Proc = FPlatformProcess::CreateProc(*Exe, *Args, true, true, true, &ProcId, 0, nullptr, nullptr);
+		if (!Proc.IsValid()) return false;
+		FPlatformProcess::WaitForProc(Proc);
+		int32 Code = -1;
+		const bool bOk = FPlatformProcess::GetProcReturnCode(Proc, &Code) && Code == 0;
+		FPlatformProcess::CloseProc(Proc);
+		return bOk;
+	}
+}
+
+FString FBlockoutRecordLib::FindFFmpeg()
+{
+	// 1) exe 同目录（打包分发：Binaries/Win64/ffmpeg.exe）
+	const FString ExePath(FPlatformProcess::ExecutablePath());
+	const FString BesideExe = FPaths::GetPath(ExePath) / TEXT("ffmpeg.exe");
+	if (FPaths::FileExists(BesideExe)) return BesideExe;
+	// 2) 项目 ThirdParty（开发/编辑器环境）
+	const FString InProject = FPaths::Combine(FPaths::ProjectDir(), TEXT("ThirdParty/ffmpeg/ffmpeg.exe"));
+	if (FPaths::FileExists(InProject)) return InProject;
+	// 3) 系统 PATH（交给 CreateProc 解析）
+	return TEXT("ffmpeg");
+}
+
+bool FBlockoutRecordLib::ConvertToMp4(const FString& AviPath, const FString& Mp4Path)
+{
+	if (!FPaths::FileExists(AviPath)) return false;
+	const FString Args = FString::Printf(
+		TEXT("-y -hide_banner -loglevel error -i \"%s\" -c:v libx264 -preset veryfast -crf 20 -pix_fmt yuv420p -movflags +faststart \"%s\""),
+		*AviPath, *Mp4Path);
+	if (!RunFFmpegProcess(FindFFmpeg(), Args)) return false;
+	return FPaths::FileExists(Mp4Path);
+}
+
+bool FBlockoutRecordLib::ConvertToWebM(const FString& AviPath, const FString& WebMPath)
+{
+	if (!FPaths::FileExists(AviPath)) return false;
+	const FString Args = FString::Printf(
+		TEXT("-y -hide_banner -loglevel error -i \"%s\" -c:v libvpx -b:v 4M -crf 10 -pix_fmt yuv420p \"%s\""),
+		*AviPath, *WebMPath);
+	if (!RunFFmpegProcess(FindFFmpeg(), Args)) return false;
+	return FPaths::FileExists(WebMPath);
+}
+
+bool FBlockoutRecordLib::ConvertVideo(const FString& AviPath, const FString& OutPath)
+{
+	if (OutPath.EndsWith(TEXT(".webm"))) return ConvertToWebM(AviPath, OutPath);
+	return ConvertToMp4(AviPath, OutPath);
 }
