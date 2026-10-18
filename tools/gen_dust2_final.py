@@ -335,7 +335,8 @@ def main():
     blocks = level_dust2_final()
     doc = {"version": "1.0", "savedAt": "2026-10-18T00:00:00", "blocks": blocks,
            "demoPath": [list(p) for p in DEMO_PATH]}
-    out = r"E:\BlockoutStudio\Content\Levels\level_cs_dust2_final.blockout.json"
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    out = os.path.join(repo_root, "Content", "Levels", "level_cs_dust2_final.blockout.json")
     with open(out, "w", encoding="utf-8") as f:
         json.dump(doc, f, ensure_ascii=False)
     xs, ys, zs = [], [], []
