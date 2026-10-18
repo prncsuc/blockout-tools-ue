@@ -1,4 +1,4 @@
-// BlockoutStudio - Win32 原生文件对话框实现（GetOpenFileNameW / GetSaveFileNameW）
+﻿// BlockoutStudio - Win32 原生文件对话框实现（GetOpenFileNameW / GetSaveFileNameW）
 #include "BlockoutFileDialog.h"
 
 #if PLATFORM_WINDOWS

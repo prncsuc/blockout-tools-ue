@@ -1,4 +1,4 @@
-// BlockoutStudio - Win32 原生文件对话框（Shipping 可用，替代 DesktopPlatform）
+﻿// BlockoutStudio - Win32 原生文件对话框（Shipping 可用，替代 DesktopPlatform）
 #pragma once
 
 #include "CoreMinimal.h"
